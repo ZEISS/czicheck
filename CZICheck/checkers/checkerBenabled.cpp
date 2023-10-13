@@ -15,10 +15,10 @@ using namespace std;
 /*static*/const char* CCheckBenabled::kShortName = "benabled";
 
 CCheckBenabled::CCheckBenabled(
-  const std::shared_ptr<libCZI::ICZIReader>& reader,
-  CResultGatherer& result_gatherer,
-  const CheckerCreateInfo& additional_info) :
-    CCheckerBase(reader, result_gatherer, additional_info)
+    const std::shared_ptr<libCZI::ICZIReader>& reader,
+    CResultGatherer& result_gatherer,
+    const CheckerCreateInfo& additional_info) :
+        CCheckerBase(reader, result_gatherer, additional_info)
 {
 }
 

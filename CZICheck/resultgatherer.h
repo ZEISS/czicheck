@@ -38,17 +38,17 @@ public:
     /// Values that represent the severity of the finding.
     enum class Severity
     {
-        Fatal,			///< The finding is a fatal issue, i. e. the CZI-document is considered invalid and adverse behavior is expected.
-        Warning,		///< The finding is a warning, i. e. a problem has been detected which may result in adverse behavior.
-        Info			///< The finding is informational.
+        Fatal,          ///< The finding is a fatal issue, i. e. the CZI-document is considered invalid and adverse behavior is expected.
+        Warning,        ///< The finding is a warning, i. e. a problem has been detected which may result in adverse behavior.
+        Info            ///< The finding is informational.
     };
 
     /// Values that represent the "aggregated result" of the complete run.
     enum class AggregatedResult
     {
-        OK,					///< No warnings or fatal errors, only info.
-        WithWarnings,		///< There have been one or more warnings, but not fatal error.
-        ErrorsDetected		///< There have been one or more fatal errors.
+        OK,                 ///< No warnings or fatal errors, only info.
+        WithWarnings,       ///< There have been one or more warnings, but not fatal error.
+        ErrorsDetected      ///< There have been one or more fatal errors.
     };
 
     struct Finding
