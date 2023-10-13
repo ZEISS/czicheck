@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: 2023 Carl Zeiss Microscopy GmbH
+#
+# SPDX-License-Identifier: MIT
+
+# Configuration file for MegaLinter
+# See all available variables at https://megalinter.io/configuration/ and in linters documentation
+
+APPLY_FIXES: none
+DISABLE:
+  - COPYPASTE # Comment to enable checks of excessive copy-pastes
+  - SPELL # Comment to enable checks of spelling mistakes
+  #- C
+  #- EDITORCONFIG
+DISABLE_LINTERS:
+  #- CSHARP_DOTNET_FORMAT
+  #- CSHARP_CSHARPIER
+  - REPOSITORY_TRIVY  # this linter seems currently broken, so we disable it here for now
+  - REPOSITORY_GITLEAKS # Checked by https://github.com/ZEISS/imgdoc2/security/secret-scanning
+DISABLE_ERRORS_LINTERS:
+  - MARKDOWN_MARKDOWN_LINK_CHECK # Make non-blocking due to network timeouts etc.
+CPP_CPPLINT_ARGUMENTS: --verbose=2
+CPP_CPPLINT_FILTER_REGEX_EXCLUDE: ''
+JSON_JSONLINT_ARGUMENTS: -B
+SHOW_ELAPSED_TIME: true
+FILEIO_REPORTER: false
+UPDATED_SOURCES_REPORTER: false
+TEXT_REPORTER: true
+EMAIL_REPORTER: false
+VALIDATE_ALL_CODEBASE: true

@@ -1,0 +1,16 @@
+// SPDX-FileCopyrightText: 2023 Carl Zeiss Microscopy GmbH
+//
+// SPDX-License-Identifier: MIT
+
+#pragma once
+
+#define CZICHECK_UNIX_ENVIRONMENT @CZICheck_UNIX_ENVIRONMENT@
+#define CZICHECK_WIN32_ENVIRONMENT @CZICheck_WIN32_ENVIRONMENT@
+
+#define CZICHECK_XERCESC_AVAILABLE @CZICheck_XercesCAvailable@
+
+// those numbers define the version of libCZI
+#define CZICHECK_VERSION_MAJOR "@CZICheck_VERSION_MAJOR@"
+#define CZICHECK_VERSION_MINOR "@CZICheck_VERSION_MINOR@"
+#define CZICHECK_VERSION_PATCH "@CZICheck_VERSION_PATCH@"
+#define CZICHECK_VERSION_TWEAK "@CZICheck_VERSION_TWEAK@"
