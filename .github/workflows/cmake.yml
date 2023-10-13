@@ -73,24 +73,24 @@ jobs:
         if: ${{ (matrix.OS == 'ubuntu-latest') }}
         shell: bash
         run: |
-            mkdir release
-            cd ./build/CZICheck
-            zip -r ./../../CZICheck.zip CZICheck
-            cd ../..
-            name="CZICheck-linux-x64-$(git describe --always).zip"
-            mv -v ./CZICheck.zip "release/${name}"
-            echo "name=${name}" >> "$GITHUB_OUTPUT"
-            echo "path=release/${name}" >> "$GITHUB_OUTPUT"
-            echo "artifactName=Linux-x64" >> "$GITHUB_ENV"  # set the artifactName for the upload step
+          mkdir release
+          cd ./build/CZICheck
+          zip -r ./../../CZICheck.zip CZICheck
+          cd ../..
+          name="CZICheck-linux-x64-$(git describe --always).zip"
+          mv -v ./CZICheck.zip "release/${name}"
+          echo "name=${name}" >> "$GITHUB_OUTPUT"
+          echo "path=release/${name}" >> "$GITHUB_OUTPUT"
+          echo "artifactName=Linux-x64" >> "$GITHUB_ENV"  # set the artifactName for the upload step
 
       - name: Package
         if: ${{ (matrix.OS == 'windows-latest') }}
         shell: bash
         run: |
-            mkdir release
-            7z a -r CZICheck.zip "./build/CZICheck/${{env.BUILD_TYPE}}/*.exe"
-            name="CZICheck-windows-win64-$(git describe --always).zip"
-            mv -v ./CZICheck.zip "release/${name}"
-            echo "name=${name}" >> "$GITHUB_OUTPUT"
-            echo "path=release/${name}" >> "$GITHUB_OUTPUT"
-            echo "artifactName=Windows-x64" >> "$GITHUB_ENV"  # set the artifactName for the upload step
+          mkdir release
+          7z a -r CZICheck.zip "./build/CZICheck/${{env.BUILD_TYPE}}/*.exe"
+          name="CZICheck-windows-win64-$(git describe --always).zip"
+          mv -v ./CZICheck.zip "release/${name}"
+          echo "name=${name}" >> "$GITHUB_OUTPUT"
+          echo "path=release/${name}" >> "$GITHUB_OUTPUT"
+          echo "artifactName=Windows-x64" >> "$GITHUB_ENV"  # set the artifactName for the upload step

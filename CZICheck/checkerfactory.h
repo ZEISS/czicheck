@@ -37,8 +37,8 @@ public:
     /// Important: the lifetimes of the result-gatherer and the
     /// additional info is expected to be longer than the lifetime of the checker, and this is to
     /// be ensured by the caller.
-    /// \param 	        check          The checker type identification.
-    /// \param 	        reader         The CZI-reader object.
+    /// \param          check          The checker type identification.
+    /// \param          reader         The CZI-reader object.
     /// \param          result_gatherer The result gatherer.
     /// \param          additional_info Additional information to be provided to the checker.
     /// \returns The newly created checker.

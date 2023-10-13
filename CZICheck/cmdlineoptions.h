@@ -50,8 +50,8 @@ private:
     /// Information about a "checker item" and whether it is to be added or removed.
     struct CheckerToRunInfo
     {
-        std::string	checkerName;                    ///< The "short name" identifying the checker.
-        bool		addOrRemoveChecker{ false };    ///< Whether this checker is to be added (true) or removed (false).
+        std::string checkerName;             ///< The "short name" identifying the checker.
+        bool addOrRemoveChecker{ false };    ///< Whether this checker is to be added (true) or removed (false).
     };
 
     static bool TryParseCheckerAddOrRemove(const std::string& str, CheckerToRunInfo* info);

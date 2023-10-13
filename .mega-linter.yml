@@ -14,12 +14,12 @@ DISABLE:
 DISABLE_LINTERS:
   #- CSHARP_DOTNET_FORMAT
   #- CSHARP_CSHARPIER
-  - REPOSITORY_TRIVY  # this linter seems currently broken, so we disable it here for now
+  - REPOSITORY_TRIVY # this linter seems currently broken, so we disable it here for now
   - REPOSITORY_GITLEAKS # Checked by https://github.com/ZEISS/imgdoc2/security/secret-scanning
 DISABLE_ERRORS_LINTERS:
   - MARKDOWN_MARKDOWN_LINK_CHECK # Make non-blocking due to network timeouts etc.
 CPP_CPPLINT_ARGUMENTS: --verbose=2
-CPP_CPPLINT_FILTER_REGEX_EXCLUDE: ''
+CPP_CPPLINT_FILTER_REGEX_EXCLUDE: ""
 JSON_JSONLINT_ARGUMENTS: -B
 SHOW_ELAPSED_TIME: true
 FILEIO_REPORTER: false
