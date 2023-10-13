@@ -14,51 +14,51 @@ using namespace std;
 using namespace libCZI;
 
 CRunChecks::CRunChecks(const CCmdLineOptions& opts, std::shared_ptr<ILog> consoleIo)
-	: opts(opts), consoleIo(std::move(consoleIo))
+    : opts(opts), consoleIo(std::move(consoleIo))
 {
 }
 
 bool CRunChecks::Run(CResultGatherer::AggregatedResult& result)
 {
-	shared_ptr<libCZI::IStream> stream;
-	try
-	{
-		stream = libCZI::CreateStreamFromFile(this->opts.GetCZIFilename().c_str());
-	}
-	catch (exception& ex)
-	{
-		stringstream ss;
-		ss << "Could not access the input file : " << ex.what();
-		this->consoleIo->WriteLineStdErr(ss.str());
-		return false;
-	}
+    shared_ptr<libCZI::IStream> stream;
+    try
+    {
+        stream = libCZI::CreateStreamFromFile(this->opts.GetCZIFilename().c_str());
+    }
+    catch (exception& ex)
+    {
+        stringstream ss;
+        ss << "Could not access the input file : " << ex.what();
+        this->consoleIo->WriteLineStdErr(ss.str());
+        return false;
+    }
 
     const auto spReader = libCZI::CreateCZIReader();
 
-	try
-	{
-		spReader->Open(stream);
-	}
-	catch (exception& ex)
-	{
-		stringstream ss;
-		ss << "Could not open the CZI : " << ex.what();
-		this->consoleIo->WriteLineStdErr(ss.str());
-		return false;
-	}
+    try
+    {
+        spReader->Open(stream);
+    }
+    catch (exception& ex)
+    {
+        stringstream ss;
+        ss << "Could not open the CZI : " << ex.what();
+        this->consoleIo->WriteLineStdErr(ss.str());
+        return false;
+    }
 
-	CResultGatherer resultsGatherer(opts);
+    CResultGatherer resultsGatherer(opts);
 
-	CheckerCreateInfo checkerAdditionalInfo;
-	checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
+    CheckerCreateInfo checkerAdditionalInfo;
+    checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
 
-	const auto& checksToRun = this->opts.GetChecksEnabled();
-	for (auto checkType : checksToRun)
-	{
-		auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
-		checker->RunCheck();
-	}
+    const auto& checksToRun = this->opts.GetChecksEnabled();
+    for (auto checkType : checksToRun)
+    {
+        auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
+        checker->RunCheck();
+    }
 
-	result = resultsGatherer.GetAggregatedResult();
-	return true;
+    result = resultsGatherer.GetAggregatedResult();
+    return true;
 }

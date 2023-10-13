@@ -12,16 +12,16 @@
 class CCheckDuplicateCoordinates : public IChecker, CCheckerBase
 {
 public:
-	static const CZIChecks kCheckType = CZIChecks::DuplicateSubBlockCoordinates;
-	static const char* kDisplayName;
-	static const char* kShortName;
+    static const CZIChecks kCheckType = CZIChecks::DuplicateSubBlockCoordinates;
+    static const char* kDisplayName;
+    static const char* kShortName;
 
-	CCheckDuplicateCoordinates(
-		const std::shared_ptr<libCZI::ICZIReader>& reader,
-		CResultGatherer& result_gatherer,
-		const CheckerCreateInfo& additionalInfo);
-	void RunCheck() override;
+    CCheckDuplicateCoordinates(
+        const std::shared_ptr<libCZI::ICZIReader>& reader,
+        CResultGatherer& result_gatherer,
+        const CheckerCreateInfo& additionalInfo);
+    void RunCheck() override;
 private:
-	void CheckForDuplicates(std::vector<libCZI::SubBlockInfo>& subblock_infos);
-	static std::string GetSubblockAsString(const libCZI::SubBlockInfo& subblock_info);
+    void CheckForDuplicates(std::vector<libCZI::SubBlockInfo>& subblock_infos);
+    static std::string GetSubblockAsString(const libCZI::SubBlockInfo& subblock_info);
 };

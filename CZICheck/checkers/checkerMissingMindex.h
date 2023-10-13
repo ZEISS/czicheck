@@ -12,13 +12,13 @@
 class CCheckMissingMindex : public IChecker, CCheckerBase
 {
 public:
-	static const CZIChecks kCheckType = CZIChecks::SubblocksHaveMindex;
-	static const char* kDisplayName;
-	static const char* kShortName;
+    static const CZIChecks kCheckType = CZIChecks::SubblocksHaveMindex;
+    static const char* kDisplayName;
+    static const char* kShortName;
 
-	CCheckMissingMindex(
-		const std::shared_ptr<libCZI::ICZIReader>& reader,
-		CResultGatherer& result_gatherer,
-		const CheckerCreateInfo& additional_info);
-	void RunCheck() override;
+    CCheckMissingMindex(
+        const std::shared_ptr<libCZI::ICZIReader>& reader,
+        CResultGatherer& result_gatherer,
+        const CheckerCreateInfo& additional_info);
+    void RunCheck() override;
 };

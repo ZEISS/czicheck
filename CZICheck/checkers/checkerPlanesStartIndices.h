@@ -12,13 +12,13 @@
 class CCheckPlanesStartIndices : public IChecker, CCheckerBase
 {
 public:
-	static const CZIChecks kCheckType = CZIChecks::PlanesIndicesStartAtZero;
-	static const char* kDisplayName;
-	static const char* kShortName;
+    static const CZIChecks kCheckType = CZIChecks::PlanesIndicesStartAtZero;
+    static const char* kDisplayName;
+    static const char* kShortName;
 
-	CCheckPlanesStartIndices(
-		const std::shared_ptr<libCZI::ICZIReader>& reader,
-		CResultGatherer& result_gatherer,
-		const CheckerCreateInfo& additional_info);
-	void RunCheck() override;
+    CCheckPlanesStartIndices(
+        const std::shared_ptr<libCZI::ICZIReader>& reader,
+        CResultGatherer& result_gatherer,
+        const CheckerCreateInfo& additional_info);
+    void RunCheck() override;
 };

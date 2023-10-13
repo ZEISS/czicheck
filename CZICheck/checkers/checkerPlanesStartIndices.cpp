@@ -13,36 +13,36 @@ using namespace std;
 /*static*/const char* CCheckPlanesStartIndices::kShortName = "planesstartindex";
 
 CCheckPlanesStartIndices::CCheckPlanesStartIndices(
-	const std::shared_ptr<libCZI::ICZIReader>& reader,
-	CResultGatherer& result_gatherer,
-	const CheckerCreateInfo& additional_info) :
-	CCheckerBase(reader, result_gatherer, additional_info)
+    const std::shared_ptr<libCZI::ICZIReader>& reader,
+    CResultGatherer& result_gatherer,
+    const CheckerCreateInfo& additional_info) :
+    CCheckerBase(reader, result_gatherer, additional_info)
 {
 }
 
 void CCheckPlanesStartIndices::RunCheck()
 {
-	this->result_gatherer_.StartCheck(CCheckPlanesStartIndices::kCheckType);
+    this->result_gatherer_.StartCheck(CCheckPlanesStartIndices::kCheckType);
 
-	const auto statistics = this->reader_->GetStatistics();
+    const auto statistics = this->reader_->GetStatistics();
 
-	/// Enumerates all valid dimensions and checks if they start in 0.
-	statistics.dimBounds.EnumValidDimensions(
-		[this](DimensionIndex dimIndex, int start, int size)->bool
-		{
-			if (start != 0)
-			{
-				CResultGatherer::Finding finding(CCheckPlanesStartIndices::kCheckType);
-				finding.severity = CResultGatherer::Severity::Warning;
-				stringstream ss;
-				ss << "plane indices for '" << Utils::DimensionToChar(dimIndex) <<
-					"' do not start at 0, but at " << start << " instead.";
-				finding.information = ss.str();
-				this->result_gatherer_.ReportFinding(finding);
-			}
+    /// Enumerates all valid dimensions and checks if they start in 0.
+    statistics.dimBounds.EnumValidDimensions(
+        [this](DimensionIndex dimIndex, int start, int size)->bool
+        {
+            if (start != 0)
+            {
+                CResultGatherer::Finding finding(CCheckPlanesStartIndices::kCheckType);
+                finding.severity = CResultGatherer::Severity::Warning;
+                stringstream ss;
+                ss << "plane indices for '" << Utils::DimensionToChar(dimIndex) <<
+                    "' do not start at 0, but at " << start << " instead.";
+                finding.information = ss.str();
+                this->result_gatherer_.ReportFinding(finding);
+            }
 
-			return true;
-		});
+            return true;
+        });
 
-	this->result_gatherer_.FinishCheck(CCheckPlanesStartIndices::kCheckType);
+    this->result_gatherer_.FinishCheck(CCheckPlanesStartIndices::kCheckType);
 }

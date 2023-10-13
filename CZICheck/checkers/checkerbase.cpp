@@ -10,52 +10,52 @@ using namespace libCZI;
 
 std::shared_ptr<libCZI::ICziMetadata> CCheckerBase::GetCziMetadataAndReportErrors(CZIChecks check)
 {
-	shared_ptr<IMetadataSegment>  metadata_segment;
+    shared_ptr<IMetadataSegment>  metadata_segment;
 
     try
-	{
-		metadata_segment = this->reader_->ReadMetadataSegment();
-	}
-	catch (exception& ex)
-	{
-		CResultGatherer::Finding finding(check);
-		finding.severity = CResultGatherer::Severity::Warning;
-		finding.information = "Could not read metadata-segment";
-		finding.details = ex.what();
-		this->result_gatherer_.ReportFinding(finding);
-	}
+    {
+        metadata_segment = this->reader_->ReadMetadataSegment();
+    }
+    catch (exception& ex)
+    {
+        CResultGatherer::Finding finding(check);
+        finding.severity = CResultGatherer::Severity::Warning;
+        finding.information = "Could not read metadata-segment";
+        finding.details = ex.what();
+        this->result_gatherer_.ReportFinding(finding);
+    }
 
-	if (metadata_segment)
-	{
+    if (metadata_segment)
+    {
         shared_ptr<ICziMetadata> czi_metadata;
         try
-		{
-			czi_metadata = metadata_segment->CreateMetaFromMetadataSegment();
-		}
-		catch (exception& ex)
-		{
-			CResultGatherer::Finding finding(check);
-			finding.severity = CResultGatherer::Severity::Fatal;
-			finding.information = "Invalid metadata-segment";
-			finding.details = ex.what();
-			this->result_gatherer_.ReportFinding(finding);
-		}
+        {
+            czi_metadata = metadata_segment->CreateMetaFromMetadataSegment();
+        }
+        catch (exception& ex)
+        {
+            CResultGatherer::Finding finding(check);
+            finding.severity = CResultGatherer::Severity::Fatal;
+            finding.information = "Invalid metadata-segment";
+            finding.details = ex.what();
+            this->result_gatherer_.ReportFinding(finding);
+        }
 
-		if (czi_metadata)
-		{
-			if (!czi_metadata->IsXmlValid())
-			{
-				CResultGatherer::Finding finding(check);
-				finding.severity = CResultGatherer::Severity::Fatal;
-				finding.information = "The metadata is not well-formed XML";
-				this->result_gatherer_.ReportFinding(finding);
-			}
-			else
-			{
-				return czi_metadata;
-			}
-		}
-	}
+        if (czi_metadata)
+        {
+            if (!czi_metadata->IsXmlValid())
+            {
+                CResultGatherer::Finding finding(check);
+                finding.severity = CResultGatherer::Severity::Fatal;
+                finding.information = "The metadata is not well-formed XML";
+                this->result_gatherer_.ReportFinding(finding);
+            }
+            else
+            {
+                return czi_metadata;
+            }
+        }
+    }
 
-	return nullptr;
+    return nullptr;
 }

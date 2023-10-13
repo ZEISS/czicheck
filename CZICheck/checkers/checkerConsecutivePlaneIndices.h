@@ -12,15 +12,15 @@
 class CCheckConsecutivePlaneIndices : public IChecker, CCheckerBase
 {
 public:
-	static const CZIChecks kCheckType = CZIChecks::PlaneIndicesAreConsecutive;
-	static const char* kDisplayName;
-	static const char* kShortName;
+    static const CZIChecks kCheckType = CZIChecks::PlaneIndicesAreConsecutive;
+    static const char* kDisplayName;
+    static const char* kShortName;
 
-	CCheckConsecutivePlaneIndices(
-		const std::shared_ptr<libCZI::ICZIReader>& reader,
-		CResultGatherer& result_gatherer,
-		const CheckerCreateInfo& additional_info);
-	void RunCheck() override;
+    CCheckConsecutivePlaneIndices(
+        const std::shared_ptr<libCZI::ICZIReader>& reader,
+        CResultGatherer& result_gatherer,
+        const CheckerCreateInfo& additional_info);
+    void RunCheck() override;
 private:
-	void CheckForConsecutiveIndices();
+    void CheckForConsecutiveIndices();
 };
