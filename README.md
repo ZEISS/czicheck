@@ -1,4 +1,9 @@
 # CZICheck
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![REUSE status](https://api.reuse.software/badge/github.com/ZEISS/czicheck)](https://api.reuse.software/info/github.com/ZEISS/czicheck)
+[![CMake](https://github.com/ZEISS/czicheck/actions/workflows/cmake.yml/badge.svg?branch=main&event=push)](https://github.com/ZEISS/czicheck/actions/workflows/cmake.yml)
+[![CodeQL](https://github.com/ZEISS/czicheck/actions/workflows/codeql.yml/badge.svg?branch=main&event=push)](https://github.com/ZEISS/czicheck/actions/workflows/codeql.yml)
+[![MegaLinter](https://github.com/ZEISS/czicheck/actions/workflows/mega-linter.yml/badge.svg?branch=main&event=push)](https://github.com/ZEISS/czicheck/actions/workflows/mega-linter.yml)
 
 CZICheck is a command-line application developed using libCZI, enabling users to assess the integrity and structural correctness of a CZI document.
 
