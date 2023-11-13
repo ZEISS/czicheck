@@ -4005,15 +4005,6 @@
           </xs:documentation>
         </xs:annotation>
       </xs:element>
-      <xs:element minOccurs="0" maxOccurs="1" name="LatticeSIMSettings" type="ChannelLatticeSIMSettings">
-        <xs:annotation>
-          <xs:documentation>
-            Information about the details of a lattice SIM acquisition.
-            This element is only expected to be present if AcquisitionMode=StructuredIllumination and the device is a
-            lattice device.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
       <xs:element minOccurs="0" maxOccurs="1" name="PolarizingSettings" type="ChannelPolarizingSettings">
         <xs:annotation>
           <xs:documentation>
@@ -4616,32 +4607,6 @@
         </xs:annotation>
       </xs:element>
       <xs:element minOccurs="0" name="CustomAttributes" type="CustomAttributes" />
-      <xs:element minOccurs="0" name="PhotonConversionFactorSettings" type="PhotonConversionFactorMetadata" />
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="PhotonConversionFactorMetadata">
-    <xs:annotation>
-      <xs:documentation>
-        The photon conversion factor is calculated using internal camera parameters photon conversion coefficient and photon factor offset.
-        Both values are relevant for optimizing the SMLM processing.
-      </xs:documentation>
-    </xs:annotation>
-    <xs:all>
-      <xs:element minOccurs="0" name="PhotonConversionCoeff" type="xs:double">
-        <xs:annotation>
-          <xs:documentation>
-            The photon conversion coefficient allows to recalculate the number of detected photons out of the grey values.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" name="PhotonFactorOffset" type="xs:double">
-        <xs:annotation>
-          <xs:documentation>
-            The photon factor offset allows to recalculate the number of detected photons out of the grey values.
-            The offset describes the noise in a dark image.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
     </xs:all>
   </xs:complexType>
   <xs:complexType name="ProcessingSettings">
@@ -4984,27 +4949,6 @@
         </xs:annotation>
       </xs:element>
       <xs:element minOccurs="0" name="CustomAttributes" type="CustomAttributes" />
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="ChannelLatticeSIMSettings">
-    <xs:annotation>
-      <xs:documentation>
-        This holds the setting applied to a lattice SIM device.
-      </xs:documentation>
-    </xs:annotation>
-    <xs:all>
-      <xs:element minOccurs="0" maxOccurs="1" name="Grating" type="xs:string">
-        <xs:annotation>
-          <xs:documentation>The display name of the grating.</xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" maxOccurs="1" name="FrameTime" type="xs:double">
-        <xs:annotation>
-          <xs:documentation>
-            The time a lattice SIM acquisition needs to acquire one frame. [Unit: milliseconds - ms]
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
     </xs:all>
   </xs:complexType>
   <xs:complexType name="ChannelAiryscanSettings">
@@ -6459,7 +6403,7 @@
       <xs:element minOccurs="0" default="#FFFF0000" name="Stroke" type="Brush" />
       <xs:element minOccurs="0" name="StrokeThickness" type="xs:double" />
       <xs:element minOccurs="0" name="StrokeZoomWithImage" type="xs:boolean" />
-      <xs:element minOccurs="0" name="CanAdjustPosition" type="xs:boolean" />
+      <xs:element minOccurs="0" name="CanAdjustPosition" type="xs:boolean"/>
       <xs:element minOccurs="0" default="Solid" name="LineDrawStyle">
         <xs:simpleType>
           <xs:restriction base="xs:string">
@@ -7362,14 +7306,9 @@
         </xs:complexType>
       </xs:element>
       <xs:element minOccurs="0" name="ViewerSettings">
-        <xs:annotation>
-          <xs:documentation>
-            Contains user settings that are set in a specific image viewer can be persisted in order to restore them when opening a document in this specific viewer.
-          </xs:documentation>
-        </xs:annotation>
         <xs:complexType>
           <xs:sequence>
-            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax" />
+            <xs:any minOccurs="0" maxOccurs="unbounded" processContents="skip" />
           </xs:sequence>
           <xs:anyAttribute processContents="skip" />
         </xs:complexType>
@@ -8063,7 +8002,6 @@
       <xs:element minOccurs="0" name="LSM" type="Processing.LSM" />
       <xs:element minOccurs="0" name="LSMPLus" type="Processing.LSMPlus" />
       <xs:element minOccurs="0" name="AiryscanJointDeconvolution" type="Processing.AiryscanJointDeconvolution" />
-      <xs:element minOccurs="0" name="DynamicsProfiler" type="Processing.DynamicsProfiler" />
       <xs:element minOccurs="0" name="CustomAttributes" type="CustomAttributes" />
     </xs:all>
   </xs:complexType>
@@ -8481,84 +8419,6 @@
       </xs:element>
     </xs:all>
   </xs:complexType>
-  <xs:complexType name="Processing.DynamicsProfiler">
-    <xs:all>
-      <xs:element name="UserData">
-        <xs:annotation>
-          <xs:documentation>
-            Represents a dataset of calibration values determined by the user.
-          </xs:documentation>
-        </xs:annotation>
-        <xs:complexType>
-          <xs:all>
-            <xs:element minOccurs="0" default="0" name="W0Ring3" type="xs:double">
-              <xs:annotation>
-                <xs:documentation>
-                  Effective radius of the observation spot.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" default="0" name="W0Ring123" type="xs:double">
-              <xs:annotation>
-                <xs:documentation>
-                  Average radius of the observation spot for one detector element.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" default="0" name="R0Ring123" type="xs:double">
-              <xs:annotation>
-                <xs:documentation>
-                  Effective distance between the detector elements for flow measurements.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" default="0" name="StructuralParameter" type="xs:double">
-              <xs:annotation>
-                <xs:documentation>
-                  Ratio between the observation spot waist in the axial and lateral direction.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:element>
-            <xs:element minOccurs="0" name="CalibrationFile" type="xs:string">
-              <xs:annotation>
-                <xs:documentation>
-                  File name of the calibration file.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:element>
-          </xs:all>
-        </xs:complexType>
-      </xs:element>
-      <xs:element minOccurs="0" default="0" name="W0Ring3" type="xs:double">
-        <xs:annotation>
-          <xs:documentation>
-            Effective radius of the observation spot.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="0" name="W0Ring123" type="xs:double">
-        <xs:annotation>
-          <xs:documentation>
-            Average radius of the observation spot for one detector element.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="0" name="R0Ring123" type="xs:double">
-        <xs:annotation>
-          <xs:documentation>
-            Effective distance between the detector elements for flow measurements.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="0" name="StructuralParameter" type="xs:double">
-        <xs:annotation>
-          <xs:documentation>
-            Ratio between the observation spot waist in the axial and lateral direction.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:all>
-  </xs:complexType>
   <xs:complexType name="ProcessingChannelInfo">
     <xs:all>
       <xs:element minOccurs="0" name="SuperResolutionParameter" type="xs:double">
@@ -8612,269 +8472,6 @@
       </xs:element>
       <xs:element minOccurs="0" name="BaselineShift" type="xs:boolean" />
       <xs:element minOccurs="0" name="BaselineShiftParameter" type="xs:double" />
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="SmlmViewerSettings">
-    <xs:sequence>
-      <xs:element name="SmlmRendererSettings">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="ExpansionFactor" type="xs:double" />
-            <xs:element name="PixelResolution" type="xs:double" />
-            <xs:element name="ZSliceThickness" type="xs:double" />
-            <xs:element name="SelectedRenderMode" type="xs:string" />
-            <xs:element name="UseAutoDynamicRange" type="xs:boolean" />
-            <xs:element name="AutoDynamicRange" type="xs:double" />
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="SmlmFilterOptionsSettings">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element minOccurs="0" maxOccurs="unbounded" name="FilterElement">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="Id" type="xs:string" />
-                  <xs:element name="Start" type="xs:double" />
-                  <xs:element name="End" type="xs:double" />
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="DriftCorrectionSettings">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="Segments" type="xs:integer" />
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-    </xs:sequence>
-  </xs:complexType>
-  <xs:complexType name="DynamicsProfilerViewerSettings">
-    <xs:all>
-      <xs:element minOccurs="0" name="CorrelationViewSettingsMetadata">
-        <xs:annotation>
-          <xs:documentation>
-            Settings of the image correlation viewer.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" name="DiffusionViewSettingsMetadata">
-        <xs:annotation>
-          <xs:documentation>
-            Settings of the image diffusion viewer.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" name="FlowViewSettingsMetadata">
-        <xs:annotation>
-          <xs:documentation>
-            Settings of the image flow viewer.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="CorrelationViewSettings">
-    <xs:all>
-      <xs:element minOccurs="0" default="false" name="IsDustFilterActive" type="xs:boolean">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the correlation function representing a value whether the dust filter is activated.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="false" name="IsNormalizeActive" type="xs:boolean">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the correlation function representing a value whether the normalization is activated.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="false" name="IsDetrendingFilterActive" type="xs:boolean">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the correlation function representing a value indicating whether the de-trending filter
-            is activated.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="0.8" name="DustFilterValue" type="xs:double">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the correlation function representing a parameter for the dust calculation.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="500" name="DetrendingFilterValue" type="xs:double">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the correlation function representing a parameter for the detrending calculation.
-            [units:ms]
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" name="SelectedChartType">
-        <xs:annotation>
-          <xs:documentation>
-            The type of chart which is displayed in the image correlation viewer.
-          </xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="CountRateChart">
-              <xs:annotation>
-                <xs:documentation>
-                  This value represents the selection of the count rate chart type in the correlation viewer.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="Residuals Chart">
-              <xs:annotation>
-                <xs:documentation>
-                  This value represents the selection of the residuals chart type in the correlation viewer.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:enumeration>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element minOccurs="0" name="SpotReferenceImageKind">
-        <xs:annotation>
-          <xs:documentation>
-            The kind of reference image which is displayed in the image correlation viewer.
-          </xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="PreExperiment">
-              <xs:annotation>
-                <xs:documentation>
-                  This value represents the selection of the pre experiment reference image kind in the correlation viewer.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="PostExperiment">
-              <xs:annotation>
-                <xs:documentation>
-                  This value represents the selection of the post experiment reference image kind in the correlation viewer.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:enumeration>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="DiffusionViewSettings">
-    <xs:all>
-      <xs:element minOccurs="0" default="false" name="IsNormalizeActive" type="xs:boolean">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the diffusion function representing a value whether the normalization is activated.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="false" name="IsBinningEnabled" type="xs:boolean">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the diffusion function representing a value whether binning is activated.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="Inner Elements" name="SelectedSunsetDiagram">
-        <xs:annotation>
-          <xs:documentation>
-            The type of data displayed in the diagrams and charts of the image diffusion viewer.
-          </xs:documentation>
-        </xs:annotation>
-        <xs:simpleType>
-          <xs:restriction base="xs:string">
-            <xs:enumeration value="Inner Elements">
-              <xs:annotation>
-                <xs:documentation>
-                  This value represents the selection of inner elements displayed in the Sunset diagram.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:enumeration>
-            <xs:enumeration value="Outer Elements">
-              <xs:annotation>
-                <xs:documentation>
-                  This value represents the selection of outer elements displayed in the Sunset diagram.
-                </xs:documentation>
-              </xs:annotation>
-            </xs:enumeration>
-          </xs:restriction>
-        </xs:simpleType>
-      </xs:element>
-      <xs:element minOccurs="0" default="Heatmap" name="PaletteName" type="xs:string">
-        <xs:annotation>
-          <xs:documentation>
-            The coloring of the diagrams is displayed with the lookup-table (LUT)
-            defined by the PaletteName.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" name="ButtonBarSettings">
-        <xs:annotation>
-          <xs:documentation>
-            Value contains settings for each button used in the diffusion viewer button bar.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="FlowViewSettings">
-    <xs:all>
-      <xs:element minOccurs="0" default="false" name="ShowFittedCurvesVisible" type="xs:boolean">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the correlation function representing a value indicating whether the fitted curves
-            are displayed in the chart.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" name="ButtonBarSettings">
-        <xs:annotation>
-          <xs:documentation>
-            Value contains settings for each button used in the flow viewer button bar.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-    </xs:all>
-  </xs:complexType>
-  <xs:complexType name="ButtonBarSettings">
-    <xs:all>
-      <xs:element minOccurs="0" default="false" name="Name" type="xs:string">
-        <xs:annotation>
-          <xs:documentation>
-            Value used to identify the button by the name of the button.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="false" name="IsSelected" type="xs:boolean">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the button bar settings representing a value whether the button is selected.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="red" name="Color1" type="xs:string">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the button bar settings representing a value which first color is defined.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
-      <xs:element minOccurs="0" default="red" name="Color2" type="xs:string">
-        <xs:annotation>
-          <xs:documentation>
-            Value used for the button bar settings representing a value which second color is defined.
-          </xs:documentation>
-        </xs:annotation>
-      </xs:element>
     </xs:all>
   </xs:complexType>
   <xs:complexType name="AutoScalingSetting">
