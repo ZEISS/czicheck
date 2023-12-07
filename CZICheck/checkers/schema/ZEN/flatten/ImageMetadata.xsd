@@ -7430,8 +7430,8 @@
       <xs:element name="OriginalCompressionMethod" type="xs:string" minOccurs="0">
         <xs:annotation>
           <xs:documentation>
-            This is an informative string specifying a compression method which is used (at subblock-level) when
-            writing the CZI-document. Note that conceptually the compression method (and it parametrization) is
+            This is an informative text specifying a compression method which is used (at subblock-level) when
+            writing the CZI-document. Note that conceptually, the compression method (and it parametrization) is
             per subblock, so there is no such thing as a "compression method of the CZI-document". The compression
             state of each subblock may be different, and it is by no means guaranteed that all subblocks are using
             the same method or the same parameters.
@@ -7445,17 +7445,17 @@
       <xs:element name="OriginalEncodingQuality" type="xs:integer" minOccurs="0">
         <xs:annotation>
           <xs:documentation>
-            The original encoding quality (10..100) used when the file was initially saved and has used a compression method.
+            The original encoding quality (10..100) used when the file was initially saved with compression.
             Note that this element is mostly present on legacy CZI files. Please refer to the
-            OriginalCompressionParameters element when saving the CZI - the encoding quality can be part of it.
+            OriginalCompressionParameters element when saving the CZI. The encoding quality can be part of it.
           </xs:documentation>
         </xs:annotation>
       </xs:element>
       <xs:element name="OriginalCompressionParameters" type="xs:string" minOccurs="0">
         <xs:annotation>
           <xs:documentation>
-            This is an informative string specifying the compression parameters which were used (at subblock-level) the
-            first time the CZI-document was written. Note that conceptually the compression parameters are
+            This is an informative text specifying the compression parameters which were used (at subblock-level) the
+            first time the CZI-document was written. Note that conceptually, the compression parameters are
             per subblock, so there is no such thing as "compression parameters of the CZI-document". The compression
             state of each subblock may be different, and it is by no means guaranteed that all subblocks are using
             the same method or the same parameters.
@@ -7470,8 +7470,8 @@
       <xs:element name="CurrentCompressionParameters" type="xs:string" minOccurs="0">
         <xs:annotation>
           <xs:documentation>
-            This is an informative string specifying the compression parameters which were used (at subblock-level) the
-            last time the CZI-document was written. Note that conceptually the compression parameters are
+            This is an informative text specifying the compression parameters which were used (at subblock-level) the
+            last time the CZI-document was written. Note that conceptually, the compression parameters are
             per subblock, so there is no such thing as "compression parameters of the CZI-document". The compression
             state of each subblock may be different, and it is by no means guaranteed that all subblocks are using
             the same method or the same parameters.
