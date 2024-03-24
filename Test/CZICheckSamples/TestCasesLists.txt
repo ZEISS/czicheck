@@ -26,3 +26,4 @@ pixeltype_mismatch_between_metadata_and_subblocks.czi,1,pixeltype_mismatch_betwe
 # Note that this does not compare the output to stdout - '*' is a special value instruction to skip this test.
 inaccessible_file.czi,5,*
 overlapping_scenes.czi,1,overlapping_scenes.txt
+jpgxrcompressed_inconsistent_size.czi,2,jpgxrcompressed_inconsistent_size.txt
