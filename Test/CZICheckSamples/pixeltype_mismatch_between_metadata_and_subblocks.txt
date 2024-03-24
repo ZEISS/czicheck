@@ -1,18 +1,25 @@
-Test "check subblock's coordinates for 'consistent dimensions'" : OK
-Test "SubBlock-Segment in SubBlockDirectory within file" : OK
-Test "SubBlock-Segments in SubBlockDirectory are valid" : OK
-Test "check subblock's coordinates being unique" : OK
-Test "check whether the document uses the deprecated 'B-index'" : OK
-Test "check that the subblocks of a channel have the same pixeltype" : OK
-Test "Check that planes indices start at 0" : OK
-Test "Check that planes have consecutive indices" : OK
-Test "check if all subblocks have the M index" :
-  There are 1 subblocks with no M index.
- WARN
+Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
+Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
+Test "validate the XML-metadata against XSD-schema" :
+  (91,28): element 'ShuttleAndFindData' is not allowed for content model 'All(Calibration,)'
+  (116,22): no declaration found for element 'ImageStorage'
+  (117,22): no declaration found for element 'StageCenterX'
+  <12 more findings omitted> 
+ FAIL
 Test "Basic semantic checks of the XML-metadata" :
   PixelType mismatch between metadata and sub block-information. channel index: 0, metadata: gray8, subBlock: bgr24
  WARN
-Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
+Test "check if all subblocks have the M index" :
+  There are 1 subblocks with no M index.
+ WARN
+Test "Check that planes have consecutive indices" : OK
+Test "Check that planes indices start at 0" : OK
+Test "check that the subblocks of a channel have the same pixeltype" : OK
+Test "check whether the document uses the deprecated 'B-index'" : OK
+Test "check subblock's coordinates being unique" : OK
+Test "SubBlock-Segments in SubBlockDirectory are valid" : OK
+Test "SubBlock-Segment in SubBlockDirectory within file" : OK
+Test "check subblock's coordinates for 'consistent dimensions'" : OK
 
 
-Result: With Warnings
+Result: Errors Detected

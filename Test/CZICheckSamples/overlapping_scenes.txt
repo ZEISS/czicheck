@@ -1,21 +1,28 @@
-Test "check subblock's coordinates for 'consistent dimensions'" : OK
-Test "SubBlock-Segment in SubBlockDirectory within file" : OK
-Test "SubBlock-Segments in SubBlockDirectory are valid" : OK
-Test "check subblock's coordinates being unique" : OK
-Test "check whether the document uses the deprecated 'B-index'" : OK
-Test "check that the subblocks of a channel have the same pixeltype" : OK
-Test "Check that planes indices start at 0" : OK
-Test "Check that planes have consecutive indices" : OK
-Test "check if all subblocks have the M index" : OK
-Test "Basic semantic checks of the XML-metadata" :
-  For the following dimensions the start/size given in metadata differs from document statistics: Z
- WARN
+Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" :
   in plane Z0C0 there are overlapping subblocks in scene 0 and scene 1
   in plane Z1C0 there are overlapping subblocks in scene 0 and scene 1
   in plane Z0C1 there are overlapping subblocks in scene 0 and scene 1
   <1 more finding omitted> 
  WARN
+Test "validate the XML-metadata against XSD-schema" :
+  (5974,26): value '' not in enumeration
+  (5978,43): value 'Sinc3 30x1000' not in enumeration
+  (6023,26): value '' not in enumeration
+  <1 more finding omitted> 
+ FAIL
+Test "Basic semantic checks of the XML-metadata" :
+  For the following dimensions the start/size given in metadata differs from document statistics: Z
+ WARN
+Test "check if all subblocks have the M index" : OK
+Test "Check that planes have consecutive indices" : OK
+Test "Check that planes indices start at 0" : OK
+Test "check that the subblocks of a channel have the same pixeltype" : OK
+Test "check whether the document uses the deprecated 'B-index'" : OK
+Test "check subblock's coordinates being unique" : OK
+Test "SubBlock-Segments in SubBlockDirectory are valid" : OK
+Test "SubBlock-Segment in SubBlockDirectory within file" : OK
+Test "check subblock's coordinates for 'consistent dimensions'" : OK
 
 
-Result: With Warnings
+Result: Errors Detected
