@@ -68,6 +68,8 @@ set(CZICHECKSRCFILES
 "checkers/checkerXmlBasicMetadataValidation.cpp"
 "checkers/checkerOverlappingScenes.h"
 "checkers/checkerOverlappingScenes.cpp"
+"checkers/checkerSubBlkBitmapValid.h"
+"checkers/checkerSubBlkBitmapValid.cpp"
 checkerfactory.cpp
 checkerfactory.h
 checks.h
