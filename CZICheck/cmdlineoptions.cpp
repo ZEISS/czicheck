@@ -350,6 +350,9 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         checks_enabled->clear();
         checks_enabled->reserve(checks_to_run.size());
         copy(checks_to_run.begin(), checks_to_run.end(), back_inserter(*checks_enabled));
+
+        // Sort the vector by the numerical value of the enum items
+        std::sort(checks_enabled->begin(), checks_enabled->end());
     }
 
     return true;

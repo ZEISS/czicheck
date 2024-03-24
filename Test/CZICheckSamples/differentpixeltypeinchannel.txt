@@ -1,22 +1,22 @@
-Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
-Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
-Test "validate the XML-metadata against XSD-schema" :
-  Could not read metadata-segment
- WARN
-Test "Basic semantic checks of the XML-metadata" :
-  Could not read metadata-segment
- WARN
-Test "check if all subblocks have the M index" : OK
-Test "Check that planes have consecutive indices" : OK
-Test "Check that planes indices start at 0" : OK
+Test "SubBlock-Segment in SubBlockDirectory within file" : OK
+Test "SubBlock-Segments in SubBlockDirectory are valid" : OK
+Test "check subblock's coordinates for 'consistent dimensions'" : OK
+Test "check subblock's coordinates being unique" : OK
+Test "check whether the document uses the deprecated 'B-index'" : OK
 Test "check that the subblocks of a channel have the same pixeltype" :
   pixeltype of subblock #1 (gray16) differs from the pixeltype determined for channel 0 (gray8)
  WARN
-Test "check whether the document uses the deprecated 'B-index'" : OK
-Test "check subblock's coordinates being unique" : OK
-Test "SubBlock-Segments in SubBlockDirectory are valid" : OK
-Test "SubBlock-Segment in SubBlockDirectory within file" : OK
-Test "check subblock's coordinates for 'consistent dimensions'" : OK
+Test "Check that planes indices start at 0" : OK
+Test "Check that planes have consecutive indices" : OK
+Test "check if all subblocks have the M index" : OK
+Test "Basic semantic checks of the XML-metadata" :
+  Could not read metadata-segment
+ WARN
+Test "validate the XML-metadata against XSD-schema" :
+  Could not read metadata-segment
+ WARN
+Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
+Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 
 
 Result: With Warnings
