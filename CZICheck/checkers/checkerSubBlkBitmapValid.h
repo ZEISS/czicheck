@@ -12,13 +12,13 @@
 class CCheckSubBlkBitmapValid : public IChecker, CCheckerBase
 {
 public:
-  static const CZIChecks kCheckType = CZIChecks::CheckSubBlockBitmapValid;
-  static const char* kDisplayName;
-  static const char* kShortName;
+    static const CZIChecks kCheckType = CZIChecks::CheckSubBlockBitmapValid;
+    static const char* kDisplayName;
+    static const char* kShortName;
 
-  CCheckSubBlkBitmapValid(
-    const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
-    const CheckerCreateInfo& additional_info);
-  void RunCheck() override;
+    CCheckSubBlkBitmapValid(
+        const std::shared_ptr<libCZI::ICZIReader>& reader,
+        CResultGatherer& result_gatherer,
+        const CheckerCreateInfo& additional_info);
+    void RunCheck() override;
 };
