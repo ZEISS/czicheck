@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(CZICheck 
-      VERSION 0.1.1
+      VERSION 0.1.2
       HOMEPAGE_URL "https://github.com/ZEISS/czicheck"
       DESCRIPTION "CZICheck is a validator for CZI-documents")
 
