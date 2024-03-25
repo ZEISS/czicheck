@@ -8,7 +8,7 @@
 #include <memory>
 
 /// This checker reads all the segments pointed to in the subblock-directory
-/// and the subblock-content is decoded.
+/// and decodes the subblock-content.
 class CCheckSubBlkBitmapValid : public IChecker, CCheckerBase
 {
 public:
