@@ -9,7 +9,7 @@
 #include <map>
 #include "checkerbase.h"
 
-/// This checker is about checking whether scenes are overlapping (on pyramid-layer-0).
+/// This checker is about checking whether scenes are overlapping (on pyramid-layer 0).
 class CCheckOverlappingScenesOnLayer0 : public IChecker, CCheckerBase
 {
 public:
