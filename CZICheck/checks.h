@@ -47,7 +47,10 @@ enum class CZIChecks
     /// It is checked whether subblocks within different scenes are overlapping (on pyramid-layer 0).
     CCheckOverlappingScenesOnLayer0,
 
+    /// All subblocks are read AND their content is decoded and checked for consistency.
+    CheckSubBlockBitmapValid,
+
     ConsistentMIndex,   ///< To be done, not yet implemented.
 
-    AttachmentDirectoryPositionsWithinRagne ///< To be done, not yet implemented.
+    AttachmentDirectoryPositionsWithinRange ///< To be done, not yet implemented.
 };

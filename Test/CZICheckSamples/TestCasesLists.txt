@@ -20,9 +20,11 @@ layer_0_subblocks_with_no_m_index.czi,1,layer_0_subblocks_with_no_m_index.txt
 negative_plane_start_index.czi,1,negative_plane_start_index.txt
 positive_plane_start_index.czi,1,positive_plane_start_index.txt
 sparse_planes.czi,1,sparse_planes.txt
-pixeltype_mismatch_between_metadata_and_subblocks.czi,1,pixeltype_mismatch_between_metadata_and_subblocks.txt
+pixeltype_mismatch_between_metadata_and_subblocks.czi,2,pixeltype_mismatch_between_metadata_and_subblocks.txt
 
 # The following czi file must not exist. If the input file is not accessible, CZICheck should return error code 5.
 # Note that this does not compare the output to stdout - '*' is a special value instruction to skip this test.
 inaccessible_file.czi,5,*
-overlapping_scenes.czi,1,overlapping_scenes.txt
+overlapping_scenes.czi,2,overlapping_scenes.txt
+jpgxrcompressed_inconsistent_size.czi,2,jpgxrcompressed_inconsistent_size.txt
+jpgxrcompressed_inconsistent_pixeltype.czi,2,jpgxrcompressed_inconsistent_pixeltype.txt

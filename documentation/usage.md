@@ -6,7 +6,7 @@
 Running CZICheck with the `--help` option will print a brief summary of the available options and their usage:
 
 ```
-CZICheck version 0.1.0, using libCZI version 0.49.0
+CZICheck version 0.1.2, using libCZI version 0.58.1
 
 Usage: CZICheck [OPTIONS]
 
@@ -48,19 +48,20 @@ The exit code of CZICheck is
  5  - the CZI-file could not be read or opened
  10 - the command line arguments are invalid
 
-Available checkers:
-"subblkdimconsistent" -> check subblock's coordinates for 'consistent dimensions'
-"subblksegmentsinfile" -> SubBlock-Segment in SubBlockDirectory within file
-"subblksegmentsvalid" -> SubBlock-Segments in SubBlockDirectory are valid
-"subblkcoordsunique" -> check subblock's coordinates being unique
-"benabled" -> check whether the document uses the deprecated 'B-index'
-"samepixeltypeperchannel" -> check that the subblocks of a channel have the same pixeltype
-"planesstartindex" -> Check that planes indices start at 0
-"consecutiveplaneindices" -> Check that planes have consecutive indices
-"minallsubblks" -> check if all subblocks have the M index
-"basicxmlmetadata" -> Basic semantic checks of the XML-metadata
-"xmlmetadataschema" -> validate the XML-metadata against XSD-schema [opt-in]
-"overlappingscenes" -> check if subblocks at pyramid-layer 0 of different scenes are overlapping
+Available checkers (checkers enabled with the default set are marked with '*'):
+* "subblkdimconsistent" -> check subblock's coordinates for 'consistent dimensions'
+* "subblksegmentsinfile" -> SubBlock-Segment in SubBlockDirectory within file
+  "subblksegmentsvalid" -> SubBlock-Segments in SubBlockDirectory are valid
+* "subblkcoordsunique" -> check subblock's coordinates being unique
+* "benabled" -> check whether the document uses the deprecated 'B-index'
+* "samepixeltypeperchannel" -> check that the subblocks of a channel have the same pixeltype
+* "planesstartindex" -> Check that planes indices start at 0
+* "consecutiveplaneindices" -> Check that planes have consecutive indices
+* "minallsubblks" -> check if all subblocks have the M index
+* "basicxmlmetadata" -> Basic semantic checks of the XML-metadata
+  "xmlmetadataschema" -> validate the XML-metadata against XSD-schema
+* "overlappingscenes" -> check if subblocks at pyramid-layer 0 of different scenes are overlapping
+* "subblkbitmapvalid" -> SubBlock-Segments in SubBlockDirectory are valid and valid content
 ```
 
 All checkers listed at the bottom are available for use. The ones marked with `[opt-in]` are not run by default, but can be enabled by adding them to the list of checkers to be run (or by using 'all' as argument for the '--checks' argument).

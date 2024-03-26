@@ -58,16 +58,16 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         ChecksValidator()
         {
             this->func_ = [](const std::string& str) -> string
-            {
-                string error_message;
-                const bool parsed_ok = CCmdLineOptions::ParseChecksArgument(str, nullptr, &error_message);
-                if (!parsed_ok)
                 {
-                    throw CLI::ValidationError(error_message);
-                }
+                    string error_message;
+                    const bool parsed_ok = CCmdLineOptions::ParseChecksArgument(str, nullptr, &error_message);
+                    if (!parsed_ok)
+                    {
+                        throw CLI::ValidationError(error_message);
+                    }
 
-                return {};
-            };
+                    return {};
+                };
         }
     };
 
@@ -77,16 +77,16 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         PrintDetailsValidator()
         {
             this->func_ = [](const std::string& str) -> string
-            {
-                string error_message;
-                const bool parsed_ok = CCmdLineOptions::ParsePrintDetailsArgument(str, nullptr, &error_message);
-                if (!parsed_ok)
                 {
-                    throw CLI::ValidationError(error_message);
-                }
+                    string error_message;
+                    const bool parsed_ok = CCmdLineOptions::ParsePrintDetailsArgument(str, nullptr, &error_message);
+                    if (!parsed_ok)
+                    {
+                        throw CLI::ValidationError(error_message);
+                    }
 
-                return {};
-            };
+                    return {};
+                };
         }
     };
 
@@ -185,15 +185,20 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 /*static*/std::string CCmdLineOptions::GetCheckerListHelpText()
 {
     ostringstream string_stream;
-    string_stream << "Available checkers:" << endl;
+    string_stream << "Available checkers (checkers enabled with the default set are marked with '*'):" << endl;
     CCheckerFactory::EnumerateCheckers(
         [&](const CCheckerFactory::CheckersInfo& checkerInfo)->bool
         {
-            string_stream << "\"" << checkerInfo.shortName << "\" -> " << checkerInfo.displayName;
             if (checkerInfo.isOptIn)
             {
-                string_stream << " [opt-in]";
+                string_stream << "  ";
             }
+            else
+            {
+                string_stream << "* ";
+            }
+
+            string_stream << "\"" << checkerInfo.shortName << "\" -> " << checkerInfo.displayName;
 
             string_stream << endl;
             return true;
@@ -224,10 +229,10 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     vector<string> tokenized_items{ it, {} };
     tokenized_items.erase(
         std::remove_if(tokenized_items.begin(), tokenized_items.end(),
-            [](const string& s) -> bool
-            {
-                return s.empty();
-            }),
+        [](const string& s) -> bool
+        {
+            return s.empty();
+        }),
         tokenized_items.end());
 
     if (tokenized_items.empty())
@@ -345,6 +350,9 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         checks_enabled->clear();
         checks_enabled->reserve(checks_to_run.size());
         copy(checks_to_run.begin(), checks_to_run.end(), back_inserter(*checks_enabled));
+
+        // Sort the vector by the numerical value of the enum items
+        std::sort(checks_enabled->begin(), checks_enabled->end());
     }
 
     return true;

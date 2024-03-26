@@ -68,6 +68,8 @@ set(CZICHECKSRCFILES
 "checkers/checkerXmlBasicMetadataValidation.cpp"
 "checkers/checkerOverlappingScenes.h"
 "checkers/checkerOverlappingScenes.cpp"
+"checkers/checkerSubBlkBitmapValid.h"
+"checkers/checkerSubBlkBitmapValid.cpp"
 checkerfactory.cpp
 checkerfactory.h
 checks.h
@@ -158,6 +160,8 @@ if (CZICHECK_BUILD_TESTS)
           -r positive_plane_start_index.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/positive_plane_start_index.czi}
           -r sparse_planes.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/sparse_planes.czi}
           -r overlapping_scenes.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/overlapping_scenes.czi}
+          -r jpgxrcompressed_inconsistent_size.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/jpgxrcompressed_inconsistent_size.czi}
+          -r jpgxrcompressed_inconsistent_pixeltype.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/jpgxrcompressed_inconsistent_pixeltype.czi}
     )
 
     # Add a build target to populate the real data.

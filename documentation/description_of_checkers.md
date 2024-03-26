@@ -18,6 +18,7 @@ The following table lists the available checkers and gives a short description o
 |basicxmlmetadata|Same basic checks of the XML-metadata, which is semantically validated with the content of the file.|
 |xmlmetadataschema|Validate the XML-metadata against the schema for it.|
 |overlappingscenes|Test for subblocks within different scenes are overlapping (on pyramid-layer 0).|
+|subblkbitmapvalid|Read all subblocks from the file, ensure their syntactical validity and decode the bitmap. Note that this check requires reading all data from disk and decoding, so it may be time consuming. ||
 
 
 ## Details
@@ -88,4 +89,12 @@ The XML-metadata is validated against the schema for it.
 
 This checker is implemented in the file 'checkerOverlappingScenes.cpp'.  
 It is tested whether subblocks within different scenes are overlapping (on pyramid-layer 0).
+
+### subblkbitmapvalid
+
+This checker is implemented in the file 'checkerSubBlkBitmapValid.cpp'.  
+Here all subblocks are read from the file, and their syntactical validity is checked. The subblock's content is decoded, and the bitmap is checked for validity.
+This check is more thorough than the check 'subblksegmentsvalid', as it also checks the content of the subblocks. The check is a strict superset of the check 'subblksegmentsvalid',
+so it is not necessary to run both checks.
+Note that this check requires reading all data from disk, and in case of compressed data it is decoded, so it may be time consuming.
 

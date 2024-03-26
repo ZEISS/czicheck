@@ -6,13 +6,13 @@ Test "check whether the document uses the deprecated 'B-index'" : OK
 Test "check that the subblocks of a channel have the same pixeltype" : OK
 Test "Check that planes indices start at 0" : OK
 Test "Check that planes have consecutive indices" : OK
-Test "check if all subblocks have the M index" :
-  There are 1 subblocks with no M index.
- WARN
+Test "check if all subblocks have the M index" : OK
 Test "Basic semantic checks of the XML-metadata" : OK
 Test "validate the XML-metadata against XSD-schema" : OK
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
-Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
+Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" :
+  Error decoding subblock #0 with compression "jpgxr"
+ FAIL
 
 
-Result: With Warnings
+Result: Errors Detected

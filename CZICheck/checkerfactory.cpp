@@ -19,6 +19,7 @@
 #include "checkers/checkerMissingMindex.h"
 #include "checkers/checkerXmlBasicMetadataValidation.h"
 #include "checkers/checkerOverlappingScenes.h"
+#include "checkers/checkerSubBlkBitmapValid.h"
 
 using namespace std;
 
@@ -35,7 +36,7 @@ struct classEntry
     /// A short name identifying the checker class. This string has to be unique.
     const string shortname;
 
-    /// A flag to indicate that the checker won't be executed by default, but it has to be explicitely opted in for.
+    /// A flag to indicate that the checker won't be executed by default, but it has to be explicitly opted in for.
     bool isOptIn;
 
     /// A function pointer which creates a new instance of the respective checker class.
@@ -85,7 +86,7 @@ static const classEntry classesList[] =
 {
     MakeEntry<CCheckConsistentCoordinates>(),
     MakeEntry<CCheckSubBlkDirPositions>(),
-    MakeEntry<CCheckSubBlkSegmentsValid>(),
+    MakeEntry<CCheckSubBlkSegmentsValid>(true), // we make this "opt-in" because "CCheckSubBlkBitmapValid" includes the same check (and is more extensive)
     MakeEntry<CCheckDuplicateCoordinates>(),
     MakeEntry<CCheckBenabled>(),
     MakeEntry<CCheckSamePixeltypePerChannel>(),
@@ -97,6 +98,7 @@ static const classEntry classesList[] =
     MakeEntry<CCheckXmlMetadataXsdValidation>(true),
 #endif
     MakeEntry<CCheckOverlappingScenesOnLayer0>(),
+    MakeEntry<CCheckSubBlkBitmapValid>(),
 };
 
 /*static*/std::unique_ptr<IChecker> CCheckerFactory::CreateChecker(
@@ -113,7 +115,7 @@ static const classEntry classesList[] =
         }
     }
 
-    return unique_ptr<IChecker>();
+    return {};
 }
 
 /*static*/const std::string& CCheckerFactory::GetCheckerDisplayName(CZIChecks check_type)
