@@ -70,6 +70,8 @@ set(CZICHECKSRCFILES
 "checkers/checkerOverlappingScenes.cpp"
 "checkers/checkerSubBlkBitmapValid.h"
 "checkers/checkerSubBlkBitmapValid.cpp"
+"checkers/checkerTopographyApplianceValidation.h"
+"checkers/checkerTopographyApplianceValidation.cpp"
 checkerfactory.cpp
 checkerfactory.h
 checks.h
