@@ -22,9 +22,11 @@ void CCheckTopgraphyApplianceMetadata::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckTopgraphyApplianceMetadata::kCheckType);
 
-    const auto metadata_segment = this->GetCziMetadataAndReportErrors(CCheckTopgraphyApplianceMetadata::kCheckType);
-
-    this->CheckTopographySectionExisting(metadata_segment);
+    const auto czi_metadata = this->GetCziMetadataAndReportErrors(CCheckTopgraphyApplianceMetadata::kCheckType);
+    if (czi_metadata)
+    {
+        this->CheckTopographySectionExisting(czi_metadata);
+    }
 
     this->result_gatherer_.FinishCheck(CCheckTopgraphyApplianceMetadata::kCheckType);
 }
