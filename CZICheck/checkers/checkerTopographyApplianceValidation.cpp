@@ -29,18 +29,14 @@ void CCheckTopgraphyApplianceMetadata::RunCheck()
     this->result_gatherer_.FinishCheck(CCheckTopgraphyApplianceMetadata::kCheckType);
 }
 
-void CCheckTopgraphyApplianceMetadata::CheckTopographySectionExisting(const std::shared_ptr<libCZI::ICziMetadata> czi_metadata)
+void CCheckTopgraphyApplianceMetadata::CheckTopographySectionExisting(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
 {
     string appliance_path = "ImageDocument/Metadata/Appliances";
     auto metadata_node = czi_metadata->GetChildNodeReadonly(appliance_path.c_str());
 
     if (!metadata_node)
     {
-        CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
-        finding.severity = CResultGatherer::Severity::Fatal;
-        finding.information = "The ImageDocument does not contain Appliance metadata!";
-        this->result_gatherer_.ReportFinding(finding);
-
+        // There is no Appliances section and we do not need to report that
         return;
     }
 

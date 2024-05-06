@@ -9,7 +9,7 @@
 class CCheckTopgraphyApplianceMetadata : public IChecker, CCheckerBase
 {
 private:
-    const char* kTopographyItemId = "Topography:1";
+    static constexpr const char* kTopographyItemId = "Topography:1";
 
 public:
     static const CZIChecks kCheckType = CZIChecks::ApplianceMetadataTopographyItemValid;
@@ -23,5 +23,5 @@ public:
     void RunCheck() override;
 
 private:
-    void CheckTopographySectionExisting(const std::shared_ptr<libCZI::ICziMetadata> czi_metadata);
+    void CheckTopographySectionExisting(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata);
 };
