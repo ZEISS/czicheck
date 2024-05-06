@@ -28,7 +28,7 @@ void CCheckTopgraphyApplianceMetadata::RunCheck()
     {
         this->CheckTopographySectionExisting(czi_metadata);
 
-        this->ExtractMetaDataDimensions(czi_metadata);
+        this->CheckValidDimensionInTopographyDataItems(czi_metadata);
     }
 
     this->result_gatherer_.FinishCheck(CCheckTopgraphyApplianceMetadata::kCheckType);
@@ -57,6 +57,53 @@ void CCheckTopgraphyApplianceMetadata::CheckTopographySectionExisting(const std:
         CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
         finding.severity = CResultGatherer::Severity::Info;
         finding.information = "The ImageDocument does not contain a Topography section in the metadata.";
+        this->result_gatherer_.ReportFinding(finding);
+
+        return;
+    }
+}
+
+void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
+{
+    this->ExtractMetaDataDimensions(czi_metadata);
+
+    if (this->texture_views.empty() || this->heightmap_views.empty())
+    {
+        CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
+        finding.severity = CResultGatherer::Severity::Warning;
+        finding.information = "The image contains incomplete TopographyDataItems.";
+        this->result_gatherer_.ReportFinding(finding);
+
+        return;
+    }
+
+    auto set_min_pass = [](const unordered_map<char, DimensionView>& dim_map) -> bool
+        {
+            if (dim_map.size() > 1)
+            {
+                return false;
+            }
+
+            for (const auto& elem : dim_map)
+            {
+                if (elem.second.DimensionIndex != DimensionIndex::C)
+                    return false;
+            }
+
+            return true;
+        };
+
+    bool all_sectios_ok{ true };
+    for (const auto& elem : this->texture_views)
+    {
+        all_sectios_ok &= set_min_pass(elem);
+    }
+
+    if (!all_sectios_ok)
+    {
+        CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
+        finding.severity = CResultGatherer::Severity::Warning;
+        finding.information = "There are superfluous dimensions specified in the TopographyDataItems. This might yield errors.";
         this->result_gatherer_.ReportFinding(finding);
 
         return;

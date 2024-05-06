@@ -46,6 +46,7 @@ public:
 
 private:
     void CheckTopographySectionExisting(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata);
+    void CheckValidDimensionInTopographyDataItems(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata);
 
 private:
     bool SetBoundsFromVector(const std::vector<std::pair<std::wstring, std::wstring>>&, std::vector<std::unordered_map<char, DimensionView>>&);
