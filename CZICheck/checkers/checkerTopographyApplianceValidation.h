@@ -5,8 +5,11 @@
 #pragma once
 
 #include "checkerbase.h"
+#include <memory>
 #include <vector>
 #include <string>
+#include <unordered_map>
+#include <utility>
 
 struct DimensionView {
     libCZI::DimensionIndex DimensionIndex{ libCZI::DimensionIndex::invalid };

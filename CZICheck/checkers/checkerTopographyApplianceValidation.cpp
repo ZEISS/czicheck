@@ -4,6 +4,9 @@
 
 #include "checkerTopographyApplianceValidation.h"
 #include <codecvt>
+#include <memory>
+#include <unordered_map>
+#include <utility>
 
 using namespace std;
 using namespace libCZI;
@@ -208,7 +211,7 @@ bool CCheckTopgraphyApplianceMetadata::SetBoundsFromVector(const std::vector<std
     for (const auto& element : vec)
     {
         // get the dimension index
-        char dim{ (char)element.first.back() };
+        char dim{ static_cast<char>(element.first.back()) };
         
         configurations.insert({ dim, DimensionView() });
         int value{ -1 };
