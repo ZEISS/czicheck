@@ -80,36 +80,58 @@ void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(
         return;
     }
 
-    auto set_min_pass = [](const unordered_map<char, DimensionView>& dim_map) -> bool
+    // as soon as we have more than StartC specified for a Texutre or a Heightmap node
+    // the node contains superfluous data
+    auto superfluous_elements_check = [](const unordered_map<char, DimensionView>& dim_map) -> bool
         {
-            if (dim_map.size() > 1)
+            if (dim_map.size() != 1)
             {
                 return false;
-            }
-
-            for (const auto& elem : dim_map)
-            {
-                if (elem.second.DimensionIndex != DimensionIndex::C)
-                    return false;
             }
 
             return true;
         };
 
-    bool all_sectios_ok{ true };
-    for (const auto& elem : this->texture_views)
+    auto start_c_defined_check = [](const unordered_map<char, DimensionView>& dim_map) -> bool
+        {
+            for (const auto& dim : dim_map)
+            {
+                if (dim.second.DimensionIndex == DimensionIndex::C
+                    && dim.second.IsValid())
+                    return true;
+            }
+
+            return false;
+        };
+
+    bool superfluous_free{ true };
+    bool start_c_defined{ true };
+    for (const auto& txt : this->texture_views)
     {
-        all_sectios_ok &= set_min_pass(elem);
+        superfluous_free &= superfluous_elements_check(txt);
+        start_c_defined &= start_c_defined_check(txt);
     }
 
-    if (!all_sectios_ok)
+    for (const auto& hmp : this->heightmap_views)
+    {
+        superfluous_free &= superfluous_elements_check(hmp);
+        start_c_defined &= start_c_defined_check(hmp);
+    }
+
+    if (!superfluous_free)
     {
         CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
         finding.severity = CResultGatherer::Severity::Warning;
         finding.information = "There are superfluous dimensions specified in the TopographyDataItems. This might yield errors.";
         this->result_gatherer_.ReportFinding(finding);
+    }
 
-        return;
+    if (!start_c_defined)
+    {
+        CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
+        finding.severity = CResultGatherer::Severity::Fatal;
+        finding.information = "The image contains TopographyDataItems that do not define a channel.";
+        this->result_gatherer_.ReportFinding(finding);
     }
 }
 
@@ -139,7 +161,6 @@ void CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
     std::function<bool(std::shared_ptr < libCZI::IXmlNodeRead>)> enumChildrenLabmda =
         [this, &heightmaps, &textures, &enumChildrenLabmda](std::shared_ptr<libCZI::IXmlNodeRead> xmlnode) -> bool
         {
-            std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
             std::vector<std::pair<std::wstring, std::wstring>> current_texture;
             std::vector<std::pair<std::wstring, std::wstring>> current_heightmap;
 
@@ -155,9 +176,8 @@ void CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
                     return true;
                 };
 
-            auto node_name = utf8_conv.to_bytes(xmlnode->Name());
-
-            if (node_name == "Texture")
+            auto node_name = xmlnode->Name();
+            if (node_name == L"Texture")
             {
                 xmlnode->EnumAttributes(textureLambda);
 
@@ -167,7 +187,7 @@ void CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
                 }
             }
 
-            if (node_name == "HeightMap")
+            if (node_name == L"HeightMap")
             {
                 xmlnode->EnumAttributes(heighmapLambda);
 
@@ -185,7 +205,6 @@ void CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
 
     // call the enumeration lambda
     topo_metadata->EnumChildren(enumChildrenLabmda);
-
 
     // parse the dimension vectors
     for (const auto& hm : heightmaps)
