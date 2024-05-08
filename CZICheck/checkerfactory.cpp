@@ -95,7 +95,7 @@ static const classEntry classesList[] =
     MakeEntry<CCheckConsecutivePlaneIndices>(),
     MakeEntry<CCheckMissingMindex>(),
     MakeEntry<CCheckBasicMetadataValidation>(),
-    MakeEntry<CCheckTopgraphyApplianceMetadata>(),
+    MakeEntry<CCheckTopographyApplianceMetadata>(),
 #if CZICHECK_XERCESC_AVAILABLE
     MakeEntry<CCheckXmlMetadataXsdValidation>(true),
 #endif

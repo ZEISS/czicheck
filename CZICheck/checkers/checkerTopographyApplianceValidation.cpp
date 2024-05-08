@@ -3,18 +3,20 @@
 // SPDX-License-Identifier: MIT
 
 #include "checkerTopographyApplianceValidation.h"
-#include <codecvt>
 #include <memory>
 #include <unordered_map>
 #include <utility>
+#include <functional>
+#include <string>
+#include <vector>
 
 using namespace std;
 using namespace libCZI;
 
-/*static*/const char* CCheckTopgraphyApplianceMetadata::kDisplayName = "Basic semantic checks for TopographyDataItems";
-/*static*/const char* CCheckTopgraphyApplianceMetadata::kShortName = "topographymetadata";
+/*static*/const char* CCheckTopographyApplianceMetadata::kDisplayName = "Basic semantic checks for TopographyDataItems";
+/*static*/const char* CCheckTopographyApplianceMetadata::kShortName = "topographymetadata";
 
-CCheckTopgraphyApplianceMetadata::CCheckTopgraphyApplianceMetadata(
+CCheckTopographyApplianceMetadata::CCheckTopographyApplianceMetadata(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
     CResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
@@ -22,20 +24,20 @@ CCheckTopgraphyApplianceMetadata::CCheckTopgraphyApplianceMetadata(
 {
 }
 
-void CCheckTopgraphyApplianceMetadata::RunCheck()
+void CCheckTopographyApplianceMetadata::RunCheck()
 {
-    this->result_gatherer_.StartCheck(CCheckTopgraphyApplianceMetadata::kCheckType);
+    this->result_gatherer_.StartCheck(CCheckTopographyApplianceMetadata::kCheckType);
 
-    const auto czi_metadata = this->GetCziMetadataAndReportErrors(CCheckTopgraphyApplianceMetadata::kCheckType);
+    const auto czi_metadata = this->GetCziMetadataAndReportErrors(CCheckTopographyApplianceMetadata::kCheckType);
     if (czi_metadata)
     {
         this->CheckValidDimensionInTopographyDataItems(czi_metadata);
     }
 
-    this->result_gatherer_.FinishCheck(CCheckTopgraphyApplianceMetadata::kCheckType);
+    this->result_gatherer_.FinishCheck(CCheckTopographyApplianceMetadata::kCheckType);
 }
 
-void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
+void CCheckTopographyApplianceMetadata::CheckValidDimensionInTopographyDataItems(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
 {
     if (!this->ExtractMetaDataDimensions(czi_metadata))
     {
@@ -43,9 +45,9 @@ void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(
         return;
     }
 
-    if (this->texture_views.empty() || this->heightmap_views.empty())
+    if (this->texture_views_.empty() || this->heightmap_views_.empty())
     {
-        CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
+        CResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
         finding.severity = CResultGatherer::Severity::Warning;
         finding.information = "The image contains incomplete TopographyDataItems.";
         this->result_gatherer_.ReportFinding(finding);
@@ -79,13 +81,13 @@ void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(
 
     bool superfluous_free{ true };
     bool start_c_defined{ true };
-    for (const auto& txt : this->texture_views)
+    for (const auto& txt : this->texture_views_)
     {
         superfluous_free &= superfluous_elements_check(txt);
         start_c_defined &= start_c_defined_check(txt);
     }
 
-    for (const auto& hmp : this->heightmap_views)
+    for (const auto& hmp : this->heightmap_views_)
     {
         superfluous_free &= superfluous_elements_check(hmp);
         start_c_defined &= start_c_defined_check(hmp);
@@ -93,7 +95,7 @@ void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(
 
     if (!superfluous_free)
     {
-        CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
+        CResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
         finding.severity = CResultGatherer::Severity::Warning;
         finding.information = "There are superfluous dimensions specified in the TopographyDataItems. This might yield errors.";
         this->result_gatherer_.ReportFinding(finding);
@@ -101,14 +103,14 @@ void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(
 
     if (!start_c_defined)
     {
-        CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
+        CResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
         finding.severity = CResultGatherer::Severity::Fatal;
         finding.information = "The image contains TopographyDataItems that do not define a channel.";
         this->result_gatherer_.ReportFinding(finding);
     }
 }
 
-bool CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
+bool CCheckTopographyApplianceMetadata::ExtractMetaDataDimensions(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
 {
     // within the TopographyData we allow
     // any number of TopographyDataItem which itself can contain a set of Texutures and a set of heightmaps
@@ -131,8 +133,8 @@ bool CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
     vector<vector<pair<wstring, wstring>>> textures;
 
     // we need a "named" lambda here to call it recursively
-    std::function<bool(std::shared_ptr < libCZI::IXmlNodeRead>)> enumChildrenLabmda =
-        [this, &heightmaps, &textures, &enumChildrenLabmda](const std::shared_ptr<libCZI::IXmlNodeRead>& xmlnode) -> bool
+    std::function<bool(std::shared_ptr < libCZI::IXmlNodeRead>)> enumChildrenLambda =
+        [this, &heightmaps, &textures, &enumChildrenLambda](const std::shared_ptr<libCZI::IXmlNodeRead>& xmlnode) -> bool
         {
             std::vector<std::pair<std::wstring, std::wstring>> current_texture;
             std::vector<std::pair<std::wstring, std::wstring>> current_heightmap;
@@ -150,7 +152,7 @@ bool CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
                 };
 
             auto node_name = xmlnode->Name();
-            if (node_name == CCheckTopgraphyApplianceMetadata::kTextureItemKey)
+            if (node_name == CCheckTopographyApplianceMetadata::kTextureItemKey)
             {
                 xmlnode->EnumAttributes(textureLambda);
 
@@ -160,7 +162,7 @@ bool CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
                 }
             }
 
-            if (node_name == CCheckTopgraphyApplianceMetadata::kHeighMapItemKey)
+            if (node_name == CCheckTopographyApplianceMetadata::kHeightMapItemKey)
             {
                 xmlnode->EnumAttributes(heighmapLambda);
 
@@ -171,26 +173,26 @@ bool CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
             }
 
             // recursively go through child items 
-            xmlnode->EnumChildren(enumChildrenLabmda);
+            xmlnode->EnumChildren(enumChildrenLambda);
 
             return true;
         };
 
     // call the enumeration lambda
-    topo_metadata->EnumChildren(enumChildrenLabmda);
+    topo_metadata->EnumChildren(enumChildrenLambda);
 
     // parse the dimension vectors
     for (const auto& hm : heightmaps)
     {
-        this->SetBoundsFromVector(hm, this->heightmap_views);
+        this->SetBoundsFromVector(hm, this->heightmap_views_);
     }
 
     for (const auto& tx : textures)
     {
-        this->SetBoundsFromVector(tx, this->texture_views);
+        this->SetBoundsFromVector(tx, this->texture_views_);
     }
 
-    if (!this->heightmap_views.empty() || !this->texture_views.empty())
+    if (!this->heightmap_views_.empty() || !this->texture_views_.empty())
     {
         return true;
     }
@@ -199,7 +201,7 @@ bool CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
 }
 
 
-bool CCheckTopgraphyApplianceMetadata::SetBoundsFromVector(const std::vector<std::pair<std::wstring, std::wstring>>& vec, std::vector<std::unordered_map<char, DimensionView>>& view)
+bool CCheckTopographyApplianceMetadata::SetBoundsFromVector(const std::vector<std::pair<std::wstring, std::wstring>>& vec, std::vector<std::unordered_map<char, DimensionView>>& view)
 {
     // using a set here to ensure exactly one element per dimension
     unordered_map<char, DimensionView> configurations;
@@ -211,10 +213,10 @@ bool CCheckTopgraphyApplianceMetadata::SetBoundsFromVector(const std::vector<std
     {
         // get the dimension index
         char dim{ static_cast<char>(element.first.back()) };
-        
+
         configurations.insert({ dim, DimensionView() });
         int value{ -1 };
-        try 
+        try
         {
             value = stoi(element.second);
         }
@@ -223,7 +225,7 @@ bool CCheckTopgraphyApplianceMetadata::SetBoundsFromVector(const std::vector<std
             // this will ensure an "invalid" dimension later
             value = -1;
         }
-        
+
         DimensionView& config = configurations.at(dim);
         if (config.DimensionIndex == DimensionIndex::invalid)
         {
@@ -241,13 +243,12 @@ bool CCheckTopgraphyApplianceMetadata::SetBoundsFromVector(const std::vector<std
             config.Size = value;
         }
 
-        // '0' means not set
-        if (config.DimensionName == '0')
+        // '\0' means not set
+        if (config.DimensionName == '\0')
         {
             config.DimensionName = dim;
         }
     }
-
 
     bool all_good{ true };
     for (const auto& el : configurations)
