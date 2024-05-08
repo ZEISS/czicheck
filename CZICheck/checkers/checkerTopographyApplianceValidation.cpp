@@ -132,7 +132,7 @@ bool CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
 
     // we need a "named" lambda here to call it recursively
     std::function<bool(std::shared_ptr < libCZI::IXmlNodeRead>)> enumChildrenLabmda =
-        [this, &heightmaps, &textures, &enumChildrenLabmda](const std::shared_ptr<libCZI::IXmlNodeRead> xmlnode) -> bool
+        [this, &heightmaps, &textures, &enumChildrenLabmda](const std::shared_ptr<libCZI::IXmlNodeRead>& xmlnode) -> bool
         {
             std::vector<std::pair<std::wstring, std::wstring>> current_texture;
             std::vector<std::pair<std::wstring, std::wstring>> current_heightmap;
