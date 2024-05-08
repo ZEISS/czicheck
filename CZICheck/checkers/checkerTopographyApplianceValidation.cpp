@@ -37,7 +37,11 @@ void CCheckTopgraphyApplianceMetadata::RunCheck()
 
 void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
 {
-    this->ExtractMetaDataDimensions(czi_metadata);
+    if (!this->ExtractMetaDataDimensions(czi_metadata))
+    {
+        // we don't have any topography items and stop here
+        return;
+    }
 
     if (this->texture_views.empty() || this->heightmap_views.empty())
     {
@@ -104,7 +108,7 @@ void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(
     }
 }
 
-void CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
+bool CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
 {
     // within the TopographyData we allow
     // any number of TopographyDataItem which itself can contain a set of Texutures and a set of heightmaps
@@ -120,7 +124,7 @@ void CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
     if (!topo_metadata)
     {
         // there is no topo metadata section, we end here
-        return;
+        return false;
     }
 
     vector<vector<pair<wstring, wstring>>> heightmaps;
@@ -185,6 +189,13 @@ void CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
     {
         this->SetBoundsFromVector(tx, this->texture_views);
     }
+
+    if (!this->heightmap_views.empty() || !this->texture_views.empty())
+    {
+        return true;
+    }
+
+    return false;
 }
 
 

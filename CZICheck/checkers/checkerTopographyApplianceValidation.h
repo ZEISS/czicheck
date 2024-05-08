@@ -54,5 +54,5 @@ private:
 
 private:
     bool SetBoundsFromVector(const std::vector<std::pair<std::wstring, std::wstring>>&, std::vector<std::unordered_map<char, DimensionView>>&);
-    void ExtractMetaDataDimensions(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata);
+    bool ExtractMetaDataDimensions(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata);
 };
