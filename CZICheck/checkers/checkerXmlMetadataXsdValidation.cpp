@@ -119,6 +119,7 @@ void CCheckXmlMetadataXsdValidation::RunCheck()
         dom_parser.setValidationConstraintFatal(true);
         dom_parser.setExitOnFirstFatalError(false);
         dom_parser.setExternalNoNamespaceSchemaLocation("");
+        dom_parser.setDisableDefaultEntityResolution(true); // Disable DTD processing in order to prevent XXE attacks (c.f. https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing).
 
         const MemBufInputSource czi_xml_metadata(reinterpret_cast<const XMLByte*>(xml.c_str()), xml.size(), "dummy", false);
         dom_parser.parse(czi_xml_metadata);
