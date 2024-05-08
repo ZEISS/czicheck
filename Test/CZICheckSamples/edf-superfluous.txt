@@ -1,6 +1,6 @@
-Test with superfluous topography data:
-Test "check subblock's coordinates for 'consistent dimensions'" : OK
 Test "SubBlock-Segment in SubBlockDirectory within file" : OK
+Test "SubBlock-Segments in SubBlockDirectory are valid" : OK
+Test "check subblock's coordinates for 'consistent dimensions'" : OK
 Test "check subblock's coordinates being unique" : OK
 Test "check whether the document uses the deprecated 'B-index'" : OK
 Test "check that the subblocks of a channel have the same pixeltype" : OK
@@ -8,11 +8,11 @@ Test "Check that planes indices start at 0" : OK
 Test "Check that planes have consecutive indices" : OK
 Test "check if all subblocks have the M index" : OK
 Test "Basic semantic checks of the XML-metadata" : OK
+Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
+Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" :
   There are superfluous dimensions specified in the TopographyDataItems. This might yield errors.
  WARN
-Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
-Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 
 
 Result: With Warnings
