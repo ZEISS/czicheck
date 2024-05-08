@@ -8,6 +8,12 @@ Test "Check that planes indices start at 0" : OK
 Test "Check that planes have consecutive indices" : OK
 Test "check if all subblocks have the M index" : OK
 Test "Basic semantic checks of the XML-metadata" : OK
+Test "validate the XML-metadata against XSD-schema" :
+  (94,22): no declaration found for element 'RotationCenter'
+  (98,15): element 'RotationCenter' is not allowed for content model 'All(SessionMatrix?,HolderZeissName?,HolderZeissId?,HolderCwsId?,SessionCount?,SessionRotationAtStart?,CustomAttributes?)'
+  (105,21): no declaration found for element 'LookupTables'
+  <3 more findings omitted> 
+ FAIL
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
 Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" :

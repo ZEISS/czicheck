@@ -17,6 +17,9 @@ Test "validate the XML-metadata against XSD-schema" :
  WARN
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
 Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
+Test "Basic semantic checks for TopographyDataItems" :
+  Could not read metadata-segment
+ WARN
 
 
 Result: With Warnings
