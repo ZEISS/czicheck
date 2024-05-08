@@ -28,3 +28,5 @@ inaccessible_file.czi,5,*
 overlapping_scenes.czi,2,overlapping_scenes.txt
 jpgxrcompressed_inconsistent_size.czi,2,jpgxrcompressed_inconsistent_size.txt
 jpgxrcompressed_inconsistent_pixeltype.czi,2,jpgxrcompressed_inconsistent_pixeltype.txt
+edf-missing-texture.czi,2,edf-missing-texture.txt
+edf-superfluous.czi,2,edf-superfluous.txt
