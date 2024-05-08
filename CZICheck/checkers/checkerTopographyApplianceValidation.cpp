@@ -29,41 +29,10 @@ void CCheckTopgraphyApplianceMetadata::RunCheck()
     const auto czi_metadata = this->GetCziMetadataAndReportErrors(CCheckTopgraphyApplianceMetadata::kCheckType);
     if (czi_metadata)
     {
-        this->CheckTopographySectionExisting(czi_metadata);
-
         this->CheckValidDimensionInTopographyDataItems(czi_metadata);
     }
 
     this->result_gatherer_.FinishCheck(CCheckTopgraphyApplianceMetadata::kCheckType);
-}
-
-void CCheckTopgraphyApplianceMetadata::CheckTopographySectionExisting(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
-{
-    string appliance_path{ this->kImageAppliancePath };
-    auto metadata_node = czi_metadata->GetChildNodeReadonly(this->kImageAppliancePath);
-
-    if (!metadata_node)
-    {
-        // There is no Appliances section and we do not need to report that
-        return;
-    }
-
-    appliance_path
-        .append("/Appliance[Id=")
-        .append(this->kTopographyItemId)
-        .append("]");
-
-    metadata_node = czi_metadata->GetChildNodeReadonly(appliance_path.c_str());
-
-    if (!metadata_node)
-    {
-        CResultGatherer::Finding finding(CCheckTopgraphyApplianceMetadata::kCheckType);
-        finding.severity = CResultGatherer::Severity::Info;
-        finding.information = "The ImageDocument does not contain a Topography section in the metadata.";
-        this->result_gatherer_.ReportFinding(finding);
-
-        return;
-    }
 }
 
 void CCheckTopgraphyApplianceMetadata::CheckValidDimensionInTopographyDataItems(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
@@ -177,7 +146,7 @@ void CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
                 };
 
             auto node_name = xmlnode->Name();
-            if (node_name == L"Texture")
+            if (node_name == CCheckTopgraphyApplianceMetadata::kTextureItemKey)
             {
                 xmlnode->EnumAttributes(textureLambda);
 
@@ -187,7 +156,7 @@ void CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
                 }
             }
 
-            if (node_name == L"HeightMap")
+            if (node_name == CCheckTopgraphyApplianceMetadata::kHeighMapItemKey)
             {
                 xmlnode->EnumAttributes(heighmapLambda);
 

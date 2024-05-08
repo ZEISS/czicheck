@@ -32,6 +32,8 @@ class CCheckTopgraphyApplianceMetadata : public IChecker, CCheckerBase
 private:
     static constexpr const char* kTopographyItemId = "Topography:1";
     static constexpr const char* kImageAppliancePath = "ImageDocument/Metadata/Appliances";
+    static constexpr const wchar_t* kTextureItemKey = L"Texture";
+    static constexpr const wchar_t* kHeighMapItemKey = L"HeightMap";
 
     std::vector<std::unordered_map<char, DimensionView>> texture_views;
     std::vector<std::unordered_map<char, DimensionView>> heightmap_views;
@@ -48,7 +50,6 @@ public:
     void RunCheck() override;
 
 private:
-    void CheckTopographySectionExisting(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata);
     void CheckValidDimensionInTopographyDataItems(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata);
 
 private:
