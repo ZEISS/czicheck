@@ -18,10 +18,12 @@ struct DimensionView {
     int Size{ -1 };
     bool IsValid() const
     {
-        // a Size is not neccessarily needed iot be valid here!
-        // if (this->Start >= 0 && this->Size > 0 && this->DimensionIndex != libCZI::DimensionIndex::invalid)
+        // this is an object used exclusively for this checker
+        //  a Size (SizeC, SizeX, etc.) is not needed to yield a "valid" dimension for this
         if (this->Start >= 0 && this->DimensionIndex != libCZI::DimensionIndex::invalid)
+        {
             return true;
+        }
 
         return false;
     };

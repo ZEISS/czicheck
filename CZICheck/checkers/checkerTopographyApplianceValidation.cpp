@@ -132,7 +132,7 @@ bool CCheckTopgraphyApplianceMetadata::ExtractMetaDataDimensions(const std::shar
 
     // we need a "named" lambda here to call it recursively
     std::function<bool(std::shared_ptr < libCZI::IXmlNodeRead>)> enumChildrenLabmda =
-        [this, &heightmaps, &textures, &enumChildrenLabmda](std::shared_ptr<libCZI::IXmlNodeRead> xmlnode) -> bool
+        [this, &heightmaps, &textures, &enumChildrenLabmda](const std::shared_ptr<libCZI::IXmlNodeRead> xmlnode) -> bool
         {
             std::vector<std::pair<std::wstring, std::wstring>> current_texture;
             std::vector<std::pair<std::wstring, std::wstring>> current_heightmap;
@@ -214,36 +214,37 @@ bool CCheckTopgraphyApplianceMetadata::SetBoundsFromVector(const std::vector<std
         
         configurations.insert({ dim, DimensionView() });
         int value{ -1 };
-        try {
+        try 
+        {
             value = stoi(element.second);
         }
-        catch (invalid_argument)
+        catch (const invalid_argument&)
         {
             // this will ensure an "invalid" dimension later
             value = -1;
         }
         
-        DimensionView* config = &configurations.at(dim);
-        if (config->DimensionIndex == DimensionIndex::invalid)
+        DimensionView& config = configurations.at(dim);
+        if (config.DimensionIndex == DimensionIndex::invalid)
         {
             configurations.at(dim).DimensionIndex = Utils::CharToDimension(dim);
         }
 
         // -1 means not set
-        if (element.first.find(kStart) != string::npos && config->Start == -1)
+        if (element.first.find(kStart) != string::npos && config.Start == -1)
         {
-            config->Start = value;
+            config.Start = value;
         }
 
-        if (element.first.find(kSize) != string::npos && config->Size == -1)
+        if (element.first.find(kSize) != string::npos && config.Size == -1)
         {
-            config->Size = value;
+            config.Size = value;
         }
 
         // '0' means not set
-        if (config->DimensionName == '0')
+        if (config.DimensionName == '0')
         {
-            config->DimensionName = dim;
+            config.DimensionName = dim;
         }
     }
 
