@@ -229,7 +229,7 @@ bool CCheckTopographyApplianceMetadata::SetBoundsFromVector(const std::vector<st
         DimensionView& config = configurations.at(dim);
         if (config.DimensionIndex == DimensionIndex::invalid)
         {
-            configurations.at(dim).DimensionIndex = Utils::CharToDimension(dim);
+            config.DimensionIndex = Utils::CharToDimension(dim);
         }
 
         // -1 means not set
