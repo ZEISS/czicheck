@@ -13,6 +13,7 @@ Test "Basic semantic checks of the XML-metadata" : OK
 Test "validate the XML-metadata against XSD-schema" : OK
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
 Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
+Test "Basic semantic checks for TopographyDataItems" : OK
 
 
 Result: With Warnings

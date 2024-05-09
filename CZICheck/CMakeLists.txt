@@ -70,6 +70,8 @@ set(CZICHECKSRCFILES
 "checkers/checkerOverlappingScenes.cpp"
 "checkers/checkerSubBlkBitmapValid.h"
 "checkers/checkerSubBlkBitmapValid.cpp"
+"checkers/checkerTopographyApplianceValidation.h"
+"checkers/checkerTopographyApplianceValidation.cpp"
 checkerfactory.cpp
 checkerfactory.h
 checks.h
@@ -162,6 +164,8 @@ if (CZICHECK_BUILD_TESTS)
           -r overlapping_scenes.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/overlapping_scenes.czi}
           -r jpgxrcompressed_inconsistent_size.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/jpgxrcompressed_inconsistent_size.czi}
           -r jpgxrcompressed_inconsistent_pixeltype.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/jpgxrcompressed_inconsistent_pixeltype.czi}
+          -r edf-missing-texture.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/edf-missing-texture.czi}
+          -r edf-superfluous.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/edf-superfluous.czi}
     )
 
     # Add a build target to populate the real data.

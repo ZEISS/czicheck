@@ -18,7 +18,8 @@ The following table lists the available checkers and gives a short description o
 |basicxmlmetadata|Same basic checks of the XML-metadata, which is semantically validated with the content of the file.|
 |xmlmetadataschema|Validate the XML-metadata against the schema for it.|
 |overlappingscenes|Test for subblocks within different scenes are overlapping (on pyramid-layer 0).|
-|subblkbitmapvalid|Read all subblocks from the file, ensure their syntactical validity and decode the bitmap. Note that this check requires reading all data from disk and decoding, so it may be time consuming. ||
+|subblkbitmapvalid|Read all subblocks from the file, ensure their syntactical validity and decode the bitmap. Note that this check requires reading all data from disk and decoding, so it may be time consuming. |
+|topographymetadata|Checks whether the given TopographyDataItems supplied in the Appliances metadata section of a czi image comply with the specification and the content of that czi image.|
 
 
 ## Details
@@ -98,3 +99,7 @@ This check is more thorough than the check 'subblksegmentsvalid', as it also che
 so it is not necessary to run both checks.
 Note that this check requires reading all data from disk, and in case of compressed data it is decoded, so it may be time consuming.
 
+### topographymetadata
+This checker is implemented in the file 'checkerTopographyApplianceValidation.cpp'.  
+It checks if an image contains a Topography section in its 'Appliances' metadata section.
+If there is such a section, it checks if both 'Textures' and 'HeightMaps' are given within 'TopographyDataItem' containers in the Appliances section. Each of the entries in 'Textures' and 'HeighMaps' should specify a channel (via a 'StartC' information) and no other information. That other information is considered superfluous.

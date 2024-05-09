@@ -13,6 +13,7 @@ Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping"
 Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" :
   Error decoding subblock #0 with compression "jpgxr"
  FAIL
+Test "Basic semantic checks for TopographyDataItems" : OK
 
 
 Result: Errors Detected
