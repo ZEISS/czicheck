@@ -20,6 +20,7 @@
 #include "checkers/checkerXmlBasicMetadataValidation.h"
 #include "checkers/checkerOverlappingScenes.h"
 #include "checkers/checkerSubBlkBitmapValid.h"
+#include "checkers/checkerTopographyApplianceValidation.h"
 
 using namespace std;
 
@@ -94,6 +95,7 @@ static const classEntry classesList[] =
     MakeEntry<CCheckConsecutivePlaneIndices>(),
     MakeEntry<CCheckMissingMindex>(),
     MakeEntry<CCheckBasicMetadataValidation>(),
+    MakeEntry<CCheckTopographyApplianceMetadata>(),
 #if CZICHECK_XERCESC_AVAILABLE
     MakeEntry<CCheckXmlMetadataXsdValidation>(true),
 #endif

@@ -52,5 +52,8 @@ enum class CZIChecks
 
     ConsistentMIndex,   ///< To be done, not yet implemented.
 
-    AttachmentDirectoryPositionsWithinRange ///< To be done, not yet implemented.
+    AttachmentDirectoryPositionsWithinRange, ///< To be done, not yet implemented.
+
+    /// The Applicance Metadata specified for TopographyDataItem(s) are valid
+    ApplianceMetadataTopographyItemValid,
 };
