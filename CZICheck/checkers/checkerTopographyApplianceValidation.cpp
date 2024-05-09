@@ -200,7 +200,6 @@ bool CCheckTopographyApplianceMetadata::ExtractMetaDataDimensions(const std::sha
     return false;
 }
 
-
 bool CCheckTopographyApplianceMetadata::SetBoundsFromVector(const std::vector<std::pair<std::wstring, std::wstring>>& vec, std::vector<std::unordered_map<char, DimensionView>>& view)
 {
     // using a set here to ensure exactly one element per dimension
