@@ -79,9 +79,9 @@ ctest -C Release
 1.  In the CZICheck (`${PROJECT_SOURCE_DIR}/CZICheck`) `CMakeLists.txt` make sure the respective image file to be used for testing is present in one of the "data feeds" given in `ExternalData_URL_TEMPLATES`
 2.  In the `ExternalData_Add_Test` ensure that the testdata is copied to the build directory by adding something like `-r myfile.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/myfile.czi}`
 3.  Assuming the czi-file to be tested is called `myfile.czi`
-    1. add `${PROJECT_SOURCE_DIR}/Test/CZICheckSamples/myfile.czi.md5` with the MD5-hash of `myfile.czi` (that was generated be the remote test-data feed)
-    2. add `${PROJECT_SOURCE_DIR}/Test/CZICheckSamples/myfile-expectation.txt`
-    3. in the file `${PROJECT_SOURCE_DIR}/Test/CZICheckSamples/TestCasesLists.txt`, add the line `myfile.czi,<#exit-code>,myfile-expectation.txt` (where `<#exit-code>` should be a number idicating the expected exit-code of the program)
+    1. Add `${PROJECT_SOURCE_DIR}/Test/CZICheckSamples/myfile.czi.md5`. The content of this file is the MD5-hash of `myfile.czi` (that was generated be the remote test-data feed).
+    2. Add `${PROJECT_SOURCE_DIR}/Test/CZICheckSamples/myfile-expectation.txt`. The content should be the output of the `CZICheck` executable when checking `myfile.czi`.
+    3. In the file `${PROJECT_SOURCE_DIR}/Test/CZICheckSamples/TestCasesLists.txt`, add the line `myfile.czi,<#exit-code>,myfile-expectation.txt` (where `<#exit-code>` should be a number idicating the expected exit-code of the program).
 4.  To create a testoutput add something like `-o ${PROJECT_SOURCE_DIR}/testoutputs` to the `COMMAND`. The complete cmake block should then look like e.g. (the directory "testoutputs" has to exist):
 
         ExternalData_Add_Test(Test_CZICheck
