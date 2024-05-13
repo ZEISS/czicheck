@@ -73,3 +73,27 @@ The tests can then be run by executing the following command in the build-direct
 ```bash
 ctest -C Release
 ```
+
+## adding new tests
+# Adding new test images to the project
+
+1.  In the CZICheck (`${PROJECT_SOURCE_DIR}/CZICheck`) `CMakeLists.txt` make sure the respective image file to be used for testing is present in one of the "data feeds" given in `ExternalData_URL_TEMPLATES`
+2.  In the `ExternalData_Add_Test` ensure that the testdata is copied to the build directory by adding something like `-r edf-superfluous.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/edf-superfluous.czi}`
+3.  Assuming the czi-file to be tested is called `myfile.czi`
+    a. add `${PROJECT_SOURCE_DIR}/Test/CZICheckSamples/myfile.czi.md5` with the MD5-hash of `myfile.czi` (that was generated be the remote test-data feed)
+    b. add `${PROJECT_SOURCE_DIR}/Test/CZICheckSamples/myfile-expectation.txt`
+    c. in the file `${PROJECT_SOURCE_DIR}/Test/CZICheckSamples/TestCasesLists.txt`, add the line `myfile.czi,<#exit-code>,myfile-expectation.txt` (where `<#exit-code>` should be a number idicating the expected exit-code of the program)
+4.  To create a testoutput add something like `-o ${PROJECT_SOURCE_DIR}/testoutputs` to the `COMMAND`. The complete cmake block should then look like e.g. (the directory "testoutputs" has to exist):
+
+        ExternalData_Add_Test(Test_CZICheck
+          NAME Test-CZICheck
+          COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test/CZICheckRunTests.py
+          --executable $<TARGET_FILE:CZICheck>
+          --knowngoodresultspath ${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples
+          --test_list ${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/TestCasesLists.txt
+          -o ${PROJECT_SOURCE_DIR}/testoutputs # save outputs for each file; the directory "testoutputs" has to exist
+          -r #....truncated! All test images are listed here
+          # add your new file to the end
+          -r myfile.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/myfile.czi}
+          }
+        )
