@@ -96,3 +96,4 @@ ctest -C Release
           -r myfile.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/myfile.czi}
           }
         )
+
