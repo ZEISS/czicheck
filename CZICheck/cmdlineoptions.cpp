@@ -74,7 +74,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 
     struct BooleanArgumentValidator : public CLI::Validator
     {
-        BooleanArgumentValidator(const std::string& argument_key)
+        explicit BooleanArgumentValidator(const std::string& argument_key)
         {
             this->func_ = [argument_key](const std::string& str) -> string
                 {
