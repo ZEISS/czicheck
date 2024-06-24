@@ -27,7 +27,7 @@ set(LIBCZI_INCLUDE_DIR "${libczi_SOURCE_DIR}/Src/libCZI")
 
 # This option enables/disables the tests for the CZICheck-application. If enabled, the test
 #  runs with a ctest run (and test-data is being downloaded)
-option(CZICHECK_BUILD_TESTS "Run the tests-suite with CTest (requires external files)" OFF)
+option(CZICHECK_BUILD_TESTS "Run the tests-suite with CTest (requires external files)" ON)
 
 if (CZICHECK_BUILD_TESTS)
  enable_testing()
