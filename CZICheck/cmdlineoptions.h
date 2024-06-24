@@ -46,7 +46,7 @@ public:
     [[nodiscard]] const std::vector<CZIChecks>& GetChecksEnabled() const { return this->checks_enabled_; }
     [[nodiscard]] const std::shared_ptr<ILog>& GetLog() const { return this->log_; }
 private:
-    static bool ParsePrintDetailsArgument(const std::string& str, bool* boolean_value, std::string* error_message);
+    static bool ParseBooleanArgument(const std::string& argument_key, const std::string& argument_value, bool* boolean_value, std::string* error_message);
     static bool ParseChecksArgument(const std::string& str, std::vector<CZIChecks>* checks_enabled, std::string* error_message);
 
     /// Information about a "checker item" and whether it is to be added or removed.

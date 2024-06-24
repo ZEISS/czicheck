@@ -23,7 +23,7 @@ CCmdLineOptions::CCmdLineOptions(std::shared_ptr<ILog> log)
     : log_(std::move(log)),
     max_number_of_findings_to_print_(3),
     print_details_of_messages_(false),
-    lax_parsing_enabled_(true)
+    lax_parsing_enabled_(false)
 {
     // as default, all the checkers which are not flagged "isOptIn" are enabled
     CCheckerFactory::EnumerateCheckers(
@@ -80,7 +80,26 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
             this->func_ = [](const std::string& str) -> string
                 {
                     string error_message;
-                    const bool parsed_ok = CCmdLineOptions::ParsePrintDetailsArgument(str, nullptr, &error_message);
+                    const bool parsed_ok = CCmdLineOptions::ParseBooleanArgument("printdetails", str, nullptr, &error_message);
+                    if (!parsed_ok)
+                    {
+                        throw CLI::ValidationError(error_message);
+                    }
+
+                    return {};
+                };
+        }
+    };
+
+    // CLI11-validator for the option "--laxparsing".
+    struct LaxParsingValidator : public CLI::Validator
+    {
+        LaxParsingValidator()
+        {
+            this->func_ = [](const std::string& str) -> string
+                {
+                    string error_message;
+                    const bool parsed_ok = CCmdLineOptions::ParseBooleanArgument("laxparsing", str, nullptr, &error_message);
                     if (!parsed_ok)
                     {
                         throw CLI::ValidationError(error_message);
@@ -93,6 +112,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 
     static const ChecksValidator checks_validator;
     static const PrintDetailsValidator print_details_validator;
+    static const LaxParsingValidator lax_parsing_validator;
 
     string source_filename_options;
     string checks_enable_options;
@@ -139,7 +159,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         "The argument may be one of 'true', 'false', 'yes'\n"
         "or 'no'.\n")
         ->option_text("BOOLEAN")
-        ->check(print_details_validator);
+        ->check(lax_parsing_validator);
     // Parse the command line arguments
     try
     {
@@ -178,7 +198,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     if (!print_details_option.empty())
     {
         string error_message;
-        const bool parsed_ok = CCmdLineOptions::ParsePrintDetailsArgument(print_details_option, &this->print_details_of_messages_, &error_message);
+        const bool parsed_ok = CCmdLineOptions::ParseBooleanArgument("printdetails", print_details_option, &this->print_details_of_messages_, &error_message);
         if (!parsed_ok)
         {
             this->log_->WriteLineStdErr(error_message);
@@ -189,7 +209,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     if (!lax_parsing_enabled.empty())
     {
         string error_message;
-        const bool parsed_ok = CCmdLineOptions::ParsePrintDetailsArgument(lax_parsing_enabled, &this->lax_parsing_enabled_, &error_message);
+        const bool parsed_ok = CCmdLineOptions::ParseBooleanArgument("laxparsing", lax_parsing_enabled, &this->lax_parsing_enabled_, &error_message);
         if (!parsed_ok)
         {
             this->log_->WriteLineStdErr(error_message);
@@ -402,9 +422,9 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     return true;
 }
 
-/*static*/bool CCmdLineOptions::ParsePrintDetailsArgument(const std::string& str, bool* boolean_value, string* error_message)
+/*static*/bool CCmdLineOptions::ParseBooleanArgument(const std::string& argument_key, const std::string& argument_value, bool* boolean_value, string* error_message)
 {
-    const auto trimmed = trim(str);
+    const auto trimmed = trim(argument_value);
     if (icasecmp(trimmed, "yes") || icasecmp(trimmed, "true") || icasecmp(trimmed, "1"))
     {
         if (boolean_value != nullptr)
@@ -427,7 +447,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     if (error_message != nullptr)
     {
         ostringstream string_stream;
-        string_stream << "Invalid argument for option 'printdetails': \"" << trimmed << "\"";
+        string_stream << "Invalid argument for option '" << argument_key << "': \"" << trimmed << "\"";
         *error_message = string_stream.str();
     }
 
