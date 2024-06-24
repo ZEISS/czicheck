@@ -72,15 +72,14 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         }
     };
 
-    // CLI11-validator for the option "--printdetails".
-    struct PrintDetailsValidator : public CLI::Validator
+    struct BooleanArgumentValidator : public CLI::Validator
     {
-        PrintDetailsValidator()
+        BooleanArgumentValidator(const std::string& argument_key)
         {
-            this->func_ = [](const std::string& str) -> string
+            this->func_ = [argument_key](const std::string& str) -> string
                 {
                     string error_message;
-                    const bool parsed_ok = CCmdLineOptions::ParseBooleanArgument("printdetails", str, nullptr, &error_message);
+                    const bool parsed_ok = CCmdLineOptions::ParseBooleanArgument(argument_key, str, nullptr, &error_message);
                     if (!parsed_ok)
                     {
                         throw CLI::ValidationError(error_message);
@@ -91,23 +90,18 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         }
     };
 
-    // CLI11-validator for the option "--laxparsing".
-    struct LaxParsingValidator : public CLI::Validator
+    // CLI11-validator for the option "--printdetails".
+    struct PrintDetailsValidator : public BooleanArgumentValidator
     {
-        LaxParsingValidator()
-        {
-            this->func_ = [](const std::string& str) -> string
-                {
-                    string error_message;
-                    const bool parsed_ok = CCmdLineOptions::ParseBooleanArgument("laxparsing", str, nullptr, &error_message);
-                    if (!parsed_ok)
-                    {
-                        throw CLI::ValidationError(error_message);
-                    }
+        PrintDetailsValidator() : BooleanArgumentValidator("printdetails")
+        {}
+    };
 
-                    return {};
-                };
-        }
+    // CLI11-validator for the option "--laxparsing".
+    struct LaxParsingValidator : public BooleanArgumentValidator
+    {
+        LaxParsingValidator() : BooleanArgumentValidator("laxparsing")
+        {}
     };
 
     static const ChecksValidator checks_validator;
