@@ -6,7 +6,7 @@
 Running CZICheck with the `--help` option will print a brief summary of the available options and their usage:
 
 ```
-CZICheck version 0.1.2, using libCZI version 0.58.1
+CZICheck version 0.3.0, using libCZI version 0.59.0
 
 Usage: CZICheck [OPTIONS]
 
@@ -39,6 +39,7 @@ Options:
   -d,--printdetails BOOLEAN   Specifies whether to print details (if available) with a
                               finding. The argument may be one of 'true', 'false', 'yes'
                               or 'no'.
+
   -l,--laxparsing BOOLEAN     Specifies whether lax parsing for file opening is enabled.
                               The argument may be one of 'true', 'false', 'yes'
                               or 'no'. Default is 'no'.
@@ -62,7 +63,7 @@ Available checkers (checkers enabled with the default set are marked with '*'):
 * "consecutiveplaneindices" -> Check that planes have consecutive indices
 * "minallsubblks" -> check if all subblocks have the M index
 * "basicxmlmetadata" -> Basic semantic checks of the XML-metadata
-  "xmlmetadataschema" -> validate the XML-metadata against XSD-schema
+* "topographymetadata" -> Basic semantic checks for TopographyDataItems
 * "overlappingscenes" -> check if subblocks at pyramid-layer 0 of different scenes are overlapping
 * "subblkbitmapvalid" -> SubBlock-Segments in SubBlockDirectory are valid and valid content
 ```
