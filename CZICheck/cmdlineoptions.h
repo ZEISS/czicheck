@@ -19,6 +19,7 @@ private:
     std::vector<CZIChecks> checks_enabled_;
     int max_number_of_findings_to_print_;
     bool print_details_of_messages_;
+    bool lax_parsing_enabled_;
 public:
     /// Values that represent the result of the "Parse"-operation.
     enum class ParseResult
@@ -41,6 +42,7 @@ public:
     [[nodiscard]] const std::wstring& GetCZIFilename() const { return this->czi_filename_; }
     [[nodiscard]] int GetMaxNumberOfMessagesToPrint() const { return this->max_number_of_findings_to_print_; }
     [[nodiscard]] bool GetPrintDetailsOfMessages() const { return this->print_details_of_messages_; }
+    [[nodiscard]] bool GetLaxParsingEnabled() const { return this->lax_parsing_enabled_; }
     [[nodiscard]] const std::vector<CZIChecks>& GetChecksEnabled() const { return this->checks_enabled_; }
     [[nodiscard]] const std::shared_ptr<ILog>& GetLog() const { return this->log_; }
 private:

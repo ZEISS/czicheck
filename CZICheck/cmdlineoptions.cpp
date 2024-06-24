@@ -22,7 +22,8 @@ using namespace std;
 CCmdLineOptions::CCmdLineOptions(std::shared_ptr<ILog> log)
     : log_(std::move(log)),
     max_number_of_findings_to_print_(3),
-    print_details_of_messages_(false)
+    print_details_of_messages_(false),
+    lax_parsing_enabled_(true)
 {
     // as default, all the checkers which are not flagged "isOptIn" are enabled
     CCheckerFactory::EnumerateCheckers(
@@ -97,6 +98,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     string checks_enable_options;
     int max_number_of_findings_option;
     string print_details_option;
+    string lax_parsing_enabled;;
     app.add_option("-s,--source", source_filename_options, "Specify the CZI-file to be checked.")
         ->option_text("FILENAME")
         ->required();
@@ -132,7 +134,12 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         "or 'no'.\n")
         ->option_text("BOOLEAN")
         ->check(print_details_validator);
-
+    app.add_option("-l,--laxparsing", lax_parsing_enabled,
+        "Specifies whether lax parsing for file opening is enabled.\n"
+        "The argument may be one of 'true', 'false', 'yes'\n"
+        "or 'no'.\n")
+        ->option_text("BOOLEAN")
+        ->check(print_details_validator);
     // Parse the command line arguments
     try
     {
@@ -172,6 +179,17 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     {
         string error_message;
         const bool parsed_ok = CCmdLineOptions::ParsePrintDetailsArgument(print_details_option, &this->print_details_of_messages_, &error_message);
+        if (!parsed_ok)
+        {
+            this->log_->WriteLineStdErr(error_message);
+            return ParseResult::Error;
+        }
+    }
+
+    if (!lax_parsing_enabled.empty())
+    {
+        string error_message;
+        const bool parsed_ok = CCmdLineOptions::ParsePrintDetailsArgument(lax_parsing_enabled, &this->lax_parsing_enabled_, &error_message);
         if (!parsed_ok)
         {
             this->log_->WriteLineStdErr(error_message);
