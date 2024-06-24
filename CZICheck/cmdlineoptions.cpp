@@ -157,7 +157,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     app.add_option("-l,--laxparsing", lax_parsing_enabled,
         "Specifies whether lax parsing for file opening is enabled.\n"
         "The argument may be one of 'true', 'false', 'yes'\n"
-        "or 'no'.\n")
+        "or 'no'. Default is 'no'.\n")
         ->option_text("BOOLEAN")
         ->check(lax_parsing_validator);
     // Parse the command line arguments

@@ -39,6 +39,9 @@ Options:
   -d,--printdetails BOOLEAN   Specifies whether to print details (if available) with a
                               finding. The argument may be one of 'true', 'false', 'yes'
                               or 'no'.
+  -l,--laxparsing BOOLEAN     Specifies whether lax parsing for file opening is enabled.
+                              The argument may be one of 'true', 'false', 'yes'
+                              or 'no'. Default is 'no'.
 
 
 The exit code of CZICheck is
