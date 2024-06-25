@@ -64,6 +64,7 @@ Available checkers (checkers enabled with the default set are marked with '*'):
 * "minallsubblks" -> check if all subblocks have the M index
 * "basicxmlmetadata" -> Basic semantic checks of the XML-metadata
 * "topographymetadata" -> Basic semantic checks for TopographyDataItems
+  "xmlmetadataschema" -> validate the XML-metadata against XSD-schema
 * "overlappingscenes" -> check if subblocks at pyramid-layer 0 of different scenes are overlapping
 * "subblkbitmapvalid" -> SubBlock-Segments in SubBlockDirectory are valid and valid content
 ```
