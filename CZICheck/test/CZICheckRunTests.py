@@ -132,7 +132,7 @@ def compare_result_of_test_to_knowngood(result: str, knowngood: str):
 def check_file(cmdline_parameters: Parameters, czi_filename: str, expected_result_file: str, expected_returncode: int):
     cmdlineargs = [cmdline_parameters.get_fully_qualified_czicheck_executable(), '-s',
                    cmdline_parameters.build_fully_qualified_czi_filename(czi_filename),
-                   '-c','all']
+                   '-c','all', '--laxparsing', 'true']
     print(f"test {czi_filename}")
 
     output = subprocess.run(cmdlineargs, capture_output=True, check=False, universal_newlines=True)

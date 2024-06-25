@@ -37,7 +37,9 @@ bool CRunChecks::Run(CResultGatherer::AggregatedResult& result)
 
     try
     {
-        spReader->Open(stream);
+        ICZIReader::OpenOptions options;
+        options.lax_subblock_coordinate_checks = this->opts.GetLaxParsingEnabled();
+        spReader->Open(stream, &options);
     }
     catch (exception& ex)
     {
