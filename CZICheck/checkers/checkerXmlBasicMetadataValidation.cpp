@@ -217,9 +217,13 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
         int channel_info_component_bit_count;
         if (!channel_info->TryGetComponentBitCount(&channel_info_component_bit_count))
         {
-            // report a warning if no ComponentBitCount information is found in metadata if
+            // Report a warning if no ComponentBitCount information is found in metadata if
             // * the PixelType information is invalid (i.e. not present)
             // * or, if the PixelType is an integer pixel type, for which we expect a ComponentBitCount information (or: where it is recommended to have it)
+            // 
+            // Note: From a file-format perspective, the ComponentBitCount information is optional and can be omitted. However, as it turned out, existing
+            // software seems to rely on the presence of this information in some cases. Therefore, for the time being, we choose to report a warning if 
+            // the information  is missing.
             if (!channel_info_pixel_type_valid || CCheckBasicMetadataValidation::IsComponentBitCountExpectedForPixelType(channel_info_pixel_type))
             {
                 CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
