@@ -11,6 +11,7 @@ Test "check if all subblocks have the M index" :
  WARN
 Test "Basic semantic checks of the XML-metadata" :
   PixelType mismatch between metadata and sub block-information. channel index: 0, metadata: gray8, subBlock: bgr24
+  No valid ComponentBitCount information found in metadata for channel #0.
  WARN
 Test "validate the XML-metadata against XSD-schema" :
   (91,28): element 'ShuttleAndFindData' is not allowed for content model 'All(Calibration,)'

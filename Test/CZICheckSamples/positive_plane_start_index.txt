@@ -11,6 +11,7 @@ Test "Check that planes have consecutive indices" : OK
 Test "check if all subblocks have the M index" : OK
 Test "Basic semantic checks of the XML-metadata" :
   For the following dimensions the start/size given in metadata differs from document statistics: Z
+  No valid ComponentBitCount information found in metadata for channel #0.
  WARN
 Test "validate the XML-metadata against XSD-schema" : OK
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
