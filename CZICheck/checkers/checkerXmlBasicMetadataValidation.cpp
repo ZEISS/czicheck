@@ -204,8 +204,26 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
         {
             CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
             finding.severity = CResultGatherer::Severity::Info;
-            finding.information = "No valid channel-information found in metadata";
+            stringstream ss;
+            ss << "No valid channel pixel_type information found in metadata for channel #" << channelIndex << ".";
+            finding.information = ss.str();
             this->result_gatherer_.ReportFinding(finding);
+        }
+
+        // check for presence and basal validity of "ComponentBitCount" information
+        int channel_info_component_bit_count;
+        if (!channel_info->TryGetComponentBitCount(&channel_info_component_bit_count))
+        {
+            CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+            finding.severity = CResultGatherer::Severity::Warning;
+            stringstream ss;
+            ss <<"No valid ComponentBitCount information found in metadata for channel #" << channelIndex << ".";
+            finding.information = ss.str();
+            this->result_gatherer_.ReportFinding(finding);
+        }
+        else
+        {
+
         }
     }
 }
