@@ -250,7 +250,7 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
                 CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
                 finding.severity = CResultGatherer::Severity::Warning;
                 stringstream ss;
-                ss << "For channel #"<<channelIndex<<", the ComponentBitCount information in metadata is invalid: "
+                ss << "For channel #" << channelIndex << ", the ComponentBitCount information in metadata is invalid: "
                     << "PixelType: " << Utils::PixelTypeToInformalString(channel_info_pixel_type)
                     << ", ComponentBitCount: " << channel_info_component_bit_count;
                 finding.information = ss.str();
