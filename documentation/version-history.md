@@ -9,3 +9,4 @@ version history                 {#version_history}
  0.2.0          | [10](https://github.com/ZEISS/czicheck/pull/10)      | add checker "topographymetadata"
  0.2.1          | [11](https://github.com/ZEISS/czicheck/pull/11)      | disallow DTD-processing (prevent XXE-vulnerability)
  0.3.0          | [11](https://github.com/ZEISS/czicheck/pull/15)      | enable strict parsing
+ 0.4.0          | [19](https://github.com/ZEISS/czicheck/pull/19)      | add check for "ComponentBitCount" to basicxmlmetadata-checker

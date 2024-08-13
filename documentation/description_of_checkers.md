@@ -80,6 +80,8 @@ Some basic checks of the XML-metadata are performed, which is semantically valid
 used in the subblock's coordinates should be listed (as 'Metadata/Information/Image/Size_') and their size should be given correctly.
 * Under 'Metadata/Information/Image/Channels' there should the same number of 'Channel'-elements as there are channels in the subblock-directory.
 * The pixel-type of a channel should be given correctly under 'Metadata/Information/Image/Channels/Channel[]/PixelType'.
+* If the pixel-type is an integer pixel-type (or the pixel-type is unknown), the presence of the element 'ComponentBitCount' is checked for.
+* In case of pixel-type and ComponentBitCount are given, the combination of both is checked for validity.
 
 ### xmlmetadataschema
 
