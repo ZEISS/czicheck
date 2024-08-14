@@ -213,7 +213,7 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
             this->result_gatherer_.ReportFinding(finding);
         }
 
-        // check for presence and basal validity of "ComponentBitCount" information
+        // check for presence and basic validity of "ComponentBitCount" information
         int channel_info_component_bit_count;
         if (!channel_info->TryGetComponentBitCount(&channel_info_component_bit_count))
         {
