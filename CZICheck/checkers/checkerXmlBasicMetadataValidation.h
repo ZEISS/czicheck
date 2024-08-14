@@ -6,6 +6,7 @@
 
 #include "checkerbase.h"
 #include <memory>
+#include <optional>
 
 /// This checker performs some basic checks on the XML-metadata.
 class CCheckBasicMetadataValidation : public IChecker, CCheckerBase
@@ -39,4 +40,8 @@ private:
     ///
     /// \param  metadata    The libCZI-document-info object.
     void CheckPixelTypeInformation(const std::shared_ptr<libCZI::ICziMetadata>& metadata) const;
+
+    static bool IsComponentBitCountExpectedForPixelType(libCZI::PixelType pixel_type);
+
+    static std::optional<bool> IsComponentBitCountValidForPixelType(libCZI::PixelType pixel_type, int component_bit_count);
 };

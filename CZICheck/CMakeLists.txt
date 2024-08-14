@@ -166,6 +166,7 @@ if (CZICHECK_BUILD_TESTS)
           -r jpgxrcompressed_inconsistent_pixeltype.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/jpgxrcompressed_inconsistent_pixeltype.czi}
           -r edf-missing-texture.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/edf-missing-texture.czi}
           -r edf-superfluous.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/edf-superfluous.czi}
+          -r invalid_componentbitcount.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/invalid_componentbitcount.czi}
     )
 
     # Add a build target to populate the real data.
