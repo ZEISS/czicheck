@@ -93,7 +93,7 @@ void CCheckTopographyApplianceMetadata::CheckValidDimensionInTopographyDataItems
         }
 
         // arriving here, the channel indices left are valid and can be added to a set of channel indices
-        for (const auto& el: txt)
+        for (const auto& el : txt)
         {
             if (el.second.DimensionIndex == libCZI::DimensionIndex::C)
             {
@@ -112,7 +112,7 @@ void CCheckTopographyApplianceMetadata::CheckValidDimensionInTopographyDataItems
         }
 
         // arriving here, the channel indices left are valid and can be added to a set of channel indices
-        for (const auto& el: hmp)
+        for (const auto& el : hmp)
         {
             if (el.second.DimensionIndex == libCZI::DimensionIndex::C)
             {
