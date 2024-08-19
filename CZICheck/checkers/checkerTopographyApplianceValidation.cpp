@@ -241,10 +241,11 @@ bool CCheckTopographyApplianceMetadata::CheckExistenceOfSpecifiedChannels(std::u
     this->reader_->EnumerateSubBlocks([this, &indices_set](int index, const SubBlockInfo& info) -> bool
     {
         int current_start_c { -1 };
-        // for (const auto& channel_index : indices_set)
-        // {
         info.coordinate.TryGetPosition(libCZI::DimensionIndex::C, &current_start_c);
-        // }
+        // Here we check if any of the specified (in the topography metadata) channel indices
+        // match the StartC index of the current subblock in the subblock collection we are iterating over.
+        // When this is the case, we set the corresponding boolean to true, indicating the existence of the
+        // channel index it corresponds with (in the dictionary) in the subblock collection.
         for (auto& el : indices_set)
         {
             el.second |= current_start_c == el.first;
