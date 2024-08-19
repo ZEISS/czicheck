@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include "checkerTopographyApplianceValidation.h"
+#include <algorithm>
 #include <memory>
 #include <unordered_map>
 #include <utility>
@@ -79,18 +80,45 @@ void CCheckTopographyApplianceMetadata::CheckValidDimensionInTopographyDataItems
             return false;
         };
 
+    unordered_map<int, bool> c_indices_set;
     bool superfluous_free{ true };
     bool start_c_defined{ true };
     for (const auto& txt : this->texture_views_)
     {
         superfluous_free &= superfluous_elements_check(txt);
         start_c_defined &= start_c_defined_check(txt);
+        if (!start_c_defined)
+        {
+            continue;
+        }
+
+        // arriving here, the channel indices left are valid and can be added to a set of channel indices
+        for (const auto& el: txt)
+        {
+            if (el.second.DimensionIndex == libCZI::DimensionIndex::C)
+            {
+                c_indices_set.insert({el.second.Start, false});
+            }
+        }
     }
 
     for (const auto& hmp : this->heightmap_views_)
     {
         superfluous_free &= superfluous_elements_check(hmp);
         start_c_defined &= start_c_defined_check(hmp);
+        if (!start_c_defined)
+        {
+            continue;
+        }
+
+        // arriving here, the channel indices left are valid and can be added to a set of channel indices
+        for (const auto& el: hmp)
+        {
+            if (el.second.DimensionIndex == libCZI::DimensionIndex::C)
+            {
+                c_indices_set.insert({el.second.Start, false});
+            }
+        }
     }
 
     if (!superfluous_free)
@@ -106,6 +134,14 @@ void CCheckTopographyApplianceMetadata::CheckValidDimensionInTopographyDataItems
         CResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
         finding.severity = CResultGatherer::Severity::Fatal;
         finding.information = "The image contains TopographyDataItems that do not define a channel.";
+        this->result_gatherer_.ReportFinding(finding);
+    }
+
+    if (!CheckExistenceOfSpecifiedChannels(c_indices_set))
+    {
+        CResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
+        finding.severity = CResultGatherer::Severity::Fatal;
+        finding.information = "The Topography metadata specifies channels for the texture or heightmap subblocks, that are not present in the Subblock Collection of the image.";
         this->result_gatherer_.ReportFinding(finding);
     }
 }
@@ -198,6 +234,29 @@ bool CCheckTopographyApplianceMetadata::ExtractMetaDataDimensions(const std::sha
     }
 
     return false;
+}
+
+bool CCheckTopographyApplianceMetadata::CheckExistenceOfSpecifiedChannels(std::unordered_map<int, bool>& indices_set)
+{
+    this->reader_->EnumerateSubBlocks([this, &indices_set](int index, const SubBlockInfo& info) -> bool
+    {
+        int current_start_c { -1 };
+        // for (const auto& channel_index : indices_set)
+        // {
+        info.coordinate.TryGetPosition(libCZI::DimensionIndex::C, &current_start_c);
+        // }
+        for (auto& el : indices_set)
+        {
+            el.second |= current_start_c == el.first;
+        }
+
+        return true;
+    });
+
+    bool all_specified_channels_exist { true };
+    std::for_each(indices_set.cbegin(), indices_set.cend(), [&all_specified_channels_exist](auto& el){ all_specified_channels_exist &= el.second;});
+
+    return all_specified_channels_exist;
 }
 
 bool CCheckTopographyApplianceMetadata::SetBoundsFromVector(const std::vector<std::pair<std::wstring, std::wstring>>& vec, std::vector<std::unordered_map<char, DimensionView>>& view)

@@ -57,5 +57,6 @@ private:
     void CheckValidDimensionInTopographyDataItems(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata);
 
     bool SetBoundsFromVector(const std::vector<std::pair<std::wstring, std::wstring>>&, std::vector<std::unordered_map<char, DimensionView>>&);
+    bool CheckExistenceOfSpecifiedChannels(std::unordered_map<int, bool>& indices_set);
     bool ExtractMetaDataDimensions(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata);
 };
