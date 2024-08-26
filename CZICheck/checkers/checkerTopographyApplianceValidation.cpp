@@ -257,10 +257,7 @@ bool CCheckTopographyApplianceMetadata::CheckExistenceOfSpecifiedChannels(std::u
         return true;
     });
 
-    bool all_specified_channels_exist { true };
-    std::for_each(indices_set.cbegin(), indices_set.cend(), [&all_specified_channels_exist](auto& el){ all_specified_channels_exist &= el.second;});
-
-    return all_specified_channels_exist;
+    return std::all_of(indices_set.cbegin(), indices_set.cend(), [](const auto& el) { return el.second; });
 }
 
 bool CCheckTopographyApplianceMetadata::SetBoundsFromVector(const std::vector<std::pair<std::wstring, std::wstring>>& vec, std::vector<std::unordered_map<char, DimensionView>>& view)
