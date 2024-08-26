@@ -238,6 +238,11 @@ bool CCheckTopographyApplianceMetadata::ExtractMetaDataDimensions(const std::sha
 
 bool CCheckTopographyApplianceMetadata::CheckExistenceOfSpecifiedChannels(std::unordered_map<int, bool>& indices_set)
 {
+    if (std::all_of(indices_set.cbegin(), indices_set.cend(), [](const auto& el) { return el.second; }))
+    {
+        return true;
+    }
+
     this->reader_->EnumerateSubBlocks([this, &indices_set](int index, const SubBlockInfo& info) -> bool
     {
         int current_start_c { -1 };
