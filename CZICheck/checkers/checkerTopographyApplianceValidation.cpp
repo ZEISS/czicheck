@@ -151,10 +151,10 @@ bool CCheckTopographyApplianceMetadata::ExtractMetaDataDimensions(const std::sha
     // within the TopographyData we allow
     // any number of TopographyDataItem which itself can contain a set of Texutures and a set of heightmaps
     // within the heightmaps AND Textures, each item reside in its own channel.
-    string topography_path{ this->kImageAppliancePath };
+    string topography_path{ CCheckTopographyApplianceMetadata::kImageAppliancePath };
     topography_path
         .append("/Appliance[Id=")
-        .append(this->kTopographyItemId)
+        .append(CCheckTopographyApplianceMetadata::kTopographyItemId)
         .append("]");
 
     const auto topo_metadata{ czi_metadata->GetChildNodeReadonly(topography_path.c_str()) };
