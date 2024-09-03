@@ -101,3 +101,10 @@ jobs:
           echo "name=${name}" >> "$GITHUB_OUTPUT"
           echo "path=release/${name}" >> "$GITHUB_OUTPUT"
           echo "artifactName=Windows-x64" >> "$GITHUB_ENV"  # set the artifactName for the upload step
+
+      - name: Upload artifacts
+        if: matrix.build == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{env.name}}
+          path: release/${{env.name}}/
