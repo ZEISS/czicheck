@@ -68,6 +68,13 @@ jobs:
           cd "${{github.workspace}}/build"
           ctest -C ${{matrix.build}} --verbose
 
+      - name: Prepare licenses
+        if: matrix.build == 'Release'
+        shell: bash
+        run: |
+          set -e
+          cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck
+
       # gather the binaries and put them into a zip-file
       - name: Package
         if: ${{ (matrix.OS == 'ubuntu-latest') }}
