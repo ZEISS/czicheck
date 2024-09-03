@@ -72,8 +72,7 @@ jobs:
         if: matrix.build == 'Release'
         shell: bash
         run: |
-          set -e
-          cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck
+          cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/${{env.BUILD_TYPE}}
 
       # gather the binaries and put them into a zip-file
       - name: Package
@@ -81,7 +80,7 @@ jobs:
         shell: bash
         run: |
           mkdir release
-          cd ./build/CZICheck
+          cd ./build/CZICheck/CZICheck
           zip -r ./../../CZICheck.zip CZICheck
           cd ../..
           name="CZICheck-linux-x64-$(git describe --always).zip"
@@ -107,4 +106,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{env.name}}
-          path: release/${{env.name}}/
+          path: release/${env.name}/
