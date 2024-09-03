@@ -80,7 +80,7 @@ jobs:
         shell: bash
         run: |
           mkdir release
-          cd ./build/CZICheck/CZICheck
+          cd ./build/CZICheck
           zip -r ./../../CZICheck.zip CZICheck
           cd ../..
           name="CZICheck-linux-x64-$(git describe --always).zip"
@@ -106,4 +106,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{env.name}}
-          path: release/${env.name}/
+          path: release/${{env.name}}/
