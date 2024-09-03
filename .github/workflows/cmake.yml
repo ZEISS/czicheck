@@ -77,30 +77,46 @@ jobs:
         run: |
           cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/
 
-      # gather the binaries and put them into a zip-file
       - name: Package
         if: ${{ (matrix.config.os == 'ubuntu-latest') }}
         shell: bash
         run: |
           mkdir release
+          name="CZICheck-linux-x64-$(git describe --always)"
+          mkdir "release/${name}"
           cd ./build/CZICheck
-          zip -r ./../../CZICheck.zip CZICheck THIRD_PARTY_LICENSES.txt
+          cp "CZICheck" "./../../release/${name}/"
+          cp "THIRD_PARTY_LICENSES.txt" "./../../release/${name}/"
           cd ../..
-          name="CZICheck-linux-x64-$(git describe --always).zip"
-          mv -v ./CZICheck.zip "release/${name}"
+          echo "artifactName=${name}" >> "$GITHUB_ENV"
+          echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
 
       - name: Package
         if: ${{ (matrix.config.os == 'windows-latest') }}
         shell: bash
         run: |
           mkdir release
-          7z a -r CZICheck.zip "./build/CZICheck/${{env.BUILD_TYPE}}/*.exe" "./build/CZICheck//THIRD_PARTY_LICENSES.txt"
-          name="CZICheck-windows-win64-$(git describe --always).zip"
-          mv -v ./CZICheck.zip "release/${name}"
+          name="CZICheck-windows-win64-$(git describe --always)"
+          mkdir "release/${name}"
+          cp ./build/CZICheck/${{env.BUILD_TYPE}}/*.exe "release/${name}/"
+          cp ./build/CZICheck/THIRD_PARTY_LICENSES.txt "release/${name}/"
+          echo "artifactName=${name}" >> "$GITHUB_ENV"
+          echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
+
+      - name: Debug Folder and File Tree Build
+        run: |
+          # Install tree if not available
+          sudo apt-get install tree -y
+          tree -L 10 -a build
+      - name: Debug Folder and File Tree Release
+        run: |
+          # Install tree if not available
+          sudo apt-get install tree -y
+          tree -L 10 -a release
 
       - name: Upload artifacts
         if: matrix.build == 'Release'
         uses: actions/upload-artifact@v4
         with:
-          path: release
-          name: CZICheck_${{ matrix.config.osfamily }}-x64
+          path: ${{ env.artifactPath }}/
+          name: ${{ env.artifactName }}
