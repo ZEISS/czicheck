@@ -72,7 +72,7 @@ jobs:
         if: matrix.build == 'Release'
         shell: bash
         run: |
-          cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/${{env.BUILD_TYPE}}
+          cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/
 
       # gather the binaries and put them into a zip-file
       - name: Package
@@ -85,25 +85,33 @@ jobs:
           cd ../..
           name="CZICheck-linux-x64-$(git describe --always).zip"
           mv -v ./CZICheck.zip "release/${name}"
-          echo "name=${name}" >> "$GITHUB_OUTPUT"
-          echo "path=release/${name}" >> "$GITHUB_OUTPUT"
-          echo "artifactName=Linux-x64" >> "$GITHUB_ENV"  # set the artifactName for the upload step
+          echo "name=${name}; zippath=release/${name}; artifactName=Linux-x64" >> "$GITHUB_ENV"
 
       - name: Package
         if: ${{ (matrix.OS == 'windows-latest') }}
         shell: bash
         run: |
           mkdir release
-          7z a -r CZICheck.zip "./build/CZICheck/${{env.BUILD_TYPE}}/*.exe"
+          7z a -r CZICheck.zip "./build/CZICheck/${{env.BUILD_TYPE}}/*.exe" "./build/CZICheck/${{env.BUILD_TYPE}}/THIRD_PARTY_LICENSES.txt"
           name="CZICheck-windows-win64-$(git describe --always).zip"
           mv -v ./CZICheck.zip "release/${name}"
-          echo "name=${name}" >> "$GITHUB_OUTPUT"
-          echo "path=release/${name}" >> "$GITHUB_OUTPUT"
-          echo "artifactName=Windows-x64" >> "$GITHUB_ENV"  # set the artifactName for the upload step
+          echo "name=${name}; zippath=release/${name}; artifactName=Windows-x64" >> "$GITHUB_ENV"
+
+      - name: Debug Folder and File Tree Build
+        run: |
+          # Install tree if not available
+          sudo apt-get install tree -y
+          tree -L 10 -a build
+
+      - name: Debug Folder and File Tree Release
+        run: |
+          # Install tree if not available
+          sudo apt-get install tree -y
+          tree -L 10 -a release
 
       - name: Upload artifacts
         if: matrix.build == 'Release'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{env.name}}
-          path: release/${{env.name}}/
+          name: ${{env.artifactName}}
+          path: release
