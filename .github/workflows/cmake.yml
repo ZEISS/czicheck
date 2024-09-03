@@ -15,32 +15,34 @@ jobs:
       matrix:
         # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
         build: [Release]
-        os: [ubuntu-latest, windows-latest]
+        config:
+          - {os: ubuntu-latest, osfamily: linux}
+          - {os: windows-latest. osfamily: win}
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.config.os }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
       - name: Install dependencies (Windows)
-        if: ${{ (matrix.OS == 'windows-latest') }}
+        if: ${{ (matrix.config.os == 'windows-latest') }}
         # on Windows, we rely on vcpkg to pull in dependencies
         shell: bash
         run: |
           vcpkg install xerces-c --triplet x64-windows-static
 
       - name: Install dependencies (Linux)
-        if: ${{ (matrix.OS == 'ubuntu-latest') }}
+        if: ${{ (matrix.config.os == 'ubuntu-latest') }}
         # on Linux, we use apt to get our dependencies
         shell: bash
         run: |
           sudo apt-get install libxerces-c-dev -y
 
       - name: Configure CMake (Windows)
-        if: ${{ (matrix.OS == 'windows-latest') }}
+        if: ${{ (matrix.config.os == 'windows-latest') }}
         shell: bash
         run: |
           # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -52,7 +54,7 @@ jobs:
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Configure CMake (Linux)
-        if: ${{ (matrix.OS == 'ubuntu-latest') }}
+        if: ${{ (matrix.config.os == 'ubuntu-latest') }}
         shell: bash
         run: |
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
@@ -76,42 +78,28 @@ jobs:
 
       # gather the binaries and put them into a zip-file
       - name: Package
-        if: ${{ (matrix.OS == 'ubuntu-latest') }}
+        if: ${{ (matrix.config.os == 'ubuntu-latest') }}
         shell: bash
         run: |
           mkdir release
           cd ./build/CZICheck
-          zip -r ./../../CZICheck.zip CZICheck
+          zip -r ./../../CZICheck.zip CZICheck THIRD_PARTY_LICENSES.txt
           cd ../..
           name="CZICheck-linux-x64-$(git describe --always).zip"
           mv -v ./CZICheck.zip "release/${name}"
-          echo "name=${name}; zippath=release/${name}; artifactName=Linux-x64" >> "$GITHUB_ENV"
 
       - name: Package
-        if: ${{ (matrix.OS == 'windows-latest') }}
+        if: ${{ (matrix.config.os == 'windows-latest') }}
         shell: bash
         run: |
           mkdir release
-          7z a -r CZICheck.zip "./build/CZICheck/${{env.BUILD_TYPE}}/*.exe" "./build/CZICheck/${{env.BUILD_TYPE}}/THIRD_PARTY_LICENSES.txt"
+          7z a -r CZICheck.zip "./build/CZICheck/${{env.BUILD_TYPE}}/*.exe" "./build/CZICheck//THIRD_PARTY_LICENSES.txt"
           name="CZICheck-windows-win64-$(git describe --always).zip"
           mv -v ./CZICheck.zip "release/${name}"
-          echo "name=${name}; zippath=release/${name}; artifactName=Windows-x64" >> "$GITHUB_ENV"
-
-      - name: Debug Folder and File Tree Build
-        run: |
-          # Install tree if not available
-          sudo apt-get install tree -y
-          tree -L 10 -a build
-
-      - name: Debug Folder and File Tree Release
-        run: |
-          # Install tree if not available
-          sudo apt-get install tree -y
-          tree -L 10 -a release
 
       - name: Upload artifacts
         if: matrix.build == 'Release'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{env.artifactName}}
           path: release
+          name: CZICheck_${{ matrix.config.osfamily }}-x64
