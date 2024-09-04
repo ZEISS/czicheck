@@ -65,7 +65,7 @@ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVE
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -------------------------------------------------------------------------------
-|  xerces-c 3.2.3 (used under Apache 2.0 License) https://github.com/apache/xerces-c
+|  xerces-c 3.2.3-3.2.5 (used under Apache 2.0 License) https://github.com/apache/xerces-c
 -------------------------------------------------------------------------------
 
 --- --- --- --- --- --- --- Copyright notice(s) --- --- --- --- --- --- --- ---

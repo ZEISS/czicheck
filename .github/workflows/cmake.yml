@@ -103,17 +103,6 @@ jobs:
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
 
-      - name: Debug Folder and File Tree Build
-        run: |
-          # Install tree if not available
-          sudo apt-get install tree -y
-          tree -L 10 -a build
-      - name: Debug Folder and File Tree Release
-        run: |
-          # Install tree if not available
-          sudo apt-get install tree -y
-          tree -L 10 -a release
-
       - name: Upload artifacts
         if: matrix.build == 'Release'
         uses: actions/upload-artifact@v4
