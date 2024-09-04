@@ -98,7 +98,7 @@ jobs:
           mkdir release
           name="CZICheck-windows-win64-$(git describe --always)"
           mkdir "release/${name}"
-          cp ./build/CZICheck/${{env.BUILD_TYPE}}/*.exe "release/${name}/"
+          cp ./build/CZICheck/${{ matrix.build }}/*.exe "release/${name}/"
           cp ./build/CZICheck/THIRD_PARTY_LICENSES.txt "release/${name}/"
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
