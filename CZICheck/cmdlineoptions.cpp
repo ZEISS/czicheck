@@ -72,6 +72,24 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         }
     };
 
+    struct EncodingValidator : public CLI::Validator
+    {
+        EncodingValidator()
+        {
+            this->func_ = [](const std::string& str) -> string
+            {
+                string error_message;
+                const bool parsed_ok = CCmdLineOptions::ParseEncodingArgument(str, nullptr, error_message);
+                if (!parsed_ok)
+                {
+                    throw CLI::ValidationError(error_message);
+                }
+
+                return {};
+            };
+        }
+    };
+
     struct BooleanArgumentValidator : public CLI::Validator
     {
         explicit BooleanArgumentValidator(const std::string& argument_key)
@@ -105,6 +123,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     };
 
     static const ChecksValidator checks_validator;
+    static const EncodingValidator encodings_validator;
     static const PrintDetailsValidator print_details_validator;
     static const LaxParsingValidator lax_parsing_validator;
 
@@ -112,7 +131,8 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     string checks_enable_options;
     int max_number_of_findings_option;
     string print_details_option;
-    string lax_parsing_enabled;;
+    string lax_parsing_enabled;
+    string result_encoding_option;
     app.add_option("-s,--source", source_filename_options, "Specify the CZI-file to be checked.")
         ->option_text("FILENAME")
         ->required();
@@ -154,6 +174,12 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         "or 'no'. Default is 'no'.\n")
         ->option_text("BOOLEAN")
         ->check(lax_parsing_validator);
+    app.add_option("-e,--encoding", result_encoding_option,
+                   "Specifies which encoding should be used for result reporting.\n"
+                  "The argument may be one of 'json', 'xml', 'text'. Default is 'text'.\n")
+        ->option_text("ENCODING")
+        ->check(encodings_validator);
+
     // Parse the command line arguments
     try
     {
@@ -211,6 +237,17 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         }
     }
 
+    if (!result_encoding_option.empty())
+    {
+        string error_message;
+        const bool parsed_ok = CCmdLineOptions::ParseEncodingArgument(result_encoding_option, &this->result_encoding_type_, error_message);
+        if (!parsed_ok)
+        {
+            this->log_->WriteLineStdErr(error_message);
+            return ParseResult::Error;
+        }
+    }
+
     return  ParseResult::OK;
 }
 
@@ -247,6 +284,35 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     string_stream << "CZICheck version " << CZICHECK_VERSION_MAJOR << '.' << CZICHECK_VERSION_MINOR << '.' << CZICHECK_VERSION_PATCH;
     string_stream << ", using libCZI version " << libCZI_version_major << '.' << libCZI_version_minor << '.' << libCZI_version_patch << endl;
     return string_stream.str();
+}
+
+/*static*/bool CCmdLineOptions::ParseEncodingArgument(const std::string& str, EncodingType* encoding, std::string& error_message)
+{
+    error_message.clear();
+
+    if (encoding == nullptr)
+    {
+        return true;
+    }
+
+    if (icasecmp("text", str))
+    {
+        *encoding = EncodingType::TEXT;
+        return true;
+    }
+    if (icasecmp("json", str))
+    {
+        *encoding = EncodingType::JSON;
+        return true;
+    }
+    else if (icasecmp("xml", str))
+    {
+        *encoding = EncodingType::XML;
+        return true;
+    }
+
+    error_message = "The encoding option you passed is unknown.";
+    return false;
 }
 
 /*static*/bool CCmdLineOptions::ParseChecksArgument(const std::string& str, std::vector<CZIChecks>* checks_enabled, std::string* error_message)
