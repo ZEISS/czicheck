@@ -97,7 +97,9 @@ set_target_properties(CZICheck PROPERTIES CXX_STANDARD 17)
 target_compile_definitions(CZICheck PRIVATE _LIBCZISTATICLIB)
 
 target_link_libraries(CZICheck PRIVATE libCZIStatic CLI11::CLI11)
-target_include_directories(CZICheck PRIVATE ${LIBCZI_INCLUDE_DIR})
+target_include_directories(CZICheck
+  PRIVATE ${LIBCZI_INCLUDE_DIR}
+  PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
 if (XercesC_FOUND)
     target_link_libraries(CZICheck PRIVATE ${XercesC_LIBRARY})
 endif()

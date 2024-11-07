@@ -62,5 +62,6 @@ bool CRunChecks::Run(CResultGatherer::AggregatedResult& result)
     }
 
     result = resultsGatherer.GetAggregatedResult();
+    resultsGatherer.UglyReportFinalHack();
     return true;
 }

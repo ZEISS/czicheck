@@ -10,6 +10,13 @@
 #include "cmdlineoptions.h"
 #include "checks.h"
 
+#include "rapidjson/document.h"
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
+
+
 /// This class is intended to receive the findings from the individual checks. It is 
 /// responsible for outputting them, and aggregating an overall result.
 /// It relies on the semantic of:
@@ -21,6 +28,9 @@
 class CResultGatherer
 {
 private:
+    rapidjson::Document json_document_;
+    rapidjson::Value test_results_;
+    std::string current_checker_id;
     struct CheckResult
     {
         CheckResult() : fatalMessagesCount(0), warningMessagesCount(0), infoMessagesCount(0) {}
@@ -58,12 +68,25 @@ public:
         Severity    severity;
         std::string information;
         std::string details;
+        constexpr const char* FindingSeverityToString() const
+        {
+            switch (severity)
+            {
+                case Severity::Info: return "INFO";
+                case Severity::Warning: return "WARNING";
+                case Severity::Fatal: return "FATAL";
+                default: return "UNKNOWN";
+            }
+        }
     };
 public:
     explicit CResultGatherer(const CCmdLineOptions& options);
     void StartCheck(CZIChecks check);
+    void StartCheckJson(CZIChecks check);
     void ReportFinding(const Finding& finding);
+    void ReportFindingJson(const Finding& finding);
     void FinishCheck(CZIChecks check);
+    void UglyReportFinalHack();
 
     AggregatedResult GetAggregatedResult();
 private:

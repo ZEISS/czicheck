@@ -5,6 +5,7 @@
 #pragma once
 
 /// This enum defines the checks that can be performed by CZICheck.
+#include <stdexcept>
 enum class CZIChecks 
 {
     /// It is checked whether all file-positions given in the subblock-directory are within the limits of the filesize.
@@ -57,3 +58,30 @@ enum class CZIChecks
     /// The Applicance Metadata specified for TopographyDataItem(s) are valid
     ApplianceMetadataTopographyItemValid,
 };
+
+constexpr const char* CZIChecksToString(CZIChecks czi_check)
+{
+    switch (czi_check)
+    {
+        case CZIChecks::SubBlockDirectoryPositionsWithinRange: return "SubBlockDirectoryPositionsWithinRange";
+        case CZIChecks::SubBlockDirectorySegmentValid: return "SubBlockDirectorySegmentValid";
+        case CZIChecks::ConsistentSubBlockCoordinates: return "ConsistentSubBlockCoordinates";
+        case CZIChecks::DuplicateSubBlockCoordinates: return "DuplicateSubBlockCoordinates";
+        case CZIChecks::BenabledDocument: return "BenabledDocument";
+        case CZIChecks::SamePixeltypePerChannel: return "SamePixeltypePerChannel";
+        case CZIChecks::PlanesIndicesStartAtZero: return "PlanesIndicesStartAtZero";
+        case CZIChecks::PlaneIndicesAreConsecutive: return "PlaneIndicesAreConsecutive";
+        case CZIChecks::SubblocksHaveMindex: return "SubblocksHaveMindex";
+        case CZIChecks::BasicMetadataValidation: return "BasicMetadataValidation";
+        case CZIChecks::XmlMetadataSchemaValidation: return "XmlMetadataSchemaValidation";
+        case CZIChecks::CCheckOverlappingScenesOnLayer0: return "CCheckOverlappingScenesOnLayer0";
+        case CZIChecks::CheckSubBlockBitmapValid: return "CheckSubBlockBitmapValid";
+        case CZIChecks::ConsistentMIndex: return "ConsistentMIndex";
+        case CZIChecks::AttachmentDirectoryPositionsWithinRange: return "AttachmentDirectoryPositionsWithinRange";
+        case CZIChecks::ApplianceMetadataTopographyItemValid: return "ApplianceMetadataTopographyItemValid";
+        default: throw std::invalid_argument("No known conversion from CZIChecks to char");
+    }
+}
+
+
+
