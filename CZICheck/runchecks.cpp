@@ -6,6 +6,7 @@
 #include "inc_libCZI.h"
 #include "utils.h"
 #include "checkerfactory.h"
+#include "resultgathererfactory.h"
 #include <sstream>
 #include <memory>
 #include <utility>
@@ -49,59 +50,19 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
         return false;
     }
 
-    if (this->opts.GetEncodingType() == CCmdLineOptions::EncodingType::JSON)
+    auto resultsGatherer = CreateResultGatherer(opts);
+
+    CheckerCreateInfo checkerAdditionalInfo;
+    checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
+
+    const auto& checksToRun = this->opts.GetChecksEnabled();
+    for (auto checkType : checksToRun)
     {
-        CResultGathererJson resultsGatherer(opts);
-
-        CheckerCreateInfo checkerAdditionalInfo;
-        checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
-
-        const auto& checksToRun = this->opts.GetChecksEnabled();
-        for (auto checkType : checksToRun)
-        {
-            auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
-            checker->RunCheck();
-        }
-
-        result = resultsGatherer.GetAggregatedResult();
-        resultsGatherer.FinalizeChecks();
-        return true;
-    }
-    else if (this->opts.GetEncodingType() == CCmdLineOptions::EncodingType::XML)
-    {
-        CResultGathererXml resultsGatherer(opts);
-
-        CheckerCreateInfo checkerAdditionalInfo;
-        checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
-
-        const auto& checksToRun = this->opts.GetChecksEnabled();
-        for (auto checkType : checksToRun)
-        {
-            auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
-            checker->RunCheck();
-        }
-
-        result = resultsGatherer.GetAggregatedResult();
-        resultsGatherer.FinalizeChecks();
-        return true;
-    }
-    else
-    {
-        CResultGatherer resultsGatherer(opts);
-
-        CheckerCreateInfo checkerAdditionalInfo;
-        checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
-
-        const auto& checksToRun = this->opts.GetChecksEnabled();
-        for (auto checkType : checksToRun)
-        {
-            auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
-            checker->RunCheck();
-        }
-
-        result = resultsGatherer.GetAggregatedResult();
-        resultsGatherer.FinalizeChecks();
-        return true;
+        auto checker = CCheckerFactory::CreateChecker(checkType, spReader, *resultsGatherer, checkerAdditionalInfo);
+        checker->RunCheck();
     }
 
+    result = resultsGatherer->GetAggregatedResult();
+    resultsGatherer->FinalizeChecks();
+    return true;
 }

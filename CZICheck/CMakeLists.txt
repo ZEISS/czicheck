@@ -90,6 +90,7 @@ resultgathererjson.h
 resultgathererjson.cpp
 resultgathererxml.h
 resultgathererxml.cpp
+resultgathererfactory.h
 runchecks.cpp
 runchecks.h
 utils.h
