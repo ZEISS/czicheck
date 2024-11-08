@@ -9,12 +9,13 @@
 #include <map>
 #include "cmdlineoptions.h"
 #include "checks.h"
+#include "IResultGatherer.h"
 
-#include "rapidjson/document.h"
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-#include "rapidjson/prettywriter.h"
+// #include "rapidjson/document.h"
+// #include "rapidjson/rapidjson.h"
+// #include "rapidjson/writer.h"
+// #include "rapidjson/stringbuffer.h"
+// #include "rapidjson/prettywriter.h"
 
 
 /// This class is intended to receive the findings from the individual checks. It is 
@@ -25,70 +26,21 @@
 ///    many times as necessary)
 /// - when a checker is done, it calls into 'FinishCheck'.  
 /// Deviating from this semantic results in undefined behavior.
-class CResultGatherer
+class CResultGatherer : public IResultGatherer
 {
 private:
-    rapidjson::Document json_document_;
-    rapidjson::Value test_results_;
-    std::string current_checker_id;
-    struct CheckResult
-    {
-        CheckResult() : fatalMessagesCount(0), warningMessagesCount(0), infoMessagesCount(0) {}
-        std::uint32_t fatalMessagesCount;
-        std::uint32_t warningMessagesCount;
-        std::uint32_t infoMessagesCount;
-
-        std::uint32_t GetTotalMessagesCount() const { return this->fatalMessagesCount + this->warningMessagesCount + this->infoMessagesCount; }
-    };
-
-    std::map<CZIChecks, CheckResult> results_;
-
+    // std::map<CZIChecks, CheckResult> results_;
     const CCmdLineOptions& options_;
-public:
-    /// Values that represent the severity of the finding.
-    enum class Severity
-    {
-        Fatal,          ///< The finding is a fatal issue, i. e. the CZI-document is considered invalid and adverse behavior is expected.
-        Warning,        ///< The finding is a warning, i. e. a problem has been detected which may result in adverse behavior.
-        Info            ///< The finding is informational.
-    };
+    // rapidjson::Document json_document_;
+    // rapidjson::Value test_results_;
+    // std::string current_checker_id;
 
-    /// Values that represent the "aggregated result" of the complete run.
-    enum class AggregatedResult
-    {
-        OK,                 ///< No warnings or fatal errors, only info.
-        WithWarnings,       ///< There have been one or more warnings, but not fatal error.
-        ErrorsDetected      ///< There have been one or more fatal errors.
-    };
-
-    struct Finding
-    {
-        explicit Finding(CZIChecks check) :check(check), severity(Severity::Info) {}
-        CZIChecks   check;
-        Severity    severity;
-        std::string information;
-        std::string details;
-        constexpr const char* FindingSeverityToString() const
-        {
-            switch (severity)
-            {
-                case Severity::Info: return "INFO";
-                case Severity::Warning: return "WARNING";
-                case Severity::Fatal: return "FATAL";
-                default: return "UNKNOWN";
-            }
-        }
-    };
 public:
     explicit CResultGatherer(const CCmdLineOptions& options);
-    void StartCheck(CZIChecks check);
+    void StartCheck(CZIChecks check) override;
     void StartCheckJson(CZIChecks check);
-    void ReportFinding(const Finding& finding);
+    void ReportFinding(const Finding& finding) override;
     void ReportFindingJson(const Finding& finding);
-    void FinishCheck(CZIChecks check);
-    void UglyReportFinalHack();
-
-    AggregatedResult GetAggregatedResult();
-private:
-    static void IncrementCounter(Severity severity, CheckResult& result);
+    void FinishCheck(CZIChecks check) override;
+    void FinalizeChecks() override;
 };

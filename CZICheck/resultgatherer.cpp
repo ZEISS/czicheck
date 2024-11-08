@@ -6,9 +6,6 @@
 #include "checkerfactory.h"
 #include "checks.h"
 #include "cmdlineoptions.h"
-#include "rapidjson/document.h"
-#include "rapidjson/rapidjson.h"
-#include "rapidjson/stringbuffer.h"
 #include <algorithm>
 #include <ostream>
 #include <sstream>
@@ -19,36 +16,36 @@ using namespace std;
 CResultGatherer::CResultGatherer(const CCmdLineOptions& options)
     : options_(options)
 {
-    this->json_document_.SetArray();
-    this->test_results_ = rapidjson::Value(rapidjson::kArrayType);
+    // this->json_document_.SetArray();
+    // this->test_results_ = rapidjson::Value(rapidjson::kArrayType);
 }
 
-void CResultGatherer::StartCheckJson(CZIChecks check)
-{
-    const auto add_test = [&](const char* test_name, const char* display_name) -> void
-    {
-        auto allocator = this->json_document_.GetAllocator();
-        rapidjson::Value test_run(rapidjson::kObjectType);
-        test_run.AddMember("test", rapidjson::Value().SetString(test_name, allocator), allocator);
-        test_run.AddMember("description", rapidjson::Value().SetString(display_name, allocator), allocator);
-        test_run.AddMember("result", rapidjson::Value(rapidjson::kStringType), allocator);
-        test_run.AddMember("findings", rapidjson::Value(rapidjson::kArrayType), allocator);
-        this->test_results_.PushBack(test_run, allocator);
-        this->current_checker_id = std::string(test_name);
-    };
+// void CResultGatherer::StartCheckJson(CZIChecks check)
+// {
+//     const auto add_test = [&](const char* test_name, const char* display_name) -> void
+//     {
+//         auto allocator = this->json_document_.GetAllocator();
+//         rapidjson::Value test_run(rapidjson::kObjectType);
+//         test_run.AddMember("test", rapidjson::Value().SetString(test_name, allocator), allocator);
+//         test_run.AddMember("description", rapidjson::Value().SetString(display_name, allocator), allocator);
+//         test_run.AddMember("result", rapidjson::Value(rapidjson::kStringType), allocator);
+//         test_run.AddMember("findings", rapidjson::Value(rapidjson::kArrayType), allocator);
+//         this->test_results_.PushBack(test_run, allocator);
+//         this->current_checker_id = std::string(test_name);
+//     };
 
-    const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check).c_str();
-    add_test(CZIChecksToString(check), checker_display_name);
-}
+//     const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check).c_str();
+//     add_test(CZIChecksToString(check), checker_display_name);
+// }
 
 void CResultGatherer::StartCheck(CZIChecks check)
 {
-    if (this->options_.GetEncodingType() == CCmdLineOptions::EncodingType::JSON)
-    {
-        this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
-        this->StartCheckJson(check);
-        return;
-    }
+    // if (this->options_.GetEncodingType() == CCmdLineOptions::EncodingType::JSON)
+    // {
+    //     this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
+    //     this->StartCheckJson(check);
+    //     return;
+    // }
 
     const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check);
     ostringstream ss;
@@ -64,41 +61,41 @@ void CResultGatherer::FinishCheck(CZIChecks check)
 
     const auto& result = it->second;
 
-    if (this->options_.GetEncodingType() == CCmdLineOptions::EncodingType::JSON)
-    {
-        const auto writeFinding = [&]() -> bool
-        {
-            auto allocator = this->json_document_.GetAllocator();
-            bool found_key { false };
-            for (int res { 0 }; res < this->test_results_.Size(); ++res)
-            {
-                if (this->test_results_[res]["test"].GetString() == this->current_checker_id)
-                {
-                    found_key = true;
-                    ostringstream ss;
-                    if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
-                    {
-                        ss << "OK";
-                    }
-                    else if (result.fatalMessagesCount == 0)
-                    {
-                        ss << "WARN";
-                    }
-                    else
-                    {
-                        ss << "FAIL";
-                    }
+    // if (this->options_.GetEncodingType() == CCmdLineOptions::EncodingType::JSON)
+    // {
+    //     const auto writeFinding = [&]() -> bool
+    //     {
+    //         auto allocator = this->json_document_.GetAllocator();
+    //         bool found_key { false };
+    //         for (int res { 0 }; res < this->test_results_.Size(); ++res)
+    //         {
+    //             if (this->test_results_[res]["test"].GetString() == this->current_checker_id)
+    //             {
+    //                 found_key = true;
+    //                 ostringstream ss;
+    //                 if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
+    //                 {
+    //                     ss << "OK";
+    //                 }
+    //                 else if (result.fatalMessagesCount == 0)
+    //                 {
+    //                     ss << "WARN";
+    //                 }
+    //                 else
+    //                 {
+    //                     ss << "FAIL";
+    //                 }
 
-                    this->test_results_[res]["result"].SetString(ss.str().c_str(), allocator);
-                }
-            }
+    //                 this->test_results_[res]["result"].SetString(ss.str().c_str(), allocator);
+    //             }
+    //         }
 
-            return found_key;
-        };
-        writeFinding();
+    //         return found_key;
+    //     };
+    //     writeFinding();
 
-        return;
-    }
+    //     return;
+    // }
 
     if (this->options_.GetMaxNumberOfMessagesToPrint() > 0)
     {
@@ -138,32 +135,11 @@ void CResultGatherer::ReportFinding(const Finding& finding)
     const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
     IncrementCounter(finding.severity, it->second);
 
-    const auto writeFinding = [&](const Finding& finding) -> bool
-    {
-        auto allocator = this->json_document_.GetAllocator();
-        bool found_key { false };
-        for (int res { 0 }; res < this->test_results_.Size(); ++res)
-        {
-            if (this->test_results_[res]["test"].GetString() == this->current_checker_id)
-            {
-                found_key = true;
-                rapidjson::Value current_finding(rapidjson::kObjectType);
-                current_finding.SetObject()
-                    .AddMember("severity", rapidjson::StringRef(finding.FindingSeverityToString()), allocator)
-                    .AddMember("description", rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
-                    .AddMember("details", rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
-                this->test_results_[res]["findings"].PushBack(current_finding, allocator);
-            }
-        }
-
-        return found_key;
-    };
-
-    if (this->options_.GetEncodingType() == CCmdLineOptions::EncodingType::JSON)
-    {
-        writeFinding(finding);
-        return;
-    }
+    // if (this->options_.GetEncodingType() == CCmdLineOptions::EncodingType::JSON)
+    // {
+    //     this->ReportFindingJson(finding);
+    //     return;
+    // }
 
     if (this->options_.GetMaxNumberOfMessagesToPrint() < 0 ||
         no_of_findings_so_far < this->options_.GetMaxNumberOfMessagesToPrint())
@@ -187,73 +163,99 @@ void CResultGatherer::ReportFinding(const Finding& finding)
     }
 }
 
-CResultGatherer::AggregatedResult CResultGatherer::GetAggregatedResult()
+// void CResultGatherer::ReportFindingJson(const Finding& finding)
+// {
+//     const auto writeFinding = [&](const Finding& finding) -> bool
+//     {
+//         auto allocator = this->json_document_.GetAllocator();
+//         bool found_key { false };
+//         for (int res { 0 }; res < this->test_results_.Size(); ++res)
+//         {
+//             if (this->test_results_[res]["test"].GetString() == this->current_checker_id)
+//             {
+//                 found_key = true;
+//                 rapidjson::Value current_finding(rapidjson::kObjectType);
+//                 current_finding.SetObject()
+//                     .AddMember("severity", rapidjson::StringRef(finding.FindingSeverityToString()), allocator)
+//                     .AddMember("description", rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
+//                     .AddMember("details", rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
+//                 this->test_results_[res]["findings"].PushBack(current_finding, allocator);
+//             }
+//         }
+
+//         return found_key;
+//     };
+
+//     writeFinding(finding);
+// }
+
+// CResultGatherer::AggregatedResult CResultGatherer::GetAggregatedResult()
+// {
+//     std::uint32_t total_fatal_messages_count = 0;
+//     std::uint32_t total_warning_messages_count = 0;
+//     std::uint32_t total_info_messages_count = 0;
+//     for (auto const& i : this->results_)
+//     {
+//         total_fatal_messages_count += i.second.fatalMessagesCount;
+//         total_warning_messages_count += i.second.warningMessagesCount;
+//         total_info_messages_count += i.second.warningMessagesCount;
+//     }
+
+//     if (total_fatal_messages_count > 0)
+//     {
+//         return AggregatedResult::ErrorsDetected;
+//     }
+
+//     if (total_warning_messages_count > 0)
+//     {
+//         return AggregatedResult::WithWarnings;
+//     }
+
+//     return AggregatedResult::OK;
+// }
+
+// /*static*/void CResultGatherer::IncrementCounter(Severity severity, CheckResult& result)
+// {
+//     switch (severity)
+//     {
+//     case Severity::Fatal:
+//         ++result.fatalMessagesCount;
+//         break;
+//     case Severity::Warning:
+//         ++result.warningMessagesCount;
+//         break;
+//     case Severity::Info:
+//         ++result.infoMessagesCount;
+//         break;
+//     }
+// }
+
+void CResultGatherer::FinalizeChecks()
 {
-    std::uint32_t total_fatal_messages_count = 0;
-    std::uint32_t total_warning_messages_count = 0;
-    std::uint32_t total_info_messages_count = 0;
-    for (auto const& i : this->results_)
-    {
-        total_fatal_messages_count += i.second.fatalMessagesCount;
-        total_warning_messages_count += i.second.warningMessagesCount;
-        total_info_messages_count += i.second.warningMessagesCount;
-    }
+    // this->json_document_.SetObject();
+    // auto allocator = this->json_document_.GetAllocator();
 
-    if (total_fatal_messages_count > 0)
-    {
-        return AggregatedResult::ErrorsDetected;
-    }
+    // ostringstream ss;
+    // switch (this->GetAggregatedResult()) {
+    //     case CResultGatherer::AggregatedResult::WithWarnings:
+    //         ss << "WARN";
+    //         break;
+    //     case CResultGatherer::AggregatedResult::ErrorsDetected:
+    //         ss << "FAIL";
+    //         break;
+    //     default:
+    //         ss << "OK";
+    // }
 
-    if (total_warning_messages_count > 0)
-    {
-        return AggregatedResult::WithWarnings;
-    }
+    // this->json_document_.AddMember("aggregatedresult", rapidjson::Value().SetString(ss.str().c_str(), allocator), allocator);
+    // this->json_document_.AddMember("tests", this->test_results_, allocator);
 
-    return AggregatedResult::OK;
-}
-
-/*static*/void CResultGatherer::IncrementCounter(Severity severity, CheckResult& result)
-{
-    switch (severity)
-    {
-    case Severity::Fatal:
-        ++result.fatalMessagesCount;
-        break;
-    case Severity::Warning:
-        ++result.warningMessagesCount;
-        break;
-    case Severity::Info:
-        ++result.infoMessagesCount;
-        break;
-    }
-}
-
-void CResultGatherer::UglyReportFinalHack()
-{
-    this->json_document_.SetObject();
-    auto allocator = this->json_document_.GetAllocator();
-
-    ostringstream ss;
-    switch (this->GetAggregatedResult()) {
-        case CResultGatherer::AggregatedResult::WithWarnings:
-            ss << "WARN";
-            break;
-        case CResultGatherer::AggregatedResult::ErrorsDetected:
-            ss << "FAIL";
-            break;
-        default:
-            ss << "OK";
-    }
-
-    this->json_document_.AddMember("aggregatedresult", rapidjson::Value().SetString(ss.str().c_str(), allocator), allocator);
-    this->json_document_.AddMember("tests", this->test_results_, allocator);
-
-    rapidjson::StringBuffer str_buf;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(str_buf);
-    this->json_document_.Accept(writer);
     // rapidjson::StringBuffer str_buf;
     // rapidjson::Writer<rapidjson::StringBuffer> writer(str_buf);
-    // this->test_results_.Accept(writer);
+    // this->json_document_.Accept(writer);
+    // // rapidjson::StringBuffer str_buf;
+    // // rapidjson::Writer<rapidjson::StringBuffer> writer(str_buf);
+    // // this->test_results_.Accept(writer);
 
-    this->options_.GetLog()->WriteStdOut(str_buf.GetString());
+    // this->options_.GetLog()->WriteStdOut(str_buf.GetString());
 }

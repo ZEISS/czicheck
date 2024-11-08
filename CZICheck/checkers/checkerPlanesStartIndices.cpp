@@ -14,7 +14,7 @@ using namespace std;
 
 CCheckPlanesStartIndices::CCheckPlanesStartIndices(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -32,8 +32,8 @@ void CCheckPlanesStartIndices::RunCheck()
         {
             if (start != 0)
             {
-                CResultGatherer::Finding finding(CCheckPlanesStartIndices::kCheckType);
-                finding.severity = CResultGatherer::Severity::Warning;
+                IResultGatherer::Finding finding(CCheckPlanesStartIndices::kCheckType);
+                finding.severity = IResultGatherer::Severity::Warning;
                 stringstream ss;
                 ss << "plane indices for '" << Utils::DimensionToChar(dimIndex) <<
                     "' do not start at 0, but at " << start << " instead.";

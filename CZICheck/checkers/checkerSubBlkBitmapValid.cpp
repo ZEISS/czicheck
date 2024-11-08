@@ -15,7 +15,7 @@ using namespace std;
 
 CCheckSubBlkBitmapValid::CCheckSubBlkBitmapValid(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -43,8 +43,8 @@ void CCheckSubBlkBitmapValid::RunCheck()
                     }
                     catch (exception& exception)
                     {
-                        CResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
-                        finding.severity = CResultGatherer::Severity::Fatal;
+                        IResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
+                        finding.severity = IResultGatherer::Severity::Fatal;
                         stringstream ss;
                         ss << "Error decoding subblock #" << index << " with compression \"" << Utils::CompressionModeToInformalString(compression_mode) << "\"";
                         finding.information = ss.str();
@@ -54,8 +54,8 @@ void CCheckSubBlkBitmapValid::RunCheck()
                 }
                 else
                 {
-                    CResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
-                    finding.severity = CResultGatherer::Severity::Info;
+                    IResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
+                    finding.severity = IResultGatherer::Severity::Info;
                     stringstream ss;
                     ss << "Subblock #" << index << " has a non-standard compression mode (" << sub_block->GetSubBlockInfo().compressionModeRaw << ")";
                     finding.information = ss.str();
@@ -64,8 +64,8 @@ void CCheckSubBlkBitmapValid::RunCheck()
             }
             catch (exception& exception)
             {
-                CResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
-                finding.severity = CResultGatherer::Severity::Fatal;
+                IResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
+                finding.severity = IResultGatherer::Severity::Fatal;
                 stringstream ss;
                 ss << "Error reading subblock #" << index;
                 finding.information = ss.str();

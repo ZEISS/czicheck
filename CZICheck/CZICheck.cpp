@@ -54,20 +54,20 @@ int main(int argc, char** argv)
     if (arguments_parse_result == CCmdLineOptions::ParseResult::OK)
     {
         CRunChecks runChecks(options, log);
-        CResultGatherer::AggregatedResult result;
+        IResultGatherer::AggregatedResult result;
         if (runChecks.Run(result))
         {
             switch (result)
             {
-                case CResultGatherer::AggregatedResult::OK:
+                case IResultGatherer::AggregatedResult::OK:
                     // log->WriteStdOut("\n\nResult: OK\n");
                     return_code = 0;
                     break;
-                case CResultGatherer::AggregatedResult::WithWarnings:
+                case IResultGatherer::AggregatedResult::WithWarnings:
                     // log->WriteStdOut("\n\nResult: With Warnings\n");
                     return_code = 1;
                     break;
-                case CResultGatherer::AggregatedResult::ErrorsDetected:
+                case IResultGatherer::AggregatedResult::ErrorsDetected:
                     // log->WriteStdOut("\n\nResult: Errors Detected\n");
                     return_code = 2;
                     break;

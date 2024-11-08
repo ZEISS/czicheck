@@ -18,7 +18,7 @@ CRunChecks::CRunChecks(const CCmdLineOptions& opts, std::shared_ptr<ILog> consol
 {
 }
 
-bool CRunChecks::Run(CResultGatherer::AggregatedResult& result)
+bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
 {
     shared_ptr<libCZI::IStream> stream;
     try
@@ -49,19 +49,41 @@ bool CRunChecks::Run(CResultGatherer::AggregatedResult& result)
         return false;
     }
 
-    CResultGatherer resultsGatherer(opts);
-
-    CheckerCreateInfo checkerAdditionalInfo;
-    checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
-
-    const auto& checksToRun = this->opts.GetChecksEnabled();
-    for (auto checkType : checksToRun)
+    if (this->opts.GetEncodingType() == CCmdLineOptions::EncodingType::JSON)
     {
-        auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
-        checker->RunCheck();
+        CResultGathererJson resultsGatherer(opts);
+
+        CheckerCreateInfo checkerAdditionalInfo;
+        checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
+
+        const auto& checksToRun = this->opts.GetChecksEnabled();
+        for (auto checkType : checksToRun)
+        {
+            auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
+            checker->RunCheck();
+        }
+
+        result = resultsGatherer.GetAggregatedResult();
+        resultsGatherer.FinalizeChecks();
+        return true;
+    }
+    else
+    {
+        CResultGatherer resultsGatherer(opts);
+
+        CheckerCreateInfo checkerAdditionalInfo;
+        checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
+
+        const auto& checksToRun = this->opts.GetChecksEnabled();
+        for (auto checkType : checksToRun)
+        {
+            auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
+            checker->RunCheck();
+        }
+
+        result = resultsGatherer.GetAggregatedResult();
+        resultsGatherer.FinalizeChecks();
+        return true;
     }
 
-    result = resultsGatherer.GetAggregatedResult();
-    resultsGatherer.UglyReportFinalHack();
-    return true;
 }

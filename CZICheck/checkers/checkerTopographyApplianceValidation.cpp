@@ -19,7 +19,7 @@ using namespace libCZI;
 
 CCheckTopographyApplianceMetadata::CCheckTopographyApplianceMetadata(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -48,8 +48,8 @@ void CCheckTopographyApplianceMetadata::CheckValidDimensionInTopographyDataItems
 
     if (this->texture_views_.empty() || this->heightmap_views_.empty())
     {
-        CResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
-        finding.severity = CResultGatherer::Severity::Warning;
+        IResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
+        finding.severity = IResultGatherer::Severity::Warning;
         finding.information = "The image contains incomplete TopographyDataItems.";
         this->result_gatherer_.ReportFinding(finding);
 
@@ -123,24 +123,24 @@ void CCheckTopographyApplianceMetadata::CheckValidDimensionInTopographyDataItems
 
     if (!superfluous_free)
     {
-        CResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
-        finding.severity = CResultGatherer::Severity::Warning;
+        IResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
+        finding.severity = IResultGatherer::Severity::Warning;
         finding.information = "There are superfluous dimensions specified in the TopographyDataItems. This might yield errors.";
         this->result_gatherer_.ReportFinding(finding);
     }
 
     if (!start_c_defined)
     {
-        CResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
-        finding.severity = CResultGatherer::Severity::Fatal;
+        IResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
+        finding.severity = IResultGatherer::Severity::Fatal;
         finding.information = "The image contains TopographyDataItems that do not define a channel.";
         this->result_gatherer_.ReportFinding(finding);
     }
 
     if (!CheckExistenceOfSpecifiedChannels(c_indices_set))
     {
-        CResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
-        finding.severity = CResultGatherer::Severity::Fatal;
+        IResultGatherer::Finding finding(CCheckTopographyApplianceMetadata::kCheckType);
+        finding.severity = IResultGatherer::Severity::Fatal;
         finding.information = "The Topography metadata specifies channels for the texture or heightmap subblocks, that are not present in the Subblock Collection of the image.";
         this->result_gatherer_.ReportFinding(finding);
     }

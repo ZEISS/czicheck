@@ -16,7 +16,7 @@ using namespace std;
 
 CCheckBenabled::CCheckBenabled(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
         CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -32,8 +32,8 @@ void CCheckBenabled::RunCheck()
     {
         if (size_b > 1)
         {
-            CResultGatherer::Finding finding(CCheckBenabled::kCheckType);
-            finding.severity = CResultGatherer::Severity::Warning;
+            IResultGatherer::Finding finding(CCheckBenabled::kCheckType);
+            finding.severity = IResultGatherer::Severity::Warning;
             stringstream ss;
             ss << "document contains deprecated B-dimension (sizeB=" << size_b << ")";
             finding.information = ss.str();
@@ -41,8 +41,8 @@ void CCheckBenabled::RunCheck()
         }
         else
         {
-            CResultGatherer::Finding finding(CCheckBenabled::kCheckType);
-            finding.severity = CResultGatherer::Severity::Info;
+            IResultGatherer::Finding finding(CCheckBenabled::kCheckType);
+            finding.severity = IResultGatherer::Severity::Info;
             stringstream ss;
             ss << "coordinates contain deprecated B-dimension (sizeB=" << size_b << ")";
             finding.information = ss.str();

@@ -17,7 +17,7 @@ using namespace std;
 
 CCheckDuplicateCoordinates::CCheckDuplicateCoordinates(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -181,8 +181,8 @@ void CCheckDuplicateCoordinates::CheckForDuplicates(vector<SubBlockInfo>& subblo
     const auto it = std::adjacent_find(indices_sorted.begin(), indices_sorted.end(), equality_comparer);
     if (it != indices_sorted.end())
     {
-        CResultGatherer::Finding finding(CCheckDuplicateCoordinates::kCheckType);
-        finding.severity = CResultGatherer::Severity::Fatal;
+        IResultGatherer::Finding finding(CCheckDuplicateCoordinates::kCheckType);
+        finding.severity = IResultGatherer::Severity::Fatal;
         stringstream ss;
         ss << "duplicate subblock #" << *it << " and # " << *(it + 1) << " : \"" << GetSubblockAsString(subblock_infos[*it]) << "\"";
         finding.information = ss.str();

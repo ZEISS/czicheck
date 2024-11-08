@@ -14,7 +14,7 @@ using namespace std;
 
 CCheckSubBlkDirPositions::CCheckSubBlkDirPositions(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -32,8 +32,8 @@ void CCheckSubBlkDirPositions::RunCheck()
                 // todo: include the minimal size of a segment
                 if (info.filePosition >= this->additional_info_.totalFileSize)
                 {
-                    CResultGatherer::Finding finding(CCheckSubBlkDirPositions::kCheckType);
-                    finding.severity = CResultGatherer::Severity::Fatal;
+                    IResultGatherer::Finding finding(CCheckSubBlkDirPositions::kCheckType);
+                    finding.severity = IResultGatherer::Severity::Fatal;
                     ostringstream string_stream;
                     string_stream << "position of subblock #" << index << " (=" << info.filePosition << ") is beyond filesize (=" << this->additional_info_.totalFileSize << ")";
                     finding.information = string_stream.str();

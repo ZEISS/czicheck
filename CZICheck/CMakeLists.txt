@@ -82,9 +82,12 @@ consoleio.cpp
 consoleio.h
 CZICheck.cpp
 IChecker.h
+IResultGatherer.h
 inc_libCZI.h
 resultgatherer.cpp
 resultgatherer.h
+resultgathererjson.h
+resultgathererjson.cpp
 runchecks.cpp
 runchecks.h
 utils.h

@@ -45,7 +45,7 @@ public:
     static std::unique_ptr<IChecker> CreateChecker(
         CZIChecks check,
         const std::shared_ptr<libCZI::ICZIReader>& reader,
-        CResultGatherer& result_gatherer,
+        IResultGatherer& result_gatherer,
         const CheckerCreateInfo& additional_info);
 
     static const std::string& GetCheckerDisplayName(CZIChecks check_type);

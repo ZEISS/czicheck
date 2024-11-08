@@ -16,7 +16,7 @@ using namespace std;
 
 CCheckSamePixeltypePerChannel::CCheckSamePixeltypePerChannel(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -57,8 +57,8 @@ void CCheckSamePixeltypePerChannel::CheckIfSamePixeltypeInChannel(int c)
             {
                 if (info.pixelType != pixeltype)
                 {
-                    CResultGatherer::Finding finding(CCheckSamePixeltypePerChannel::kCheckType);
-                    finding.severity = CResultGatherer::Severity::Warning;
+                    IResultGatherer::Finding finding(CCheckSamePixeltypePerChannel::kCheckType);
+                    finding.severity = IResultGatherer::Severity::Warning;
                     stringstream ss;
                     ss << "pixeltype of subblock #" << index << " (" << Utils::PixelTypeToInformalString(info.pixelType) <<
                         ") differs from the pixeltype determined for channel " << c << " (" << Utils::PixelTypeToInformalString(pixeltype) << ")";

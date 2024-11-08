@@ -15,7 +15,7 @@ using namespace libCZI;
 
 CCheckBasicMetadataValidation::CCheckBasicMetadataValidation(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -59,8 +59,8 @@ void CCheckBasicMetadataValidation::CheckSizeInformation(const std::shared_ptr<l
 
     if (!dimensions_from_statistics_not_present_in_metadata.empty())
     {
-        CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-        finding.severity = CResultGatherer::Severity::Warning;
+        IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+        finding.severity = IResultGatherer::Severity::Warning;
         stringstream ss;
         ss << "The sizes of the following dimensions (from 'document statistics') are not given in the document's metadata: ";
         bool isFirst = true;
@@ -100,8 +100,8 @@ void CCheckBasicMetadataValidation::CheckSizeInformation(const std::shared_ptr<l
 
     if (!dimensions_where_start_or_size_differ.empty())
     {
-        CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-        finding.severity = CResultGatherer::Severity::Warning;
+        IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+        finding.severity = IResultGatherer::Severity::Warning;
         stringstream ss;
         ss << "For the following dimensions the start/size given in metadata differs from document statistics: ";
         bool isFirst = true;
@@ -135,8 +135,8 @@ void CCheckBasicMetadataValidation::CheckChannelInformation(const std::shared_pt
     const auto channel_info = doc_info->GetDimensionChannelsInfo();
     if (!channel_info)
     {
-        CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-        finding.severity = CResultGatherer::Severity::Warning;
+        IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+        finding.severity = IResultGatherer::Severity::Warning;
         finding.information = "No valid channel-information found in metadata";
         this->result_gatherer_.ReportFinding(finding);
         return;
@@ -144,8 +144,8 @@ void CCheckBasicMetadataValidation::CheckChannelInformation(const std::shared_pt
 
     if (channel_info->GetChannelCount() != channel_count_from_statistics)
     {
-        CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-        finding.severity = CResultGatherer::Severity::Warning;
+        IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+        finding.severity = IResultGatherer::Severity::Warning;
         stringstream ss;
         ss << "document statistics gives " << channel_count_from_statistics << " channels, whereas in XML-metadata " << channel_info->GetChannelCount() << " channels are found.";
         finding.information = ss.str();
@@ -160,8 +160,8 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
     const auto dimensions_channels_info = doc_info->GetDimensionChannelsInfo();
     if (!dimensions_channels_info)
     {
-        CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-        finding.severity = CResultGatherer::Severity::Info;
+        IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+        finding.severity = IResultGatherer::Severity::Info;
         finding.information = "No valid channel-information found in metadata";
         this->result_gatherer_.ReportFinding(finding);
         return;
@@ -182,8 +182,8 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
 
                 if (subBlockInfo.pixelType != channel_info_pixel_type)
                 {
-                    CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-                    finding.severity = CResultGatherer::Severity::Warning;
+                    IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+                    finding.severity = IResultGatherer::Severity::Warning;
                     stringstream ss;
                     ss << "PixelType mismatch between metadata and sub block-information. "
                         << "channel index: " << channelIndex
@@ -195,8 +195,8 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
             }
             else
             {
-                CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-                finding.severity = CResultGatherer::Severity::Info;
+                IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+                finding.severity = IResultGatherer::Severity::Info;
                 stringstream ss;
                 ss << "No sub block-information found for channel index " << channelIndex << ", metadata pixelType: " << Utils::PixelTypeToInformalString(channel_info_pixel_type);
                 finding.information = ss.str();
@@ -205,8 +205,8 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
         }
         else
         {
-            CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-            finding.severity = CResultGatherer::Severity::Info;
+            IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+            finding.severity = IResultGatherer::Severity::Info;
             stringstream ss;
             ss << "No valid channel pixel_type information found in metadata for channel #" << channelIndex << ".";
             finding.information = ss.str();
@@ -226,8 +226,8 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
             // the information  is missing.
             if (!channel_info_pixel_type_valid || CCheckBasicMetadataValidation::IsComponentBitCountExpectedForPixelType(channel_info_pixel_type))
             {
-                CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-                finding.severity = CResultGatherer::Severity::Warning;
+                IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+                finding.severity = IResultGatherer::Severity::Warning;
                 stringstream ss;
                 ss << "No valid ComponentBitCount information found in metadata for channel #" << channelIndex << ".";
                 finding.information = ss.str();
@@ -247,8 +247,8 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
             // only report a warning if we have a "definitive" answer about the validity of the ComponentBitCount information
             if (!validity_of_bitcount.value_or(true))
             {
-                CResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
-                finding.severity = CResultGatherer::Severity::Warning;
+                IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
+                finding.severity = IResultGatherer::Severity::Warning;
                 stringstream ss;
                 ss << "For channel #" << channelIndex << ", the ComponentBitCount information in metadata is invalid: "
                     << "PixelType: " << Utils::PixelTypeToInformalString(channel_info_pixel_type)
