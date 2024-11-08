@@ -24,8 +24,8 @@ public:
     enum class Severity
     {
         Fatal,          ///< The finding is a fatal issue, i. e. the CZI-document is considered invalid and adverse behavior is expected.
-	Warning,        ///< The finding is a warning, i. e. a problem has been detected which may result in adverse behavior.
-	Info            ///< The finding is informational.
+        Warning,        ///< The finding is a warning, i. e. a problem has been detected which may result in adverse behavior.
+        Info            ///< The finding is informational.
     };
 
     /// Values that represent the "aggregated result" of the complete run.
@@ -54,9 +54,9 @@ public:
         }
     };
 
-  protected:
+protected:
     std::map<CZIChecks, CheckResult> results_;
-  public:
+public:
     virtual void StartCheck(CZIChecks check) = 0;
     virtual void ReportFinding(const Finding& finding) = 0;
     virtual void FinishCheck(CZIChecks check) = 0;
