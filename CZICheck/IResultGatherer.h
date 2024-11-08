@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <map>
 #include <cstdint>
+#include <map>
+#include <string>
 #include "checks.h"
 
 class IResultGatherer
@@ -109,3 +110,4 @@ public:
         }
     }
 };
+

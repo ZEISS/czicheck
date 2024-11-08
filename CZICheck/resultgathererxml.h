@@ -34,3 +34,4 @@ class CResultGathererXml : public IResultGatherer
         return std::wstring(str.begin(), str.end());
     }
 };
+

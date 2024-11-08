@@ -118,3 +118,4 @@ void CResultGatherer::FinalizeChecks()
             break;
     }
 }
+

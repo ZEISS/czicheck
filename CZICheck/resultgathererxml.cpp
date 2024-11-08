@@ -13,6 +13,7 @@
 #include <locale>
 #endif
 #include <string>
+#include <utility>
 
 using namespace std;
 
@@ -124,3 +125,4 @@ void CResultGathererXml::FinalizeChecks()
         .text().set(ConvertToWideString(ss.str()).c_str());
     this->xml_document_.save(std::cout, L" ");
 }
+

@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <string>
 #include "IResultGatherer.h"
 #include "cmdlineoptions.h"
 #include "checks.h"
@@ -30,3 +31,4 @@ class CResultGathererJson : public IResultGatherer
     void FinishCheck(CZIChecks check) override;
     void FinalizeChecks() override;
 };
+

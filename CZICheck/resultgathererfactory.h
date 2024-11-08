@@ -26,3 +26,4 @@ static std::unique_ptr<IResultGatherer> CreateResultGatherer(const CCmdLineOptio
             throw std::invalid_argument("Unknown EncodingType");
     }
 }
+
