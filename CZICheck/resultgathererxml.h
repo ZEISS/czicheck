@@ -14,7 +14,7 @@
 
 class CResultGathererXml : public IResultGatherer
 {
-  private:
+private:
     const CCmdLineOptions& options_;
     std::string current_checker_id_;
 
@@ -22,13 +22,13 @@ class CResultGathererXml : public IResultGatherer
     pugi::xml_node root_node_;
     pugi::xml_node test_node_;
 
-  public:
+public:
     explicit CResultGathererXml(const CCmdLineOptions& options);
     void StartCheck(CZIChecks check) override;
     void ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
     void FinalizeChecks() override;
-  private:
+private:
     static std::wstring ConvertToWideString(const std::string& str)
     {
         return std::wstring(str.begin(), str.end());

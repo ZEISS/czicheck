@@ -11,7 +11,7 @@
 
 class IResultGatherer
 {
-  public:
+public:
     struct CheckResult
     {
     CheckResult() : fatalMessagesCount(0), warningMessagesCount(0), infoMessagesCount(0) {}
@@ -24,9 +24,9 @@ class IResultGatherer
     enum class Severity
     {
         Fatal,          ///< The finding is a fatal issue, i. e. the CZI-document is considered invalid and adverse behavior is expected.
-            Warning,        ///< The finding is a warning, i. e. a problem has been detected which may result in adverse behavior.
-            Info            ///< The finding is informational.
-            };
+	Warning,        ///< The finding is a warning, i. e. a problem has been detected which may result in adverse behavior.
+	Info            ///< The finding is informational.
+    };
 
     /// Values that represent the "aggregated result" of the complete run.
     enum class AggregatedResult

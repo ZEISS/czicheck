@@ -175,8 +175,8 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         ->option_text("BOOLEAN")
         ->check(lax_parsing_validator);
     app.add_option("-e,--encoding", result_encoding_option,
-                   "Specifies which encoding should be used for result reporting.\n"
-                  "The argument may be one of 'json', 'xml', 'text'. Default is 'text'.\n")
+        "Specifies which encoding should be used for result reporting.\n"
+	"The argument may be one of 'json', 'xml', 'text'. Default is 'text'.\n")
         ->option_text("ENCODING")
         ->check(encodings_validator);
 

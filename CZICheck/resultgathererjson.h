@@ -17,14 +17,14 @@
 
 class CResultGathererJson : public IResultGatherer
 {
-  private:
+private:
     const CCmdLineOptions& options_;
     
     rapidjson::Document json_document_;
     rapidjson::Value test_results_;
     std::string current_checker_id;
 
-  public:
+public:
     explicit CResultGathererJson(const CCmdLineOptions& options);
     void StartCheck(CZIChecks check) override;
     void ReportFinding(const Finding& finding) override;
