@@ -94,7 +94,7 @@ void CResultGathererJson::ReportFinding(const Finding& finding)
                 found_key = true;
                 rapidjson::Value current_finding(rapidjson::kObjectType);
                 current_finding.SetObject()
-                  .AddMember(rapidjson::Value(kTestSeverityId, allocator), rapidjson::Value().SetString(finding.FindingSeverityToString(), allocator), allocator)
+                    .AddMember(rapidjson::Value(kTestSeverityId, allocator), rapidjson::Value().SetString(finding.FindingSeverityToString(), allocator), allocator)
                     .AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
                     .AddMember(rapidjson::Value(kTestDetailsId, allocator), rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
                 this->test_results_[res][kTestFindingsId].PushBack(current_finding, allocator);

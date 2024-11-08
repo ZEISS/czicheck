@@ -47,7 +47,7 @@ void CResultGatherer::FinishCheck(CZIChecks check)
     }
 
     if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
-    { 
+    {
         this->options_.GetLog()->SetColor(ConsoleColor::DARK_GREEN, ConsoleColor::DEFAULT);
         this->options_.GetLog()->WriteStdOut(" OK\n");
         this->options_.GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
@@ -71,12 +71,6 @@ void CResultGatherer::ReportFinding(const Finding& finding)
     const auto it = this->results_.find(finding.check);
     const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
     IncrementCounter(finding.severity, it->second);
-
-    // if (this->options_.GetEncodingType() == CCmdLineOptions::EncodingType::JSON)
-    // {
-    //     this->ReportFindingJson(finding);
-    //     return;
-    // }
 
     if (this->options_.GetMaxNumberOfMessagesToPrint() < 0 ||
         no_of_findings_so_far < this->options_.GetMaxNumberOfMessagesToPrint())
