@@ -2,11 +2,11 @@
 //
 // SPDX-License-Identifier: MIT
 
-#include <ostream>
-#include <string>
-
 #include "resultgathererjson.h"
 #include "checkerfactory.h"
+
+#include <ostream>
+#include <string>
 
 using namespace std;
 

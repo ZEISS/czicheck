@@ -1,6 +1,6 @@
-# Since "RapidJSON" is a header-only library, we just have to download it and point to the include directory.
-# Note: when using v1.1.0 of RapidJSON (the latest release) there we problems (with GCC14.2 with msys2), so
-#        we use a later version from the master branch.
+# SPDX-FileCopyrightText: 2023 Carl Zeiss Microscopy GmbH
+#
+# SPDX-License-Identifier: MIT
 include(FetchContent)
 
 FetchContent_Declare(

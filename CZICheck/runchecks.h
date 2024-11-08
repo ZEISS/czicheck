@@ -6,6 +6,7 @@
 #include "cmdlineoptions.h"
 #include "resultgatherer.h"
 #include "resultgathererjson.h"
+#include "resultgathererxml.h"
 #include <memory>
 
 /// This class is responsible for running the checks.

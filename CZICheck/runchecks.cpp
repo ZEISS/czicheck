@@ -67,6 +67,24 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
         resultsGatherer.FinalizeChecks();
         return true;
     }
+    else if (this->opts.GetEncodingType() == CCmdLineOptions::EncodingType::XML)
+    {
+        CResultGathererXml resultsGatherer(opts);
+
+        CheckerCreateInfo checkerAdditionalInfo;
+        checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
+
+        const auto& checksToRun = this->opts.GetChecksEnabled();
+        for (auto checkType : checksToRun)
+        {
+            auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
+            checker->RunCheck();
+        }
+
+        result = resultsGatherer.GetAggregatedResult();
+        resultsGatherer.FinalizeChecks();
+        return true;
+    }
     else
     {
         CResultGatherer resultsGatherer(opts);

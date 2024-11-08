@@ -23,6 +23,7 @@ set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/modules" ${CMAKE_MODULE_PATH})
 
 include("${CMAKE_SOURCE_DIR}/modules/libCZI.cmake")
 include("${CMAKE_SOURCE_DIR}/modules/rapidJSON.cmake")
+include("${CMAKE_SOURCE_DIR}/modules/pugiXML.cmake")
 FetchContent_GetProperties(libCZI)
 set(LIBCZI_INCLUDE_DIR "${libczi_SOURCE_DIR}/Src/libCZI")
 
