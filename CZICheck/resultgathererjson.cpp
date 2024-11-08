@@ -34,12 +34,13 @@ void CResultGathererJson::StartCheck(CZIChecks check)
 
     const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check).c_str();
     add_test(CZIChecksToString(check), checker_display_name);
+
+    this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
 }
 
 void CResultGathererJson::FinishCheck(CZIChecks check)
 {
     const auto& it = this->results_.find(check);
-
     const auto& result = it->second;
 
     const auto writeFinding = [&]() -> bool
@@ -77,6 +78,10 @@ void CResultGathererJson::FinishCheck(CZIChecks check)
 
 void CResultGathererJson::ReportFinding(const Finding& finding)
 {
+    const auto it = this->results_.find(finding.check);
+    const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
+    IncrementCounter(finding.severity, it->second);
+
     const auto writeFinding = [&](const Finding& finding) -> bool
     {
         auto allocator = this->json_document_.GetAllocator();
@@ -108,25 +113,24 @@ void CResultGathererJson::FinalizeChecks()
 
     ostringstream ss;
     switch (this->GetAggregatedResult()) {
-        case CResultGatherer::AggregatedResult::WithWarnings:
+        case IResultGatherer::AggregatedResult::WithWarnings:
             ss << "WARN";
             break;
-        case CResultGatherer::AggregatedResult::ErrorsDetected:
+        case IResultGatherer::AggregatedResult::ErrorsDetected:
             ss << "FAIL";
             break;
-        default:
+        case IResultGatherer::AggregatedResult::OK:
             ss << "OK";
+            break;
     }
 
     this->json_document_.AddMember("aggregatedresult", rapidjson::Value().SetString(ss.str().c_str(), allocator), allocator);
     this->json_document_.AddMember("tests", this->test_results_, allocator);
 
     rapidjson::StringBuffer str_buf;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(str_buf);
-    this->json_document_.Accept(writer);
-    // rapidjson::StringBuffer str_buf;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(str_buf);
     // rapidjson::Writer<rapidjson::StringBuffer> writer(str_buf);
-    // this->test_results_.Accept(writer);
 
+    this->json_document_.Accept(writer);
     this->options_.GetLog()->WriteStdOut(str_buf.GetString());
 }

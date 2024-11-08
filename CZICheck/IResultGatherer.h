@@ -30,9 +30,9 @@ class IResultGatherer
     enum class AggregatedResult
     {
         OK,                 ///< No warnings or fatal errors, only info.
-            WithWarnings,       ///< There have been one or more warnings, but not fatal error.
-            ErrorsDetected      ///< There have been one or more fatal errors.
-            };
+        WithWarnings,       ///< There have been one or more warnings, but not fatal error.
+        ErrorsDetected      ///< There have been one or more fatal errors.
+    };
     struct Finding
     {
         explicit Finding(CZIChecks check) :check(check), severity(Severity::Info) {}
