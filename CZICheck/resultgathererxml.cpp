@@ -9,6 +9,9 @@
 
 #include <codecvt>
 #include <iostream>
+#ifdef unix
+#include <locale>
+#endif
 #include <string>
 
 using namespace std;

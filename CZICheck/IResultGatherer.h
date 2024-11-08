@@ -5,6 +5,7 @@
 #pragma once
 
 #include <map>
+#include <cstdint>
 #include "checks.h"
 
 class IResultGatherer
