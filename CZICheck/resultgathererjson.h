@@ -30,5 +30,14 @@ public:
     void ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
     void FinalizeChecks() override;
+private:
+    static constexpr const char* kTestNameId = "name";
+    static constexpr const char* kTestContainerId = "tests";
+    static constexpr const char* kTestDescriptionId = "description";
+    static constexpr const char* kTestResultId = "result";
+    static constexpr const char* kTestFindingsId = "findings";
+    static constexpr const char* kTestSeverityId = "severity";
+    static constexpr const char* kTestDetailsId = "details";
+    static constexpr const char* kTestAggregationId = "aggregatedresult";
 };
 

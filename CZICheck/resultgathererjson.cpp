@@ -25,10 +25,10 @@ void CResultGathererJson::StartCheck(CZIChecks check)
     {
         auto allocator = this->json_document_.GetAllocator();
         rapidjson::Value test_run(rapidjson::kObjectType);
-        test_run.AddMember("test", rapidjson::Value().SetString(test_name, allocator), allocator);
-        test_run.AddMember("description", rapidjson::Value().SetString(display_name, allocator), allocator);
-        test_run.AddMember("result", rapidjson::Value(rapidjson::kStringType), allocator);
-        test_run.AddMember("findings", rapidjson::Value(rapidjson::kArrayType), allocator);
+        test_run.AddMember(rapidjson::Value(kTestNameId, allocator), rapidjson::Value().SetString(test_name, allocator), allocator);
+        test_run.AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(display_name, allocator), allocator);
+        test_run.AddMember(rapidjson::Value(kTestResultId, allocator), rapidjson::Value(rapidjson::kStringType), allocator);
+        test_run.AddMember(rapidjson::Value(kTestFindingsId, allocator), rapidjson::Value(rapidjson::kArrayType), allocator);
         this->test_results_.PushBack(test_run, allocator);
         this->current_checker_id = std::string(test_name);
     };
@@ -50,7 +50,7 @@ void CResultGathererJson::FinishCheck(CZIChecks check)
         bool found_key { false };
         for (int res { 0 }; res < this->test_results_.Size(); ++res)
         {
-            if (this->test_results_[res]["test"].GetString() == this->current_checker_id)
+            if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
             {
                 found_key = true;
                 ostringstream ss;
@@ -67,7 +67,7 @@ void CResultGathererJson::FinishCheck(CZIChecks check)
                     ss << "FAIL";
                 }
 
-                this->test_results_[res]["result"].SetString(ss.str().c_str(), allocator);
+                this->test_results_[res][kTestResultId].SetString(ss.str().c_str(), allocator);
             }
         }
 
@@ -89,15 +89,15 @@ void CResultGathererJson::ReportFinding(const Finding& finding)
         bool found_key { false };
         for (int res { 0 }; res < this->test_results_.Size(); ++res)
         {
-            if (this->test_results_[res]["test"].GetString() == this->current_checker_id)
+            if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
             {
                 found_key = true;
                 rapidjson::Value current_finding(rapidjson::kObjectType);
                 current_finding.SetObject()
-                    .AddMember("severity", rapidjson::StringRef(finding.FindingSeverityToString()), allocator)
-                    .AddMember("description", rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
-                    .AddMember("details", rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
-                this->test_results_[res]["findings"].PushBack(current_finding, allocator);
+                  .AddMember(rapidjson::Value(kTestSeverityId, allocator), rapidjson::Value().SetString(finding.FindingSeverityToString(), allocator), allocator)
+                    .AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
+                    .AddMember(rapidjson::Value(kTestDetailsId, allocator), rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
+                this->test_results_[res][kTestFindingsId].PushBack(current_finding, allocator);
             }
         }
 
@@ -125,12 +125,11 @@ void CResultGathererJson::FinalizeChecks()
             break;
     }
 
-    this->json_document_.AddMember("aggregatedresult", rapidjson::Value().SetString(ss.str().c_str(), allocator), allocator);
-    this->json_document_.AddMember("tests", this->test_results_, allocator);
+    this->json_document_.AddMember(rapidjson::Value(kTestAggregationId, allocator), rapidjson::Value().SetString(ss.str().c_str(), allocator), allocator);
+    this->json_document_.AddMember(rapidjson::Value(kTestContainerId, allocator), this->test_results_, allocator);
 
     rapidjson::StringBuffer str_buf;
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(str_buf);
-    // rapidjson::Writer<rapidjson::StringBuffer> writer(str_buf);
 
     this->json_document_.Accept(writer);
     this->options_.GetLog()->WriteStdOut(str_buf.GetString());

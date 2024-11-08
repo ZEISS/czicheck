@@ -56,6 +56,7 @@ public:
 
 protected:
     std::map<CZIChecks, CheckResult> results_;
+
 public:
     virtual void StartCheck(CZIChecks check) = 0;
     virtual void ReportFinding(const Finding& finding) = 0;
