@@ -28,10 +28,27 @@ public:
     void ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
     void FinalizeChecks() override;
+
 private:
     static std::wstring ConvertToWideString(const std::string& str)
     {
         return std::wstring(str.begin(), str.end());
     }
+
+private:
+    static constexpr const wchar_t* kXmlVersionId = L"version";
+    static constexpr const wchar_t* kXmlVersionNumber = L"1.0";
+    static constexpr const wchar_t* kXmlEncodingId = L"encoding";
+    static constexpr const wchar_t* kXmlEncodingType = L"utf-8";
+    static constexpr const wchar_t* kTestResultsName = L"TestResults";
+    static constexpr const wchar_t* kTestContainerId = L"Tests";
+    static constexpr const wchar_t* kTestSingleContainerId = L"Test";
+    static constexpr const wchar_t* kTestNameId = L"Name";
+    static constexpr const wchar_t* kTestDescriptionId = L"Description";
+    static constexpr const wchar_t* kTestResultId = L"Result";
+    static constexpr const wchar_t* kTestFindingContainerId = L"Findings";
+    static constexpr const wchar_t* kTestFindingId = L"Finding";
+    static constexpr const wchar_t* kTestSeverityId = L"Severity";
+    static constexpr const wchar_t* kTestDetailsId = L"Details";
 };
 
