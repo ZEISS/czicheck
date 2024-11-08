@@ -121,7 +121,7 @@ void CResultGathererXml::FinalizeChecks()
             break;
     }
 
-    this->xml_document_.append_child(L"AggregatedResult")
+    this->root_node_.append_child(L"AggregatedResult")
         .text().set(ConvertToWideString(ss.str()).c_str());
     this->xml_document_.save(std::cout, L" ");
 }
