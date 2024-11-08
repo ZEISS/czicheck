@@ -16,9 +16,11 @@ using namespace std;
 CResultGathererXml::CResultGathererXml(const CCmdLineOptions& options)
     : options_(options)
 {
+    const string version { "1.0" };
+    const string encoding { "utf-8" };
     auto decl = this->xml_document_.append_child(pugi::node_declaration);
-    decl.append_attribute(L"version") = "1.0";
-    decl.append_attribute(L"encoding") = "utf-8";
+    decl.append_attribute(L"version") = ConvertToWideString(version).c_str();
+    decl.append_attribute(L"encoding") = ConvertToWideString(encoding).c_str();
     this->root_node_ = this->xml_document_.append_child(L"TestResults");
     this->test_node_ = this->root_node_.append_child(L"Tests");
 }
