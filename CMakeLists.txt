@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(CZICheck 
-      VERSION 0.5.1
+      VERSION 0.6.0
       HOMEPAGE_URL "https://github.com/ZEISS/czicheck"
       DESCRIPTION "CZICheck is a validator for CZI-documents")
 
@@ -37,3 +37,7 @@ endif()
 
 add_subdirectory(CZICheck)
 
+
+# Local Variables:
+# compile-command: "cmake -DCZICHECK_BUILD_TESTS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build -S . && cmake --build build"
+# End:
