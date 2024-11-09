@@ -55,7 +55,7 @@ enum class CZIChecks
 
     AttachmentDirectoryPositionsWithinRange, ///< To be done, not yet implemented.
 
-    /// The Applicance Metadata specified for TopographyDataItem(s) are valid
+    /// The Appliance Metadata specified for TopographyDataItem(s) are valid
     ApplianceMetadataTopographyItemValid,
 };
 
