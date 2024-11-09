@@ -42,12 +42,10 @@ void CResultGathererJson::FinishCheck(CZIChecks check)
     const auto& result = it->second;
 
     auto allocator = this->json_document_.GetAllocator();
-    bool found_key { false };
     for (int res { 0 }; res < this->test_results_.Size(); ++res)
     {
         if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
         {
-            found_key = true;
             ostringstream ss;
             if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
             {

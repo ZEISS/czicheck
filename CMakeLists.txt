@@ -38,6 +38,3 @@ endif()
 add_subdirectory(CZICheck)
 
 
-# Local Variables:
-# compile-command: "cmake -DCZICHECK_BUILD_TESTS=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build -S . && cmake --build build"
-# End:
