@@ -113,4 +113,3 @@ void CResultGathererJson::FinalizeChecks()
     this->json_document_.Accept(writer);
     this->options_.GetLog()->WriteStdOut(str_buf.GetString());
 }
-
