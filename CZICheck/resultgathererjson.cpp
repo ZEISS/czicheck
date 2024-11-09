@@ -4,6 +4,7 @@
 
 #include "resultgathererjson.h"
 #include "checkerfactory.h"
+#include "utils.h"
 
 #include <ostream>
 #include <string>
@@ -106,6 +107,11 @@ void CResultGathererJson::FinalizeChecks()
     this->json_document_.AddMember(rapidjson::Value(kTestAggregationId, allocator), rapidjson::Value().SetString(ss.str().c_str(), allocator), allocator);
     this->json_document_.AddMember(rapidjson::Value(kTestContainerId, allocator), this->test_results_, allocator);
 
+    rapidjson::Value output_version(rapidjson::kObjectType);
+    output_version.AddMember(rapidjson::Value("command", allocator), rapidjson::Value("CZICheck", allocator), allocator);
+    output_version.AddMember(rapidjson::Value("version", allocator), rapidjson::Value(GetVersionNumber().c_str(), allocator), allocator);
+
+    this->json_document_.AddMember(rapidjson::Value("output_version", allocator), output_version, allocator);
     rapidjson::StringBuffer str_buf;
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(str_buf);
 

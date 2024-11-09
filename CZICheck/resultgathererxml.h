@@ -40,6 +40,7 @@ private:
     static constexpr const wchar_t* kTestNameId = L"Name";
     static constexpr const wchar_t* kTestDescriptionId = L"Description";
     static constexpr const wchar_t* kTestResultId = L"Result";
+    static constexpr const wchar_t* kTestAggregatedResultId = L"AggregatedResult";
     static constexpr const wchar_t* kTestFindingContainerId = L"Findings";
     static constexpr const wchar_t* kTestFindingId = L"Finding";
     static constexpr const wchar_t* kTestSeverityId = L"Severity";

@@ -120,8 +120,15 @@ void CResultGathererXml::FinalizeChecks()
             break;
     }
 
-    this->root_node_.append_child(L"AggregatedResult")
+    this->root_node_.append_child(kTestAggregatedResultId)
         .text().set(convertUtf8ToUCS2(ss.str()).c_str());
+    auto output_version = this->root_node_.append_child(L"OutputVersion");
+    output_version.append_child(L"Command")
+        .text()
+        .set(L"CZICheck");
+    output_version.append_child(L"Version")
+        .text()
+        .set(convertUtf8ToUCS2(GetVersionNumber()).c_str());
     this->xml_document_.save(std::cout, L" ");
 }
 

@@ -9,7 +9,7 @@
 
 #define CZICHECK_XERCESC_AVAILABLE @CZICheck_XercesCAvailable@
 
-// those numbers define the version of libCZI
+// those numbers define the version of CZICheck
 #define CZICHECK_VERSION_MAJOR "@CZICheck_VERSION_MAJOR@"
 #define CZICHECK_VERSION_MINOR "@CZICheck_VERSION_MINOR@"
 #define CZICHECK_VERSION_PATCH "@CZICheck_VERSION_PATCH@"
