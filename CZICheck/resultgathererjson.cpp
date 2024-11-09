@@ -21,21 +21,18 @@ CResultGathererJson::CResultGathererJson(const CCmdLineOptions& options)
 
 void CResultGathererJson::StartCheck(CZIChecks check)
 {
-    const auto add_test = [&](const char* test_name, const char* display_name) -> void
-    {
-        auto allocator = this->json_document_.GetAllocator();
-        rapidjson::Value test_run(rapidjson::kObjectType);
-        test_run.AddMember(rapidjson::Value(kTestNameId, allocator), rapidjson::Value().SetString(test_name, allocator), allocator);
-        test_run.AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(display_name, allocator), allocator);
-        test_run.AddMember(rapidjson::Value(kTestResultId, allocator), rapidjson::Value(rapidjson::kStringType), allocator);
-        test_run.AddMember(rapidjson::Value(kTestFindingsId, allocator), rapidjson::Value(rapidjson::kArrayType), allocator);
-        this->test_results_.PushBack(test_run, allocator);
-        this->current_checker_id = std::string(test_name);
-    };
-
     const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check).c_str();
-    add_test(CZIChecksToString(check), checker_display_name);
 
+    auto allocator = this->json_document_.GetAllocator();
+
+    rapidjson::Value test_run(rapidjson::kObjectType);
+    test_run.AddMember(rapidjson::Value(kTestNameId, allocator), rapidjson::Value().SetString(CZIChecksToString(check), allocator), allocator);
+    test_run.AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(checker_display_name, allocator), allocator);
+    test_run.AddMember(rapidjson::Value(kTestResultId, allocator), rapidjson::Value(rapidjson::kStringType), allocator);
+    test_run.AddMember(rapidjson::Value(kTestFindingsId, allocator), rapidjson::Value(rapidjson::kArrayType), allocator);
+
+    this->test_results_.PushBack(test_run, allocator);
+    this->current_checker_id = std::string(CZIChecksToString(check));
     this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
 }
 
@@ -44,37 +41,30 @@ void CResultGathererJson::FinishCheck(CZIChecks check)
     const auto& it = this->results_.find(check);
     const auto& result = it->second;
 
-    const auto writeFinding = [&]() -> bool
+    auto allocator = this->json_document_.GetAllocator();
+    bool found_key { false };
+    for (int res { 0 }; res < this->test_results_.Size(); ++res)
     {
-        auto allocator = this->json_document_.GetAllocator();
-        bool found_key { false };
-        for (int res { 0 }; res < this->test_results_.Size(); ++res)
+        if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
         {
-            if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
+            found_key = true;
+            ostringstream ss;
+            if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
             {
-                found_key = true;
-                ostringstream ss;
-                if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
-                {
-                    ss << "OK";
-                }
-                else if (result.fatalMessagesCount == 0)
-                {
-                    ss << "WARN";
-                }
-                else
-                {
-                    ss << "FAIL";
-                }
-
-                this->test_results_[res][kTestResultId].SetString(ss.str().c_str(), allocator);
+                ss << "OK";
             }
+            else if (result.fatalMessagesCount == 0)
+            {
+                ss << "WARN";
+            }
+            else
+            {
+                ss << "FAIL";
+            }
+
+            this->test_results_[res][kTestResultId].SetString(ss.str().c_str(), allocator);
         }
-
-        return found_key;
-    };
-
-    writeFinding();
+    }
 }
 
 void CResultGathererJson::ReportFinding(const Finding& finding)
@@ -83,28 +73,19 @@ void CResultGathererJson::ReportFinding(const Finding& finding)
     const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
     IncrementCounter(finding.severity, it->second);
 
-    const auto writeFinding = [&](const Finding& finding) -> bool
-    {
-        auto allocator = this->json_document_.GetAllocator();
-        bool found_key { false };
-        for (int res { 0 }; res < this->test_results_.Size(); ++res)
-        {
-            if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
-            {
-                found_key = true;
-                rapidjson::Value current_finding(rapidjson::kObjectType);
-                current_finding.SetObject()
-                    .AddMember(rapidjson::Value(kTestSeverityId, allocator), rapidjson::Value().SetString(finding.FindingSeverityToString(), allocator), allocator)
-                    .AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
-                    .AddMember(rapidjson::Value(kTestDetailsId, allocator), rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
-                this->test_results_[res][kTestFindingsId].PushBack(current_finding, allocator);
-            }
-        }
-
-        return found_key;
-    };
-
-    writeFinding(finding);
+    auto allocator = this->json_document_.GetAllocator();
+    for (int res { 0 }; res < this->test_results_.Size(); ++res)
+      {
+        if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
+          {
+            rapidjson::Value current_finding(rapidjson::kObjectType);
+            current_finding.SetObject()
+              .AddMember(rapidjson::Value(kTestSeverityId, allocator), rapidjson::Value().SetString(finding.FindingSeverityToString(), allocator), allocator)
+              .AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
+              .AddMember(rapidjson::Value(kTestDetailsId, allocator), rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
+            this->test_results_[res][kTestFindingsId].PushBack(current_finding, allocator);
+          }
+      }
 }
 
 void CResultGathererJson::FinalizeChecks()
