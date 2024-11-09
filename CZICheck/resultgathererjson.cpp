@@ -75,17 +75,17 @@ void CResultGathererJson::ReportFinding(const Finding& finding)
 
     auto allocator = this->json_document_.GetAllocator();
     for (int res { 0 }; res < this->test_results_.Size(); ++res)
-      {
+    {
         if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
-          {
+        {
             rapidjson::Value current_finding(rapidjson::kObjectType);
             current_finding.SetObject()
-              .AddMember(rapidjson::Value(kTestSeverityId, allocator), rapidjson::Value().SetString(finding.FindingSeverityToString(), allocator), allocator)
-              .AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
-              .AddMember(rapidjson::Value(kTestDetailsId, allocator), rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
+                .AddMember(rapidjson::Value(kTestSeverityId, allocator), rapidjson::Value().SetString(finding.FindingSeverityToString(), allocator), allocator)
+                .AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
+                .AddMember(rapidjson::Value(kTestDetailsId, allocator), rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
             this->test_results_[res][kTestFindingsId].PushBack(current_finding, allocator);
-          }
-      }
+        }
+    }
 }
 
 void CResultGathererJson::FinalizeChecks()
