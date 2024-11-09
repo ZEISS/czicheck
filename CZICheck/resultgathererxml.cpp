@@ -6,6 +6,7 @@
 #include "checkerfactory.h"
 #include "checks.h"
 #include "cmdlineoptions.h"
+#include "utils.h"
 
 #include <codecvt>
 #include <iostream>
@@ -33,9 +34,9 @@ void CResultGathererXml::StartCheck(CZIChecks check)
     this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
     pugi::xml_node finding_node = this->test_node_.append_child(kTestSingleContainerId);
     string test_name { CZIChecksToString(check) };
-    finding_node.append_attribute(kTestNameId) = ConvertToWideString(test_name).c_str();
+    finding_node.append_attribute(kTestNameId) = convertUtf8ToUCS2(test_name).c_str();
 
-    finding_node.append_child(kTestDescriptionId).text().set(ConvertToWideString(CCheckerFactory::GetCheckerDisplayName(check)).c_str());
+    finding_node.append_child(kTestDescriptionId).text().set(convertUtf8ToUCS2(CCheckerFactory::GetCheckerDisplayName(check)).c_str());
     finding_node.append_child(kTestResultId);
     finding_node.append_child(kTestFindingContainerId);
 
@@ -69,7 +70,7 @@ void CResultGathererXml::FinishCheck(CZIChecks check)
                 ss << "FAIL";
             }
 
-            result_node.text().set(ConvertToWideString(ss.str()).c_str());
+            result_node.text().set(convertUtf8ToUCS2(ss.str()).c_str());
         }
     }
 }
@@ -91,13 +92,13 @@ void CResultGathererXml::ReportFinding(const Finding& finding)
             auto current_finding = findings_container.append_child(kTestFindingId);
             current_finding.append_child(kTestSeverityId)
                 .text()
-                .set(ConvertToWideString(finding.FindingSeverityToString()).c_str());
+                .set(convertUtf8ToUCS2(finding.FindingSeverityToString()).c_str());
             current_finding.append_child(kTestDescriptionId)
                 .text()
-                .set(ConvertToWideString(finding.information).c_str());
+                .set(convertUtf8ToUCS2(finding.information).c_str());
             current_finding.append_child(kTestDetailsId)
                 .text()
-                .set(ConvertToWideString(finding.details).c_str());
+                .set(convertUtf8ToUCS2(finding.details).c_str());
 
             break;
         }
@@ -120,7 +121,7 @@ void CResultGathererXml::FinalizeChecks()
     }
 
     this->root_node_.append_child(L"AggregatedResult")
-        .text().set(ConvertToWideString(ss.str()).c_str());
+        .text().set(convertUtf8ToUCS2(ss.str()).c_str());
     this->xml_document_.save(std::cout, L" ");
 }
 

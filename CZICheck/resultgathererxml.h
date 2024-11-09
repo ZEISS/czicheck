@@ -30,12 +30,6 @@ public:
     void FinalizeChecks() override;
 
 private:
-    static std::wstring ConvertToWideString(const std::string& str)
-    {
-        return std::wstring(str.begin(), str.end());
-    }
-
-private:
     static constexpr const wchar_t* kXmlVersionId = L"version";
     static constexpr const wchar_t* kXmlVersionNumber = L"1.0";
     static constexpr const wchar_t* kXmlEncodingId = L"encoding";
