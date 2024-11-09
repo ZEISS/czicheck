@@ -115,6 +115,8 @@ Finally, each of the findings will have
 -   a description of that finding with the key `description`; its value is a string
 -   some details for this finding with the key `details`; its value is a string (note: this will only ever contain anything when the `--printdetails` command line flag was set)
 
+
+Please note, that the output also identifies the version of the CZICheck application that was used with the `output_version` key. It contains the name of the application at `command` and the respective version at `version`.
 See the following example:
 
     {
@@ -165,7 +167,11 @@ See the following example:
                     }
                 ]
             }
-        ]
+        ],
+        "output_version": {
+            "command": "CZICheck",
+            "version": "0.6.0"
+        }
     }
 
 ### XML encoding
@@ -184,6 +190,7 @@ These are
 -   the finding's severity is at key `Severity`
 -   its description can be found in `Description`
 -   and its details are under `Details`
+-   the application version is under `OutputVersion` where `Command` denotes the application name and `Version` the respective version
 
 See the following example:
 
@@ -234,5 +241,9 @@ See the following example:
       </Test>
      </Tests>
      <AggregatedResult>FAIL</AggregatedResult>
+      <OutputVersion>
+      <Command>CZICheck</Command>
+      <Version>0.6.0</Version>
+     </OutputVersion>
     </TestResults>
 
