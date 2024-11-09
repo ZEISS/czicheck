@@ -75,6 +75,7 @@ set(CZICHECKSRCFILES
 checkerfactory.cpp
 checkerfactory.h
 checks.h
+checks.cpp
 CMakeLists.txt
 cmdlineoptions.cpp
 cmdlineoptions.h
