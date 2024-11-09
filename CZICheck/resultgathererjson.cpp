@@ -18,7 +18,6 @@ CResultGathererJson::CResultGathererJson(const CCmdLineOptions& options)
     this->test_results_ = rapidjson::Value(rapidjson::kArrayType);
 }
 
-
 void CResultGathererJson::StartCheck(CZIChecks check)
 {
     const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check).c_str();
