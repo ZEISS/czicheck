@@ -98,9 +98,9 @@ std::string trim(const std::string& str, const std::string& whitespace /*= " \t"
 std::string GetVersionNumber()
 {
     ostringstream string_stream;
-    string_stream << CZICHECK_VERSION_MAJOR << "." \
-                  << CZICHECK_VERSION_MINOR << "." \
-                  << CZICHECK_VERSION_PATCH;
+    string_stream   << CZICHECK_VERSION_MAJOR << "." \
+                    << CZICHECK_VERSION_MINOR << "." \
+                    << CZICHECK_VERSION_PATCH;
     return string_stream.str();
 }
 
