@@ -60,19 +60,15 @@ int main(int argc, char** argv)
             switch (result)
             {
                 case IResultGatherer::AggregatedResult::OK:
-                    // log->WriteStdOut("\n\nResult: OK\n");
                     return_code = 0;
                     break;
                 case IResultGatherer::AggregatedResult::WithWarnings:
-                    // log->WriteStdOut("\n\nResult: With Warnings\n");
                     return_code = 1;
                     break;
                 case IResultGatherer::AggregatedResult::ErrorsDetected:
-                    // log->WriteStdOut("\n\nResult: Errors Detected\n");
                     return_code = 2;
                     break;
                 default:
-                    // log->WriteStdOut("\n\nResult: something unexpected happened\n");
                     return_code = 3;
                     break;
             }
