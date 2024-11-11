@@ -79,7 +79,8 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
             this->func_ = [](const std::string& str) -> string
             {
                 string error_message;
-                const bool parsed_ok = CCmdLineOptions::ParseEncodingArgument(str, nullptr, error_message);
+                OutputEncodingFormat encoding_format;
+                const bool parsed_ok = CCmdLineOptions::ParseEncodingArgument(str, &encoding_format, error_message);
                 if (!parsed_ok)
                 {
                     throw CLI::ValidationError(error_message);
@@ -292,7 +293,8 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 
     if (encoding == nullptr)
     {
-        return true;
+        error_message = "No output encoding was specified.";
+        return false;
     }
 
     if (icasecmp("text", str))
