@@ -9,7 +9,7 @@
 #include "utils.h"
 
 #include <codecvt>
-#include <iostream>
+#include <sstream>
 #ifdef unix
 #include <locale>
 #endif
@@ -107,21 +107,21 @@ void CResultGathererXml::ReportFinding(const Finding& finding)
 
 void CResultGathererXml::FinalizeChecks()
 {
-    ostringstream ss;
+    ostringstream result_stream;
     switch (this->GetAggregatedResult()) {
         case IResultGatherer::AggregatedResult::WithWarnings:
-            ss << "WARN";
+            result_stream << "WARN";
             break;
         case IResultGatherer::AggregatedResult::ErrorsDetected:
-            ss << "FAIL";
+            result_stream << "FAIL";
             break;
         case IResultGatherer::AggregatedResult::OK:
-            ss << "OK";
+            result_stream << "OK";
             break;
     }
 
     this->root_node_.append_child(kTestAggregatedResultId)
-        .text().set(convertUtf8ToUCS2(ss.str()).c_str());
+        .text().set(convertUtf8ToUCS2(result_stream.str()).c_str());
     auto output_version = this->root_node_.append_child(L"OutputVersion");
     output_version.append_child(L"Command")
         .text()
@@ -129,6 +129,9 @@ void CResultGathererXml::FinalizeChecks()
     output_version.append_child(L"Version")
         .text()
         .set(convertUtf8ToUCS2(GetVersionNumber()).c_str());
-    this->xml_document_.save(std::cout, L" ");
+
+    ostringstream xml_document_stream;
+    this->xml_document_.save(xml_document_stream, L"  ");
+    this->options_.GetLog()->WriteStdOut(xml_document_stream.str());
 }
 
