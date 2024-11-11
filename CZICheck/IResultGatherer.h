@@ -70,7 +70,7 @@ public:
     IResultGatherer& operator=(IResultGatherer&&) = delete;       // move assignment
 
 public:
-    AggregatedResult GetAggregatedResult()
+    const AggregatedResult GetAggregatedResult() const
     {
         std::uint32_t total_fatal_messages_count = 0;
         std::uint32_t total_warning_messages_count = 0;
