@@ -8,11 +8,7 @@
 #include "cmdlineoptions.h"
 #include "utils.h"
 
-#include <codecvt>
 #include <sstream>
-#ifdef unix
-#include <locale>
-#endif
 #include <string>
 #include <utility>
 
@@ -48,11 +44,11 @@ void CResultGathererXml::FinishCheck(CZIChecks check)
 {
     const auto& it = this->results_.find(check);
     const auto& result = it->second;
-    wstring_convert<codecvt_utf8<wchar_t>> utf8_conv;
+    const wstring current_checker = convertUtf8ToUCS2(this->current_checker_id_);
     for (auto current_test_node : this->test_node_.children())
     {
         auto name_attr = current_test_node.attribute(kTestNameId);
-        if (name_attr && utf8_conv.to_bytes(name_attr.value()) == this->current_checker_id_)
+        if (name_attr && name_attr.value() == current_checker)
         {
             auto result_node = current_test_node.child(kTestResultId);
             ostringstream ss;
@@ -79,11 +75,11 @@ void CResultGathererXml::ReportFinding(const Finding& finding)
     const auto it = this->results_.find(finding.check);
     IncrementCounter(finding.severity, it->second);
 
-    wstring_convert<codecvt_utf8<wchar_t>> utf8_conv;
+    const wstring current_checker = convertUtf8ToUCS2(this->current_checker_id_);
     for (auto current_test_node : this->test_node_.children())
     {
         auto name_attr = current_test_node.attribute(kTestNameId);
-        if (name_attr && utf8_conv.to_bytes(name_attr.value()) == this->current_checker_id_)
+        if (name_attr && name_attr.value() == current_checker)
         {
             auto findings_container = current_test_node.child(kTestFindingContainerId);
 
