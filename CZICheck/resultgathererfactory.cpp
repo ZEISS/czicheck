@@ -11,16 +11,16 @@
 
 std::unique_ptr<IResultGatherer> CreateResultGatherer(const CCmdLineOptions& options)
 {
-    switch (options.GetEncodingType())
+    switch (options.GetOutputEncodingFormat())
     {
-        case CCmdLineOptions::EncodingType::TEXT:
+        case CCmdLineOptions::OutputEncodingFormat::TEXT:
             return std::make_unique<CResultGatherer>(options);
-        case CCmdLineOptions::EncodingType::JSON:
+        case CCmdLineOptions::OutputEncodingFormat::JSON:
             return std::make_unique<CResultGathererJson>(options);
-        case CCmdLineOptions::EncodingType::XML:
+        case CCmdLineOptions::OutputEncodingFormat::XML:
             return std::make_unique<CResultGathererXml>(options);
         default:
-            throw std::invalid_argument("Unknown EncodingType");
+            throw std::invalid_argument("Unknown output encoding format");
     }
 }
 

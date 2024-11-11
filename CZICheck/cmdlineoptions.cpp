@@ -286,7 +286,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     return string_stream.str();
 }
 
-/*static*/bool CCmdLineOptions::ParseEncodingArgument(const std::string& str, EncodingType* encoding, std::string& error_message)
+/*static*/bool CCmdLineOptions::ParseEncodingArgument(const std::string& str, OutputEncodingFormat* encoding, std::string& error_message)
 {
     error_message.clear();
 
@@ -297,17 +297,17 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 
     if (icasecmp("text", str))
     {
-        *encoding = EncodingType::TEXT;
+        *encoding = OutputEncodingFormat::TEXT;
         return true;
     }
     if (icasecmp("json", str))
     {
-        *encoding = EncodingType::JSON;
+        *encoding = OutputEncodingFormat::JSON;
         return true;
     }
     else if (icasecmp("xml", str))
     {
-        *encoding = EncodingType::XML;
+        *encoding = OutputEncodingFormat::XML;
         return true;
     }
 
