@@ -93,7 +93,7 @@ You can chose between 3 different encoding output encoding styles at the moment:
 Run something like `./CZICheck -s yourfile.czi -e text`.
 This encoding style is the default, therefore `-e text` is optional. It will provide the results in a simple, *human readable* formatting.
 
-### Json encoded
+### Json encoding
 
 Run something like `./CZICheck -s yourfile.czi -e json`.
 The result will be a single JSON object containing
