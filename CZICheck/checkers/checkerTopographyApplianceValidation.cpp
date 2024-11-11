@@ -149,7 +149,7 @@ void CCheckTopographyApplianceMetadata::CheckValidDimensionInTopographyDataItems
 bool CCheckTopographyApplianceMetadata::ExtractMetaDataDimensions(const std::shared_ptr<libCZI::ICziMetadata>& czi_metadata)
 {
     // within the TopographyData we allow
-    // any number of TopographyDataItem which itself can contain a set of Texutures and a set of heightmaps
+    // any number of TopographyDataItem which itself can contain a set of Textures and a set of Heightmaps
     // within the heightmaps AND Textures, each item reside in its own channel.
     string topography_path{ CCheckTopographyApplianceMetadata::kImageAppliancePath };
     topography_path
