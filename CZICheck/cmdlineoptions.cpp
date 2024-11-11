@@ -300,18 +300,20 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         *encoding = OutputEncodingFormat::TEXT;
         return true;
     }
+
     if (icasecmp("json", str))
     {
         *encoding = OutputEncodingFormat::JSON;
         return true;
     }
-    else if (icasecmp("xml", str))
+
+    if (icasecmp("xml", str))
     {
         *encoding = OutputEncodingFormat::XML;
         return true;
     }
 
-    error_message = "The encoding option you passed is unknown.";
+    error_message = "The output encoding option you passed is unknown.";
     return false;
 }
 
