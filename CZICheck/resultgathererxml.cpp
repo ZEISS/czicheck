@@ -30,7 +30,6 @@ CResultGathererXml::CResultGathererXml(const CCmdLineOptions& options)
 
 void CResultGathererXml::StartCheck(CZIChecks check)
 {
-    const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check).c_str();
     this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
     pugi::xml_node finding_node = this->test_node_.append_child(kTestSingleContainerId);
     string test_name { CZIChecksToString(check) };
@@ -78,7 +77,6 @@ void CResultGathererXml::FinishCheck(CZIChecks check)
 void CResultGathererXml::ReportFinding(const Finding& finding)
 {
     const auto it = this->results_.find(finding.check);
-    const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
     IncrementCounter(finding.severity, it->second);
 
     wstring_convert<codecvt_utf8<wchar_t>> utf8_conv;
@@ -108,7 +106,8 @@ void CResultGathererXml::ReportFinding(const Finding& finding)
 void CResultGathererXml::FinalizeChecks()
 {
     ostringstream result_stream;
-    switch (this->GetAggregatedResult()) {
+    switch (this->GetAggregatedResult())
+    {
         case IResultGatherer::AggregatedResult::WithWarnings:
             result_stream << "WARN";
             break;
