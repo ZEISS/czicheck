@@ -80,7 +80,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
             {
                 string error_message;
                 OutputEncodingFormat encoding_format;
-                const bool parsed_ok = CCmdLineOptions::ParseEncodingArgument(str, &encoding_format, error_message);
+                const bool parsed_ok = CCmdLineOptions::ParseEncodingArgument(str, encoding_format, error_message);
                 if (!parsed_ok)
                 {
                     throw CLI::ValidationError(error_message);
@@ -241,7 +241,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     if (!result_encoding_option.empty())
     {
         string error_message;
-        const bool parsed_ok = CCmdLineOptions::ParseEncodingArgument(result_encoding_option, &this->result_encoding_type_, error_message);
+        const bool parsed_ok = CCmdLineOptions::ParseEncodingArgument(result_encoding_option, this->result_encoding_type_, error_message);
         if (!parsed_ok)
         {
             this->log_->WriteLineStdErr(error_message);
@@ -287,31 +287,25 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     return string_stream.str();
 }
 
-/*static*/bool CCmdLineOptions::ParseEncodingArgument(const std::string& str, OutputEncodingFormat* encoding, std::string& error_message)
+/*static*/bool CCmdLineOptions::ParseEncodingArgument(const std::string& str, OutputEncodingFormat& encoding, std::string& error_message)
 {
     error_message.clear();
 
-    if (encoding == nullptr)
-    {
-        error_message = "No output encoding was specified.";
-        return false;
-    }
-
     if (icasecmp("text", str))
     {
-        *encoding = OutputEncodingFormat::TEXT;
+        encoding = OutputEncodingFormat::TEXT;
         return true;
     }
 
     if (icasecmp("json", str))
     {
-        *encoding = OutputEncodingFormat::JSON;
+        encoding = OutputEncodingFormat::JSON;
         return true;
     }
 
     if (icasecmp("xml", str))
     {
-        *encoding = OutputEncodingFormat::XML;
+        encoding = OutputEncodingFormat::XML;
         return true;
     }
 
