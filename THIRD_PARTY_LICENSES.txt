@@ -1125,6 +1125,7 @@ whether future versions of the GNU Lesser General Public License shall
 apply, that proxy's public statement of acceptance of any version is
 permanent authorization for you to choose that version for the
 Library.
+
 -------------------------------------------------------------------------------
 |  jxrlib 1.1 (used under BSD 3-clause "New" or "Revised" License) https://github.com/4creators/jxrlib
 -------------------------------------------------------------------------------
@@ -1221,7 +1222,6 @@ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE
 
-
 -------------------------------------------------------------------------------
 |  RapidJSON 815e6e7 (used under MIT License) https://rapidjson.org/
 -------------------------------------------------------------------------------
@@ -1253,7 +1253,6 @@ HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE
-
 
 -------------------------------------------------------------------------------
 | msinttypes r29 (used under BSD License)
@@ -1289,7 +1288,6 @@ OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 
 -------------------------------------------------------------------------------
 | JSON_checker (used under JSON License) (https://json.org/JSON_checker/)
