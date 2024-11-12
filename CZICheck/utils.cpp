@@ -6,6 +6,7 @@
 #include "utils.h"
 #include <cwctype>
 #include <memory>
+#include <sstream>
 
 #if CZICHECK_WIN32_ENVIRONMENT
 #include <Windows.h>
@@ -92,6 +93,15 @@ std::string trim(const std::string& str, const std::string& whitespace /*= " \t"
     const auto strRange = strEnd - strBegin + 1;
 
     return str.substr(strBegin, strRange);
+}
+
+std::string GetVersionNumber()
+{
+    ostringstream string_stream;
+    string_stream   << CZICHECK_VERSION_MAJOR << "." \
+                    << CZICHECK_VERSION_MINOR << "." \
+                    << CZICHECK_VERSION_PATCH;
+    return string_stream.str();
 }
 
 //-----------------------------------------------------------------------------------------

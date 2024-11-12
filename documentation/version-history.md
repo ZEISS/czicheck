@@ -12,3 +12,4 @@ version history                 {#version_history}
  0.4.0          | [19](https://github.com/ZEISS/czicheck/pull/19)      | add check for "ComponentBitCount" to basicxmlmetadata-checker
  0.5.0          | [20](https://github.com/ZEISS/czicheck/pull/20)      | enhance "topographymetadata" checker
  0.5.1          | [21](https://github.com/ZEISS/czicheck/pull/21)      | add third-party-licenses doc and create public artifacts
+ 0.6.0          | [22](https://github.com/ZEISS/czicheck/pull/22)      | enable machine readable output in json and xml format

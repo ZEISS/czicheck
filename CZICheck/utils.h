@@ -13,6 +13,7 @@ std::string convertToUtf8(const std::wstring& str);
 std::wstring convertUtf8ToUCS2(const std::string& str);
 bool icasecmp(const std::string& l, const std::string& r);
 std::string trim(const std::string& str, const std::string& whitespace = " \t");
+std::string GetVersionNumber();
 
 #if CZICHECK_WIN32_ENVIRONMENT
 /// A utility which is providing the command-line arguments (on Windows) as UTF8-encoded strings.

@@ -1,0 +1,110 @@
+{
+    "aggregatedresult": "WARN",
+    "tests": [
+        {
+            "name": "SubBlockDirectoryPositionsWithinRange",
+            "description": "SubBlock-Segment in SubBlockDirectory within file",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SubBlockDirectorySegmentValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ConsistentSubBlockCoordinates",
+            "description": "check subblock's coordinates for 'consistent dimensions'",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "DuplicateSubBlockCoordinates",
+            "description": "check subblock's coordinates being unique",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "BenabledDocument",
+            "description": "check whether the document uses the deprecated 'B-index'",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SamePixeltypePerChannel",
+            "description": "check that the subblocks of a channel have the same pixeltype",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlanesIndicesStartAtZero",
+            "description": "Check that planes indices start at 0",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlaneIndicesAreConsecutive",
+            "description": "Check that planes have consecutive indices",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "The indices for dimension 'Z' are not consecutive",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "SubblocksHaveMindex",
+            "description": "check if all subblocks have the M index",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "BasicMetadataValidation",
+            "description": "Basic semantic checks of the XML-metadata",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "For the following dimensions the start/size given in metadata differs from document statistics: Z",
+                    "details": ""
+                },
+                {
+                    "severity": "WARNING",
+                    "description": "No valid ComponentBitCount information found in metadata for channel #0.",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "XmlMetadataSchemaValidation",
+            "description": "validate the XML-metadata against XSD-schema",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "CCheckOverlappingScenesOnLayer0",
+            "description": "check if subblocks at pyramid-layer 0 of different scenes are overlapping",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "CheckSubBlockBitmapValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid and valid content",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ApplianceMetadataTopographyItemValid",
+            "description": "Basic semantic checks for TopographyDataItems",
+            "result": "OK",
+            "findings": []
+        }
+    ],
+    "output_version": {
+        "command": "CZICheck",
+        "version": "0.6.0"
+    }
+}

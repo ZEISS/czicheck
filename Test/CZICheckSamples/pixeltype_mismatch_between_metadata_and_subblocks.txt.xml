@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestResults>
+  <Tests>
+    <Test Name="SubBlockDirectoryPositionsWithinRange">
+      <Description>SubBlock-Segment in SubBlockDirectory within file</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="SubBlockDirectorySegmentValid">
+      <Description>SubBlock-Segments in SubBlockDirectory are valid</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="ConsistentSubBlockCoordinates">
+      <Description>check subblock's coordinates for 'consistent dimensions'</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="DuplicateSubBlockCoordinates">
+      <Description>check subblock's coordinates being unique</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="BenabledDocument">
+      <Description>check whether the document uses the deprecated 'B-index'</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="SamePixeltypePerChannel">
+      <Description>check that the subblocks of a channel have the same pixeltype</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="PlanesIndicesStartAtZero">
+      <Description>Check that planes indices start at 0</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="PlaneIndicesAreConsecutive">
+      <Description>Check that planes have consecutive indices</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="SubblocksHaveMindex">
+      <Description>check if all subblocks have the M index</Description>
+      <Result>WARN</Result>
+      <Findings>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>There are 1 subblocks with no M index.</Description>
+          <Details></Details>
+        </Finding>
+      </Findings>
+    </Test>
+    <Test Name="BasicMetadataValidation">
+      <Description>Basic semantic checks of the XML-metadata</Description>
+      <Result>WARN</Result>
+      <Findings>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>PixelType mismatch between metadata and sub block-information. channel index: 0, metadata: gray8, subBlock: bgr24</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>No valid ComponentBitCount information found in metadata for channel #0.</Description>
+          <Details></Details>
+        </Finding>
+      </Findings>
+    </Test>
+    <Test Name="XmlMetadataSchemaValidation">
+      <Description>validate the XML-metadata against XSD-schema</Description>
+      <Result>FAIL</Result>
+      <Findings>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(91,28): element 'ShuttleAndFindData' is not allowed for content model 'All(Calibration,)'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(116,22): no declaration found for element 'ImageStorage'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(117,22): no declaration found for element 'StageCenterX'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(118,22): no declaration found for element 'StageCenterY'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(119,24): no declaration found for element 'StageMPosition'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(120,21): no declaration found for element 'BeamOffsetX'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(121,21): no declaration found for element 'BeamOffsetY'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(122,29): no declaration found for element 'ScanRotationEnabled'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(123,22): no declaration found for element 'ScanRotation'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(124,22): no declaration found for element 'SampleHolder'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(125,25): no declaration found for element 'SpacerThickness'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(126,24): no declaration found for element 'SpecimenHeight'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(127,26): no declaration found for element 'SpecimenDiameter'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(130,20): element 'ImageStorage' is not allowed for content model 'All(AcceleratingVoltage?,Magnification?,StageZPosition?,StageTilt?,StageRotation?,Brightness?,Contrast?,CollectorBias?,SampleId?,PhotoNumber?,ChamberPressure?,SystemVacuum?,SpecimenCurrent?,ScanSpeed?,NoiseReductionMode?,NoiseReduction?,StigmationX?,StigmationY?,ApertureSize?,System?)'</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>FATAL</Severity>
+          <Description>(203,30): missing elements in content model 'All(Version?,SubType?,TilingMode?,TileSize?,MaxParticleSize?,MaxDisplaySize?,AnalysisStepCollection?,AdditionalChannelSetting?,AnalysisViewOptionCollection?,ChannelDescriptionCollection?,GraphSetting?,BioAppsVersion?,IsInitialized?,AnalysisFrameTeach,AnalysisFrameRun,AnalysisFeatures,AnalysisClass,AnalysisClassSelect?,MeasureFrame,Geometry?,Script,SubImageDimension,RegionClass,RegionFill?,CommonParameters?,RegionClassTemplate,MeasureUnit?,IsParallelProcessingDisabled?,IsParallelSegmentationDisabled?,HiliteColor?,HiliteLineWidth?,ImageChannelMatchMode?,DefaultSelectedRegionClass?)'</Description>
+          <Details></Details>
+        </Finding>
+      </Findings>
+    </Test>
+    <Test Name="CCheckOverlappingScenesOnLayer0">
+      <Description>check if subblocks at pyramid-layer 0 of different scenes are overlapping</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="CheckSubBlockBitmapValid">
+      <Description>SubBlock-Segments in SubBlockDirectory are valid and valid content</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="ApplianceMetadataTopographyItemValid">
+      <Description>Basic semantic checks for TopographyDataItems</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+  </Tests>
+  <AggregatedResult>FAIL</AggregatedResult>
+  <OutputVersion>
+    <Command>CZICheck</Command>
+    <Version>0.6.0</Version>
+  </OutputVersion>
+</TestResults>

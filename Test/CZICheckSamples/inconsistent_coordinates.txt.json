@@ -1,0 +1,117 @@
+{
+    "aggregatedresult": "FAIL",
+    "tests": [
+        {
+            "name": "SubBlockDirectoryPositionsWithinRange",
+            "description": "SubBlock-Segment in SubBlockDirectory within file",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SubBlockDirectorySegmentValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ConsistentSubBlockCoordinates",
+            "description": "check subblock's coordinates for 'consistent dimensions'",
+            "result": "FAIL",
+            "findings": [
+                {
+                    "severity": "FATAL",
+                    "description": "subblock #1 has dimensions \"Z,C,T\", whereas \"C,T\" was expected.",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "DuplicateSubBlockCoordinates",
+            "description": "check subblock's coordinates being unique",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "BenabledDocument",
+            "description": "check whether the document uses the deprecated 'B-index'",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SamePixeltypePerChannel",
+            "description": "check that the subblocks of a channel have the same pixeltype",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlanesIndicesStartAtZero",
+            "description": "Check that planes indices start at 0",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlaneIndicesAreConsecutive",
+            "description": "Check that planes have consecutive indices",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SubblocksHaveMindex",
+            "description": "check if all subblocks have the M index",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "BasicMetadataValidation",
+            "description": "Basic semantic checks of the XML-metadata",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "Could not read metadata-segment",
+                    "details": "No metadata-segment available."
+                }
+            ]
+        },
+        {
+            "name": "XmlMetadataSchemaValidation",
+            "description": "validate the XML-metadata against XSD-schema",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "Could not read metadata-segment",
+                    "details": "No metadata-segment available."
+                }
+            ]
+        },
+        {
+            "name": "CCheckOverlappingScenesOnLayer0",
+            "description": "check if subblocks at pyramid-layer 0 of different scenes are overlapping",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "CheckSubBlockBitmapValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid and valid content",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ApplianceMetadataTopographyItemValid",
+            "description": "Basic semantic checks for TopographyDataItems",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "Could not read metadata-segment",
+                    "details": "No metadata-segment available."
+                }
+            ]
+        }
+    ],
+    "output_version": {
+        "command": "CZICheck",
+        "version": "0.6.0"
+    }
+}

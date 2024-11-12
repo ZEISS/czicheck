@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestResults>
+  <Tests>
+    <Test Name="SubBlockDirectoryPositionsWithinRange">
+      <Description>SubBlock-Segment in SubBlockDirectory within file</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="SubBlockDirectorySegmentValid">
+      <Description>SubBlock-Segments in SubBlockDirectory are valid</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="ConsistentSubBlockCoordinates">
+      <Description>check subblock's coordinates for 'consistent dimensions'</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="DuplicateSubBlockCoordinates">
+      <Description>check subblock's coordinates being unique</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="BenabledDocument">
+      <Description>check whether the document uses the deprecated 'B-index'</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="SamePixeltypePerChannel">
+      <Description>check that the subblocks of a channel have the same pixeltype</Description>
+      <Result>WARN</Result>
+      <Findings>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>pixeltype of subblock #1 (gray16) differs from the pixeltype determined for channel 0 (gray8)</Description>
+          <Details></Details>
+        </Finding>
+      </Findings>
+    </Test>
+    <Test Name="PlanesIndicesStartAtZero">
+      <Description>Check that planes indices start at 0</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="PlaneIndicesAreConsecutive">
+      <Description>Check that planes have consecutive indices</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="SubblocksHaveMindex">
+      <Description>check if all subblocks have the M index</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="BasicMetadataValidation">
+      <Description>Basic semantic checks of the XML-metadata</Description>
+      <Result>WARN</Result>
+      <Findings>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>Could not read metadata-segment</Description>
+          <Details>No metadata-segment available.</Details>
+        </Finding>
+      </Findings>
+    </Test>
+    <Test Name="XmlMetadataSchemaValidation">
+      <Description>validate the XML-metadata against XSD-schema</Description>
+      <Result>WARN</Result>
+      <Findings>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>Could not read metadata-segment</Description>
+          <Details>No metadata-segment available.</Details>
+        </Finding>
+      </Findings>
+    </Test>
+    <Test Name="CCheckOverlappingScenesOnLayer0">
+      <Description>check if subblocks at pyramid-layer 0 of different scenes are overlapping</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="CheckSubBlockBitmapValid">
+      <Description>SubBlock-Segments in SubBlockDirectory are valid and valid content</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="ApplianceMetadataTopographyItemValid">
+      <Description>Basic semantic checks for TopographyDataItems</Description>
+      <Result>WARN</Result>
+      <Findings>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>Could not read metadata-segment</Description>
+          <Details>No metadata-segment available.</Details>
+        </Finding>
+      </Findings>
+    </Test>
+  </Tests>
+  <AggregatedResult>WARN</AggregatedResult>
+  <OutputVersion>
+    <Command>CZICheck</Command>
+    <Version>0.6.0</Version>
+  </OutputVersion>
+</TestResults>

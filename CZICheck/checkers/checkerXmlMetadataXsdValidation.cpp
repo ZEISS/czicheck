@@ -32,12 +32,12 @@ XERCES_CPP_NAMESPACE_USE
 class ParserErrorHandler : public ErrorHandler
 {
 private:
-    CResultGatherer& result_gatherer_;
+    IResultGatherer& result_gatherer_;
 
     void reportParseError(const SAXParseException& ex)
     {
-        CResultGatherer::Finding finding(CCheckXmlMetadataXsdValidation::kCheckType);
-        finding.severity = CResultGatherer::Severity::Fatal;
+        IResultGatherer::Finding finding(CCheckXmlMetadataXsdValidation::kCheckType);
+        finding.severity = IResultGatherer::Severity::Fatal;
         const std::unique_ptr<char, void(*)(char*)> upMsg(XMLString::transcode(ex.getMessage()), [](char* p)->void {XMLString::release(&p); });
         ostringstream ss;
         ss << "(" << ex.getLineNumber() << "," << ex.getColumnNumber() << "): " << upMsg.get();
@@ -47,8 +47,8 @@ private:
 
     void reportParseWarning(const SAXParseException& ex)
     {
-        CResultGatherer::Finding finding(CCheckXmlMetadataXsdValidation::kCheckType);
-        finding.severity = CResultGatherer::Severity::Warning;
+        IResultGatherer::Finding finding(CCheckXmlMetadataXsdValidation::kCheckType);
+        finding.severity = IResultGatherer::Severity::Warning;
         const std::unique_ptr<char, void(*)(char*)> upMsg(XMLString::transcode(ex.getMessage()), [](char* p)->void {XMLString::release(&p); });
         ostringstream ss;
         ss << "(" << ex.getLineNumber() << "," << ex.getColumnNumber() << ") : " << upMsg.get();
@@ -58,7 +58,7 @@ private:
 public:
     ParserErrorHandler() = delete;
 
-    explicit ParserErrorHandler(CResultGatherer& result_gatherer)
+    explicit ParserErrorHandler(IResultGatherer& result_gatherer)
         : result_gatherer_(result_gatherer)
     {
     }
@@ -85,7 +85,7 @@ public:
 
 CCheckXmlMetadataXsdValidation::CCheckXmlMetadataXsdValidation(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {

@@ -18,7 +18,7 @@ public:
 
     CCheckDuplicateCoordinates(
         const std::shared_ptr<libCZI::ICZIReader>& reader,
-        CResultGatherer& result_gatherer,
+        IResultGatherer& result_gatherer,
         const CheckerCreateInfo& additionalInfo);
     void RunCheck() override;
 private:

@@ -6,6 +6,7 @@
 #include "inc_libCZI.h"
 #include "utils.h"
 #include "checkerfactory.h"
+#include "resultgathererfactory.h"
 #include <sstream>
 #include <memory>
 #include <utility>
@@ -18,7 +19,7 @@ CRunChecks::CRunChecks(const CCmdLineOptions& opts, std::shared_ptr<ILog> consol
 {
 }
 
-bool CRunChecks::Run(CResultGatherer::AggregatedResult& result)
+bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
 {
     shared_ptr<libCZI::IStream> stream;
     try
@@ -49,7 +50,7 @@ bool CRunChecks::Run(CResultGatherer::AggregatedResult& result)
         return false;
     }
 
-    CResultGatherer resultsGatherer(opts);
+    auto resultsGatherer = CreateResultGatherer(opts);
 
     CheckerCreateInfo checkerAdditionalInfo;
     checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
@@ -57,10 +58,11 @@ bool CRunChecks::Run(CResultGatherer::AggregatedResult& result)
     const auto& checksToRun = this->opts.GetChecksEnabled();
     for (auto checkType : checksToRun)
     {
-        auto checker = CCheckerFactory::CreateChecker(checkType, spReader, resultsGatherer, checkerAdditionalInfo);
+        auto checker = CCheckerFactory::CreateChecker(checkType, spReader, *resultsGatherer, checkerAdditionalInfo);
         checker->RunCheck();
     }
 
-    result = resultsGatherer.GetAggregatedResult();
+    result = resultsGatherer->GetAggregatedResult();
+    resultsGatherer->FinalizeChecks();
     return true;
 }

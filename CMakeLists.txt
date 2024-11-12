@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 3.15)
 
 project(CZICheck 
-      VERSION 0.5.1
+      VERSION 0.6.0
       HOMEPAGE_URL "https://github.com/ZEISS/czicheck"
       DESCRIPTION "CZICheck is a validator for CZI-documents")
 
@@ -22,6 +22,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/modules" ${CMAKE_MODULE_PATH})
 
 include("${CMAKE_SOURCE_DIR}/modules/libCZI.cmake")
+include("${CMAKE_SOURCE_DIR}/modules/rapidJSON.cmake")
+include("${CMAKE_SOURCE_DIR}/modules/pugiXML.cmake")
 FetchContent_GetProperties(libCZI)
 set(LIBCZI_INCLUDE_DIR "${libczi_SOURCE_DIR}/Src/libCZI")
 
@@ -34,4 +36,5 @@ if (CZICHECK_BUILD_TESTS)
 endif()
 
 add_subdirectory(CZICheck)
+
 

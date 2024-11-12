@@ -17,7 +17,7 @@ using namespace std;
 
 CCheckOverlappingScenesOnLayer0::CCheckOverlappingScenesOnLayer0(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -149,8 +149,8 @@ void CCheckOverlappingScenesOnLayer0::CheckForOverlappingSubblocksInPlaneAndBetw
 
     if (are_overlapping)
     {
-        CResultGatherer::Finding finding(CCheckOverlappingScenesOnLayer0::kCheckType);
-        finding.severity = CResultGatherer::Severity::Warning;
+        IResultGatherer::Finding finding(CCheckOverlappingScenesOnLayer0::kCheckType);
+        finding.severity = IResultGatherer::Severity::Warning;
         stringstream ss;
         ss << "in plane " << Utils::DimCoordinateToString(plane_coordinate) << " there are overlapping subblocks in scene " << pair.sceneIndex1 << " and scene " << pair.sceneIndex2;
         finding.information = ss.str();

@@ -13,6 +13,13 @@
 
 class CCmdLineOptions
 {
+public:
+    enum class OutputEncodingFormat
+    {
+        TEXT,
+        JSON,
+        XML
+    };
 private:
     std::shared_ptr<ILog> log_;
     std::wstring czi_filename_;
@@ -20,6 +27,7 @@ private:
     int max_number_of_findings_to_print_;
     bool print_details_of_messages_;
     bool lax_parsing_enabled_;
+    OutputEncodingFormat result_encoding_type_ { OutputEncodingFormat::TEXT };
 public:
     /// Values that represent the result of the "Parse"-operation.
     enum class ParseResult
@@ -45,9 +53,11 @@ public:
     [[nodiscard]] bool GetLaxParsingEnabled() const { return this->lax_parsing_enabled_; }
     [[nodiscard]] const std::vector<CZIChecks>& GetChecksEnabled() const { return this->checks_enabled_; }
     [[nodiscard]] const std::shared_ptr<ILog>& GetLog() const { return this->log_; }
+    [[nodiscard]] const OutputEncodingFormat GetOutputEncodingFormat() const { return this->result_encoding_type_; }
 private:
     static bool ParseBooleanArgument(const std::string& argument_key, const std::string& argument_value, bool* boolean_value, std::string* error_message);
     static bool ParseChecksArgument(const std::string& str, std::vector<CZIChecks>* checks_enabled, std::string* error_message);
+    static bool ParseEncodingArgument(const std::string& str, OutputEncodingFormat& encoding, std::string& error_message);
 
     /// Information about a "checker item" and whether it is to be added or removed.
     struct CheckerToRunInfo

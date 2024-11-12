@@ -4,7 +4,11 @@
 
 #include "resultgatherer.h"
 #include "checkerfactory.h"
+#include "checks.h"
+#include "cmdlineoptions.h"
 #include <algorithm>
+#include <ostream>
+#include <sstream>
 #include <utility>
 
 using namespace std;
@@ -90,43 +94,22 @@ void CResultGatherer::ReportFinding(const Finding& finding)
     }
 }
 
-CResultGatherer::AggregatedResult CResultGatherer::GetAggregatedResult()
+void CResultGatherer::FinalizeChecks()
 {
-    std::uint32_t total_fatal_messages_count = 0;
-    std::uint32_t total_warning_messages_count = 0;
-    std::uint32_t total_info_messages_count = 0;
-    for (auto const& i : this->results_)
+    switch (this->GetAggregatedResult())
     {
-        total_fatal_messages_count += i.second.fatalMessagesCount;
-        total_warning_messages_count += i.second.warningMessagesCount;
-        total_info_messages_count += i.second.warningMessagesCount;
+        case IResultGatherer::AggregatedResult::OK:
+            this->options_.GetLog()->WriteStdOut("\n\nResult: OK\n");
+            break;
+        case IResultGatherer::AggregatedResult::WithWarnings:
+            this->options_.GetLog()->WriteStdOut("\n\nResult: With Warnings\n");
+            break;
+        case IResultGatherer::AggregatedResult::ErrorsDetected:
+            this->options_.GetLog()->WriteStdOut("\n\nResult: Errors Detected\n");
+            break;
+        default:
+            this->options_.GetLog()->WriteStdOut("\n\nResult: something unexpected happened\n");
+            break;
     }
-
-    if (total_fatal_messages_count > 0)
-    {
-        return AggregatedResult::ErrorsDetected;
-    }
-
-    if (total_warning_messages_count > 0)
-    {
-        return AggregatedResult::WithWarnings;
-    }
-
-    return AggregatedResult::OK;
 }
 
-/*static*/void CResultGatherer::IncrementCounter(Severity severity, CheckResult& result)
-{
-    switch (severity)
-    {
-    case Severity::Fatal:
-        ++result.fatalMessagesCount;
-        break;
-    case Severity::Warning:
-        ++result.warningMessagesCount;
-        break;
-    case Severity::Info:
-        ++result.infoMessagesCount;
-        break;
-    }
-}

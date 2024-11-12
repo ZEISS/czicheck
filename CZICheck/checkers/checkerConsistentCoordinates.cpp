@@ -15,7 +15,7 @@ using namespace std;
 
 CCheckConsistentCoordinates::CCheckConsistentCoordinates(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -54,9 +54,9 @@ void CCheckConsistentCoordinates::CheckForSameDimensions(const std::vector<libCZ
         const auto& info = subblocks[i];
         if (!Utils::HasSameDimensions(&info.coordinate, &expected_dimensions))
         {
-            CResultGatherer::Finding finding(CCheckConsistentCoordinates::kCheckType);
+            IResultGatherer::Finding finding(CCheckConsistentCoordinates::kCheckType);
             finding.check = CZIChecks::ConsistentSubBlockCoordinates;
-            finding.severity = CResultGatherer::Severity::Fatal;
+            finding.severity = IResultGatherer::Severity::Fatal;
             stringstream ss;
             ss << "subblock #" << i << " has dimensions \"" << GetDimensionsAsInformalString(&info.coordinate)
                 << "\", whereas \"" << GetDimensionsAsInformalString(&expected_dimensions) << "\" was expected.";

@@ -18,8 +18,8 @@ std::shared_ptr<libCZI::ICziMetadata> CCheckerBase::GetCziMetadataAndReportError
     }
     catch (exception& ex)
     {
-        CResultGatherer::Finding finding(check);
-        finding.severity = CResultGatherer::Severity::Warning;
+        IResultGatherer::Finding finding(check);
+        finding.severity = IResultGatherer::Severity::Warning;
         finding.information = "Could not read metadata-segment";
         finding.details = ex.what();
         this->result_gatherer_.ReportFinding(finding);
@@ -34,8 +34,8 @@ std::shared_ptr<libCZI::ICziMetadata> CCheckerBase::GetCziMetadataAndReportError
         }
         catch (exception& ex)
         {
-            CResultGatherer::Finding finding(check);
-            finding.severity = CResultGatherer::Severity::Fatal;
+            IResultGatherer::Finding finding(check);
+            finding.severity = IResultGatherer::Severity::Fatal;
             finding.information = "Invalid metadata-segment";
             finding.details = ex.what();
             this->result_gatherer_.ReportFinding(finding);
@@ -45,8 +45,8 @@ std::shared_ptr<libCZI::ICziMetadata> CCheckerBase::GetCziMetadataAndReportError
         {
             if (!czi_metadata->IsXmlValid())
             {
-                CResultGatherer::Finding finding(check);
-                finding.severity = CResultGatherer::Severity::Fatal;
+                IResultGatherer::Finding finding(check);
+                finding.severity = IResultGatherer::Severity::Fatal;
                 finding.information = "The metadata is not well-formed XML";
                 this->result_gatherer_.ReportFinding(finding);
             }

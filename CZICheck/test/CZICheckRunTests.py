@@ -135,31 +135,40 @@ def check_file(cmdline_parameters: Parameters, czi_filename: str, expected_resul
                    '-c','all', '--laxparsing', 'true']
     print(f"test {czi_filename}")
 
-    output = subprocess.run(cmdlineargs, capture_output=True, check=False, universal_newlines=True)
+    testouput_encoding_list = ["text", "json", "xml"]
+    testoutput_results = [False, False, False]
 
-    # save the output if we are requested to do so
-    if expected_result_file != '*':
-        fully_qualified_filename_to_save_output = cmdline_parameters.get_fully_qualified_path_for_czicheck_output(
-            expected_result_file)
-        if fully_qualified_filename_to_save_output:
-            with open(fully_qualified_filename_to_save_output, 'w') as czicheck_output_save_file:
-                czicheck_output_save_file.write(output.stdout)
+    for i, encoding in enumerate(testouput_encoding_list):
+        current_cmd_args = cmdlineargs[:]
+        current_cmd_args.append("-e")
+        current_cmd_args.append(encoding)
 
-    if not output.returncode == expected_returncode:
-        print(
-            f"exit code of 'CZICheck' was expected to be {expected_returncode}, but was found to be {output.returncode}.")
-        return False
+        output = subprocess.run(current_cmd_args, capture_output=True, check=False, universal_newlines=True)
+        current_expected_result_file = expected_result_file
+        if encoding != "text":
+            current_expected_result_file = f"{expected_result_file}.{encoding}"
 
-    compare_ok = True
+        # here we compare with the unmodified expected_result_file variable
+        if expected_result_file != '*':
+            fully_qualified_filename_to_save_output = cmdline_parameters.get_fully_qualified_path_for_czicheck_output(
+                current_expected_result_file)
+            if fully_qualified_filename_to_save_output:
+                with open(fully_qualified_filename_to_save_output, 'w') as czicheck_output_save_file:
+                    czicheck_output_save_file.write(output.stdout)
 
-    # if the filename for the "known good result" is the special value "*", then we skip the comparison
-    if expected_result_file != '*':
-        with open(cmdline_parameters.build_fully_qualified_expected_result_filename(expected_result_file), "r") as text_file:
-            expected_result = text_file.read()
-        compare_ok = compare_result_of_test_to_knowngood(output.stdout, expected_result)
+        testoutput_results[i] = output.returncode == expected_returncode
+        if not testoutput_results[i]:
+            print(
+                f"exit code of 'CZICheck' was expected to be {expected_returncode}, but was found to be {output.returncode} for {encoding} output.")
+            return False
 
-    return compare_ok
+        # # if the filename for the "known good result" is the special value "*", then we skip the comparison
+        if expected_result_file != '*':
+            with open(cmdline_parameters.build_fully_qualified_expected_result_filename(current_expected_result_file), "r") as text_file:
+                expected_result = text_file.read()
+                testoutput_results[i] = compare_result_of_test_to_knowngood(output.stdout, expected_result)
 
+    return all(testoutput_results)
 
 parameters = Parameters()
 parameters.parse_commandline()

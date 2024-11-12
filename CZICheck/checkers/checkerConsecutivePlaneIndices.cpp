@@ -16,7 +16,7 @@ using namespace std;
 
 CCheckConsecutivePlaneIndices::CCheckConsecutivePlaneIndices(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {}
@@ -77,8 +77,8 @@ void CCheckConsecutivePlaneIndices::CheckForConsecutiveIndices()
     {
         if (find(occupancy.second.cbegin(), occupancy.second.cend(), false) != occupancy.second.cend())
         {
-            CResultGatherer::Finding finding(CCheckConsecutivePlaneIndices::kCheckType);
-            finding.severity = CResultGatherer::Severity::Warning;
+            IResultGatherer::Finding finding(CCheckConsecutivePlaneIndices::kCheckType);
+            finding.severity = IResultGatherer::Severity::Warning;
             stringstream ss;
             ss << "The indices for dimension '" << Utils::DimensionToChar(occupancy.first) << "' are not consecutive";
             finding.information = ss.str();

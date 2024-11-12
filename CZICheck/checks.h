@@ -5,6 +5,7 @@
 #pragma once
 
 /// This enum defines the checks that can be performed by CZICheck.
+#include <stdexcept>
 enum class CZIChecks 
 {
     /// It is checked whether all file-positions given in the subblock-directory are within the limits of the filesize.
@@ -54,6 +55,8 @@ enum class CZIChecks
 
     AttachmentDirectoryPositionsWithinRange, ///< To be done, not yet implemented.
 
-    /// The Applicance Metadata specified for TopographyDataItem(s) are valid
+    /// The Appliance Metadata specified for TopographyDataItem(s) are valid
     ApplianceMetadataTopographyItemValid,
 };
+
+const char* CZIChecksToString(CZIChecks czi_check);

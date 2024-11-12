@@ -15,7 +15,7 @@ using namespace std;
 
 CCheckSubBlkSegmentsValid::CCheckSubBlkSegmentsValid(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    CResultGatherer& result_gatherer,
+    IResultGatherer& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -34,8 +34,8 @@ void CCheckSubBlkSegmentsValid::RunCheck()
             }
             catch (exception& exception)
             {
-                CResultGatherer::Finding finding(CCheckSubBlkSegmentsValid::kCheckType);
-                finding.severity = CResultGatherer::Severity::Fatal;
+                IResultGatherer::Finding finding(CCheckSubBlkSegmentsValid::kCheckType);
+                finding.severity = IResultGatherer::Severity::Fatal;
                 stringstream ss;
                 ss << "Error reading subblock #" << index;
                 finding.information = ss.str();

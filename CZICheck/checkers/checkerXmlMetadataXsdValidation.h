@@ -22,7 +22,7 @@ public:
 
     CCheckXmlMetadataXsdValidation(
         const std::shared_ptr<libCZI::ICZIReader>& reader,
-        CResultGatherer& result_gatherer,
+        IResultGatherer& result_gatherer,
         const CheckerCreateInfo& additional_info);
     void RunCheck() override;
 private:

@@ -75,6 +75,7 @@ set(CZICHECKSRCFILES
 checkerfactory.cpp
 checkerfactory.h
 checks.h
+checks.cpp
 CMakeLists.txt
 cmdlineoptions.cpp
 cmdlineoptions.h
@@ -82,9 +83,16 @@ consoleio.cpp
 consoleio.h
 CZICheck.cpp
 IChecker.h
+IResultGatherer.h
 inc_libCZI.h
 resultgatherer.cpp
 resultgatherer.h
+resultgathererjson.h
+resultgathererjson.cpp
+resultgathererxml.h
+resultgathererxml.cpp
+resultgathererfactory.h
+resultgathererfactory.cpp
 runchecks.cpp
 runchecks.h
 utils.h
@@ -96,8 +104,10 @@ add_executable(CZICheck ${CZICHECKSRCFILES} )
 set_target_properties(CZICheck PROPERTIES CXX_STANDARD 17)
 target_compile_definitions(CZICheck PRIVATE _LIBCZISTATICLIB)
 
-target_link_libraries(CZICheck PRIVATE libCZIStatic CLI11::CLI11)
-target_include_directories(CZICheck PRIVATE ${LIBCZI_INCLUDE_DIR})
+target_link_libraries(CZICheck  PRIVATE libCZIStatic CLI11::CLI11 pugixml)
+target_include_directories(CZICheck
+  PRIVATE ${LIBCZI_INCLUDE_DIR}
+  PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
 if (XercesC_FOUND)
     target_link_libraries(CZICheck PRIVATE ${XercesC_LIBRARY})
 endif()
