@@ -1,0 +1,141 @@
+{
+    "aggregatedresult": "FAIL",
+    "tests": [
+        {
+            "name": "SubBlockDirectoryPositionsWithinRange",
+            "description": "SubBlock-Segment in SubBlockDirectory within file",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SubBlockDirectorySegmentValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ConsistentSubBlockCoordinates",
+            "description": "check subblock's coordinates for 'consistent dimensions'",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "DuplicateSubBlockCoordinates",
+            "description": "check subblock's coordinates being unique",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "BenabledDocument",
+            "description": "check whether the document uses the deprecated 'B-index'",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SamePixeltypePerChannel",
+            "description": "check that the subblocks of a channel have the same pixeltype",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlanesIndicesStartAtZero",
+            "description": "Check that planes indices start at 0",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlaneIndicesAreConsecutive",
+            "description": "Check that planes have consecutive indices",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SubblocksHaveMindex",
+            "description": "check if all subblocks have the M index",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "BasicMetadataValidation",
+            "description": "Basic semantic checks of the XML-metadata",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "For the following dimensions the start/size given in metadata differs from document statistics: Z",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "XmlMetadataSchemaValidation",
+            "description": "validate the XML-metadata against XSD-schema",
+            "result": "FAIL",
+            "findings": [
+                {
+                    "severity": "FATAL",
+                    "description": "(5974,26): value '' not in enumeration",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(5978,43): value 'Sinc3 30x1000' not in enumeration",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(6023,26): value '' not in enumeration",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(6027,43): value 'Sinc3 30x1000' not in enumeration",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "CCheckOverlappingScenesOnLayer0",
+            "description": "check if subblocks at pyramid-layer 0 of different scenes are overlapping",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "in plane Z0C0 there are overlapping subblocks in scene 0 and scene 1",
+                    "details": "The following subblocks overlap (1st is scene#0, 2nd is scene#1): (0<->1)"
+                },
+                {
+                    "severity": "WARNING",
+                    "description": "in plane Z1C0 there are overlapping subblocks in scene 0 and scene 1",
+                    "details": "The following subblocks overlap (1st is scene#0, 2nd is scene#1): (4<->5)"
+                },
+                {
+                    "severity": "WARNING",
+                    "description": "in plane Z0C1 there are overlapping subblocks in scene 0 and scene 1",
+                    "details": "The following subblocks overlap (1st is scene#0, 2nd is scene#1): (2<->3)"
+                },
+                {
+                    "severity": "WARNING",
+                    "description": "in plane Z1C1 there are overlapping subblocks in scene 0 and scene 1",
+                    "details": "The following subblocks overlap (1st is scene#0, 2nd is scene#1): (6<->7)"
+                }
+            ]
+        },
+        {
+            "name": "CheckSubBlockBitmapValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid and valid content",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ApplianceMetadataTopographyItemValid",
+            "description": "Basic semantic checks for TopographyDataItems",
+            "result": "OK",
+            "findings": []
+        }
+    ],
+    "output_version": {
+        "command": "CZICheck",
+        "version": "0.6.0"
+    }
+}

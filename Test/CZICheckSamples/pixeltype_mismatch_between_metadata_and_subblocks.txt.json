@@ -1,0 +1,186 @@
+{
+    "aggregatedresult": "FAIL",
+    "tests": [
+        {
+            "name": "SubBlockDirectoryPositionsWithinRange",
+            "description": "SubBlock-Segment in SubBlockDirectory within file",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SubBlockDirectorySegmentValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ConsistentSubBlockCoordinates",
+            "description": "check subblock's coordinates for 'consistent dimensions'",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "DuplicateSubBlockCoordinates",
+            "description": "check subblock's coordinates being unique",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "BenabledDocument",
+            "description": "check whether the document uses the deprecated 'B-index'",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SamePixeltypePerChannel",
+            "description": "check that the subblocks of a channel have the same pixeltype",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlanesIndicesStartAtZero",
+            "description": "Check that planes indices start at 0",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlaneIndicesAreConsecutive",
+            "description": "Check that planes have consecutive indices",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SubblocksHaveMindex",
+            "description": "check if all subblocks have the M index",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "There are 1 subblocks with no M index.",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "BasicMetadataValidation",
+            "description": "Basic semantic checks of the XML-metadata",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "PixelType mismatch between metadata and sub block-information. channel index: 0, metadata: gray8, subBlock: bgr24",
+                    "details": ""
+                },
+                {
+                    "severity": "WARNING",
+                    "description": "No valid ComponentBitCount information found in metadata for channel #0.",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "XmlMetadataSchemaValidation",
+            "description": "validate the XML-metadata against XSD-schema",
+            "result": "FAIL",
+            "findings": [
+                {
+                    "severity": "FATAL",
+                    "description": "(91,28): element 'ShuttleAndFindData' is not allowed for content model 'All(Calibration,)'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(116,22): no declaration found for element 'ImageStorage'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(117,22): no declaration found for element 'StageCenterX'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(118,22): no declaration found for element 'StageCenterY'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(119,24): no declaration found for element 'StageMPosition'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(120,21): no declaration found for element 'BeamOffsetX'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(121,21): no declaration found for element 'BeamOffsetY'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(122,29): no declaration found for element 'ScanRotationEnabled'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(123,22): no declaration found for element 'ScanRotation'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(124,22): no declaration found for element 'SampleHolder'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(125,25): no declaration found for element 'SpacerThickness'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(126,24): no declaration found for element 'SpecimenHeight'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(127,26): no declaration found for element 'SpecimenDiameter'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(130,20): element 'ImageStorage' is not allowed for content model 'All(AcceleratingVoltage?,Magnification?,StageZPosition?,StageTilt?,StageRotation?,Brightness?,Contrast?,CollectorBias?,SampleId?,PhotoNumber?,ChamberPressure?,SystemVacuum?,SpecimenCurrent?,ScanSpeed?,NoiseReductionMode?,NoiseReduction?,StigmationX?,StigmationY?,ApertureSize?,System?)'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(203,30): missing elements in content model 'All(Version?,SubType?,TilingMode?,TileSize?,MaxParticleSize?,MaxDisplaySize?,AnalysisStepCollection?,AdditionalChannelSetting?,AnalysisViewOptionCollection?,ChannelDescriptionCollection?,GraphSetting?,BioAppsVersion?,IsInitialized?,AnalysisFrameTeach,AnalysisFrameRun,AnalysisFeatures,AnalysisClass,AnalysisClassSelect?,MeasureFrame,Geometry?,Script,SubImageDimension,RegionClass,RegionFill?,CommonParameters?,RegionClassTemplate,MeasureUnit?,IsParallelProcessingDisabled?,IsParallelSegmentationDisabled?,HiliteColor?,HiliteLineWidth?,ImageChannelMatchMode?,DefaultSelectedRegionClass?)'",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "CCheckOverlappingScenesOnLayer0",
+            "description": "check if subblocks at pyramid-layer 0 of different scenes are overlapping",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "CheckSubBlockBitmapValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid and valid content",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ApplianceMetadataTopographyItemValid",
+            "description": "Basic semantic checks for TopographyDataItems",
+            "result": "OK",
+            "findings": []
+        }
+    ],
+    "output_version": {
+        "command": "CZICheck",
+        "version": "0.6.0"
+    }
+}

@@ -1,0 +1,141 @@
+{
+    "aggregatedresult": "FAIL",
+    "tests": [
+        {
+            "name": "SubBlockDirectoryPositionsWithinRange",
+            "description": "SubBlock-Segment in SubBlockDirectory within file",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SubBlockDirectorySegmentValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ConsistentSubBlockCoordinates",
+            "description": "check subblock's coordinates for 'consistent dimensions'",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "DuplicateSubBlockCoordinates",
+            "description": "check subblock's coordinates being unique",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "BenabledDocument",
+            "description": "check whether the document uses the deprecated 'B-index'",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SamePixeltypePerChannel",
+            "description": "check that the subblocks of a channel have the same pixeltype",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlanesIndicesStartAtZero",
+            "description": "Check that planes indices start at 0",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "PlaneIndicesAreConsecutive",
+            "description": "Check that planes have consecutive indices",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "SubblocksHaveMindex",
+            "description": "check if all subblocks have the M index",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "BasicMetadataValidation",
+            "description": "Basic semantic checks of the XML-metadata",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "document statistics gives 1 channels, whereas in XML-metadata 2 channels are found.",
+                    "details": ""
+                },
+                {
+                    "severity": "INFO",
+                    "description": "No sub block-information found for channel index 1, metadata pixelType: gray32float",
+                    "details": ""
+                },
+                {
+                    "severity": "WARNING",
+                    "description": "No valid ComponentBitCount information found in metadata for channel #1.",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "XmlMetadataSchemaValidation",
+            "description": "validate the XML-metadata against XSD-schema",
+            "result": "FAIL",
+            "findings": [
+                {
+                    "severity": "FATAL",
+                    "description": "(120,22): no declaration found for element 'RotationCenter'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(126,15): element 'RotationCenter' is not allowed for content model 'All(SessionMatrix?,HolderZeissName?,HolderZeissId?,HolderCwsId?,SessionCount?,SessionRotationAtStart?,CustomAttributes?)'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(222,29): attribute 'Id' is not declared for element 'Scaling'",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "(222,29): element 'Scaling' is not allowed for content model '()'",
+                    "details": ""
+                }
+            ]
+        },
+        {
+            "name": "CCheckOverlappingScenesOnLayer0",
+            "description": "check if subblocks at pyramid-layer 0 of different scenes are overlapping",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "CheckSubBlockBitmapValid",
+            "description": "SubBlock-Segments in SubBlockDirectory are valid and valid content",
+            "result": "OK",
+            "findings": []
+        },
+        {
+            "name": "ApplianceMetadataTopographyItemValid",
+            "description": "Basic semantic checks for TopographyDataItems",
+            "result": "FAIL",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "There are superfluous dimensions specified in the TopographyDataItems. This might yield errors.",
+                    "details": ""
+                },
+                {
+                    "severity": "FATAL",
+                    "description": "The Topography metadata specifies channels for the texture or heightmap subblocks, that are not present in the Subblock Collection of the image.",
+                    "details": ""
+                }
+            ]
+        }
+    ],
+    "output_version": {
+        "command": "CZICheck",
+        "version": "0.6.0"
+    }
+}
