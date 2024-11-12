@@ -1223,7 +1223,7 @@ OTHER DEALINGS IN THE SOFTWARE
 
 
 -------------------------------------------------------------------------------
-|  pugixml 815e6e7 (used under MIT License) http://pugixml.org/
+|  RapidJSON 815e6e7 (used under MIT License) http://pugixml.org/
 -------------------------------------------------------------------------------
 Copyright (C) 2015 THL A29 Limited, a Tencent company, and Milo Yip.
 All rights reserved.
