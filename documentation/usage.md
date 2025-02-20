@@ -6,7 +6,7 @@
 Running CZICheck with the `--help` option will print a brief summary of the available options and their usage:
 
 ```
-CZICheck version 0.6.0, using libCZI version 0.62.6
+CZICheck version 0.6.1, using libCZI version 0.62.6
 
 Usage: CZICheck [OPTIONS]
 
@@ -170,7 +170,7 @@ See the following example:
         ],
         "output_version": {
             "command": "CZICheck",
-            "version": "0.6.0"
+            "version": "0.6.1"
         }
     }
 
@@ -243,7 +243,7 @@ See the following example:
      <AggregatedResult>FAIL</AggregatedResult>
       <OutputVersion>
       <Command>CZICheck</Command>
-      <Version>0.6.0</Version>
+      <Version>0.6.1</Version>
      </OutputVersion>
     </TestResults>
 
