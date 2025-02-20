@@ -91,16 +91,6 @@
                     "severity": "FATAL",
                     "description": "(126,15): element 'RotationCenter' is not allowed for content model 'All(SessionMatrix?,HolderZeissName?,HolderZeissId?,HolderCwsId?,SessionCount?,SessionRotationAtStart?,CustomAttributes?)'",
                     "details": ""
-                },
-                {
-                    "severity": "FATAL",
-                    "description": "(222,29): attribute 'Id' is not declared for element 'Scaling'",
-                    "details": ""
-                },
-                {
-                    "severity": "FATAL",
-                    "description": "(222,29): element 'Scaling' is not allowed for content model '()'",
-                    "details": ""
                 }
             ]
         },
@@ -136,6 +126,6 @@
     ],
     "output_version": {
         "command": "CZICheck",
-        "version": "0.6.1"
+        "version": "0.6.2"
     }
 }

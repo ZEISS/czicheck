@@ -10401,24 +10401,29 @@
         <xs:annotation>
             <xs:documentation> </xs:documentation>
         </xs:annotation>
-        <xs:all>
-            <xs:element minOccurs="0" name="Scaling">
-                <xs:annotation>
-                    <xs:documentation>             This node exists for legacy reasons - its content
-                        is not used.           </xs:documentation>
-                </xs:annotation>
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:any maxOccurs="unbounded" processContents="lax"/>
-                    </xs:sequence>
-                </xs:complexType>
+        <xs:sequence>
+          <xs:choice minOccurs="0" maxOccurs="2">
+            <xs:element name="Scaling" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>
+                  Presence of this element is only allowed for legacy reasons, it does not have any functional relevance.
+                </xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence minOccurs="0" maxOccurs="1">
+                  <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:anyAttribute processContents="skip"/>
+              </xs:complexType>
             </xs:element>
-            <xs:element minOccurs="0" name="CustomAttributes" type="CustomAttributes"/>
-        </xs:all>
+
+            <xs:element name="CustomAttributes" type="CustomAttributes" minOccurs="0" maxOccurs="1"/>
+          </xs:choice>
+        </xs:sequence>
         <xs:attributeGroup ref="SubsetBounds">
             <xs:annotation>
                 <xs:documentation>           For legacy reasons, all attributes in the attribute
-                    grout "SubsetBounds" are           syntactically allowed, but only "StartC" is
+                    group "SubsetBounds" are           syntactically allowed, but only "StartC" is
                     honored, the remaining are ignored           (and should not be written or used
                     in any way).         </xs:documentation>
             </xs:annotation>
