@@ -23,4 +23,3 @@ std::unique_ptr<IResultGatherer> CreateResultGatherer(const CCmdLineOptions& opt
             throw std::invalid_argument("Unknown output encoding format");
     }
 }
-

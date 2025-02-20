@@ -78,16 +78,6 @@
                 },
                 {
                     "severity": "FATAL",
-                    "description": "(139,21): no declaration found for element 'LookupTables'",
-                    "details": ""
-                },
-                {
-                    "severity": "FATAL",
-                    "description": "(140,12): element 'LookupTables' is not allowed for content model 'All(SizeX?,SizeY?,SizeC?,SizeZ?,SizeT?,SizeH?,SizeR?,SizeV?,SizeS?,SizeI?,SizeM?,SizeB?,PixelType?,ComponentBitCount?,OriginalScanData?,AcquisitionDateAndTime?,AcquisitionDuration?,OriginalCompressionMethod?,OriginalEncodingQuality?,OriginalCompressionParameters?,CurrentCompressionParameters?,Dimensions?,MicroscopeRef?,MicroscopeSettings?,ObjectiveSettings?,TubeLenses?,Specimen?,Session?,SpatialRelations?,CustomAttributes?)'",
-                    "details": ""
-                },
-                {
-                    "severity": "FATAL",
                     "description": "(222,29): attribute 'Id' is not declared for element 'Scaling'",
                     "details": ""
                 },
@@ -125,6 +115,6 @@
     ],
     "output_version": {
         "command": "CZICheck",
-        "version": "0.6.0"
+        "version": "0.6.1"
     }
 }

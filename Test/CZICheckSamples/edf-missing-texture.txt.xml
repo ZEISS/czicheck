@@ -67,16 +67,6 @@
         </Finding>
         <Finding>
           <Severity>FATAL</Severity>
-          <Description>(112,21): no declaration found for element 'LookupTables'</Description>
-          <Details></Details>
-        </Finding>
-        <Finding>
-          <Severity>FATAL</Severity>
-          <Description>(113,12): element 'LookupTables' is not allowed for content model 'All(SizeX?,SizeY?,SizeC?,SizeZ?,SizeT?,SizeH?,SizeR?,SizeV?,SizeS?,SizeI?,SizeM?,SizeB?,PixelType?,ComponentBitCount?,OriginalScanData?,AcquisitionDateAndTime?,AcquisitionDuration?,OriginalCompressionMethod?,OriginalEncodingQuality?,OriginalCompressionParameters?,CurrentCompressionParameters?,Dimensions?,MicroscopeRef?,MicroscopeSettings?,ObjectiveSettings?,TubeLenses?,Specimen?,Session?,SpatialRelations?,CustomAttributes?)'</Description>
-          <Details></Details>
-        </Finding>
-        <Finding>
-          <Severity>FATAL</Severity>
           <Description>(188,29): attribute 'Id' is not declared for element 'Scaling'</Description>
           <Details></Details>
         </Finding>
@@ -112,6 +102,6 @@
   <AggregatedResult>FAIL</AggregatedResult>
   <OutputVersion>
     <Command>CZICheck</Command>
-    <Version>0.6.0</Version>
+    <Version>0.6.1</Version>
   </OutputVersion>
 </TestResults>
