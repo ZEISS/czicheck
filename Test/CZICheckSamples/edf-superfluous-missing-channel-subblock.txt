@@ -15,8 +15,6 @@ Test "Basic semantic checks of the XML-metadata" :
 Test "validate the XML-metadata against XSD-schema" :
   (120,22): no declaration found for element 'RotationCenter'
   (126,15): element 'RotationCenter' is not allowed for content model 'All(SessionMatrix?,HolderZeissName?,HolderZeissId?,HolderCwsId?,SessionCount?,SessionRotationAtStart?,CustomAttributes?)'
-  (222,29): attribute 'Id' is not declared for element 'Scaling'
-  <1 more finding omitted> 
  FAIL
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
 Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK

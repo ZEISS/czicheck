@@ -14,3 +14,4 @@ version history                 {#version_history}
  0.5.1          | [21](https://github.com/ZEISS/czicheck/pull/21)      | add third-party-licenses doc and create public artifacts
  0.6.0          | [22](https://github.com/ZEISS/czicheck/pull/22)      | enable machine readable output in json and xml format
  0.6.1          | [28](https://github.com/ZEISS/czicheck/pull/28)      | update of metadata-schema (including Lf4d)
+ 0.6.2          | [29](https://github.com/ZEISS/czicheck/pull/29)      | fix issue in metadata-schema (with "TopographyDataItem" and with AxioScan-documents)

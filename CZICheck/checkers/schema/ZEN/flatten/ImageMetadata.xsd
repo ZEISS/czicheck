@@ -8220,7 +8220,7 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element form="qualified" maxOccurs="unbounded" name="TubeLensRef" type="TubeLensRef"
+            <xs:element form="qualified" minOccurs="0" maxOccurs="unbounded" name="TubeLensRef" type="TubeLensRef"
             />
         </xs:sequence>
     </xs:complexType>
@@ -10401,24 +10401,29 @@
         <xs:annotation>
             <xs:documentation> </xs:documentation>
         </xs:annotation>
-        <xs:all>
-            <xs:element minOccurs="0" name="Scaling">
-                <xs:annotation>
-                    <xs:documentation>             This node exists for legacy reasons - its content
-                        is not used.           </xs:documentation>
-                </xs:annotation>
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:any maxOccurs="unbounded" processContents="lax"/>
-                    </xs:sequence>
-                </xs:complexType>
+        <xs:sequence>
+          <xs:choice minOccurs="0" maxOccurs="2">
+            <xs:element name="Scaling" minOccurs="0" maxOccurs="1">
+              <xs:annotation>
+                <xs:documentation>
+                  Presence of this element is only allowed for legacy reasons, it does not have any functional relevance.
+                </xs:documentation>
+              </xs:annotation>
+              <xs:complexType>
+                <xs:sequence minOccurs="0" maxOccurs="1">
+                  <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+                <xs:anyAttribute processContents="skip"/>
+              </xs:complexType>
             </xs:element>
-            <xs:element minOccurs="0" name="CustomAttributes" type="CustomAttributes"/>
-        </xs:all>
+
+            <xs:element name="CustomAttributes" type="CustomAttributes" minOccurs="0" maxOccurs="1"/>
+          </xs:choice>
+        </xs:sequence>
         <xs:attributeGroup ref="SubsetBounds">
             <xs:annotation>
                 <xs:documentation>           For legacy reasons, all attributes in the attribute
-                    grout "SubsetBounds" are           syntactically allowed, but only "StartC" is
+                    group "SubsetBounds" are           syntactically allowed, but only "StartC" is
                     honored, the remaining are ignored           (and should not be written or used
                     in any way).         </xs:documentation>
             </xs:annotation>
@@ -11095,10 +11100,10 @@
     </xs:complexType>
     
     <xs:complexType name="AttachmentInfo">
-        <xs:choice maxOccurs="1" minOccurs="1">
-            <xs:element maxOccurs="1" minOccurs="1" name="Profile" type="ProfileInfo"/>
-            <xs:element maxOccurs="1" minOccurs="1" name="Label" type="LabelInfo"/>
-        </xs:choice>
+        <xs:all>
+          <xs:element name="Profile" minOccurs="0" maxOccurs="1" type="ProfileInfo"/>
+          <xs:element name="Label" minOccurs="0" maxOccurs="1" type="LabelInfo"/>
+        </xs:all>
         <xs:attribute name="Id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>           An identifier to uniquely identify this AttachmentInfo
@@ -11114,7 +11119,16 @@
                 used to acquire the image.       </xs:documentation>
         </xs:annotation>
         <xs:all>
-            <xs:element maxOccurs="1" minOccurs="0" name="ProfileName" type="xs:string"/>
+            <xs:element maxOccurs="1" minOccurs="0" name="ProfileName" type="xs:string">
+              <xs:annotation>
+                <xs:documentation>Original filename of the scan profile.</xs:documentation>
+              </xs:annotation>
+            </xs:element>
+            <xs:element maxOccurs="1" minOccurs="0" name="IsProfileModified" type="xs:string">
+              <xs:annotation>
+                <xs:documentation>Flag indicating whether the scan profile was modified.</xs:documentation>
+              </xs:annotation>
+            </xs:element>
         </xs:all>
     </xs:complexType>
     
