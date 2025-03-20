@@ -27,6 +27,7 @@ private:
     int max_number_of_findings_to_print_;
     bool print_details_of_messages_;
     bool lax_parsing_enabled_;
+    bool ignore_sizem_for_pyramid_subblocks_;
     OutputEncodingFormat result_encoding_type_ { OutputEncodingFormat::TEXT };
 public:
     /// Values that represent the result of the "Parse"-operation.
@@ -51,6 +52,7 @@ public:
     [[nodiscard]] int GetMaxNumberOfMessagesToPrint() const { return this->max_number_of_findings_to_print_; }
     [[nodiscard]] bool GetPrintDetailsOfMessages() const { return this->print_details_of_messages_; }
     [[nodiscard]] bool GetLaxParsingEnabled() const { return this->lax_parsing_enabled_; }
+    [[nodiscard]] bool GetIgnoreSizeMForPyramidSubBlocks() const { return this->ignore_sizem_for_pyramid_subblocks_; }
     [[nodiscard]] const std::vector<CZIChecks>& GetChecksEnabled() const { return this->checks_enabled_; }
     [[nodiscard]] const std::shared_ptr<ILog>& GetLog() const { return this->log_; }
     [[nodiscard]] const OutputEncodingFormat GetOutputEncodingFormat() const { return this->result_encoding_type_; }
