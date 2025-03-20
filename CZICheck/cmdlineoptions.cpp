@@ -23,7 +23,8 @@ CCmdLineOptions::CCmdLineOptions(std::shared_ptr<ILog> log)
     : log_(std::move(log)),
     max_number_of_findings_to_print_(3),
     print_details_of_messages_(false),
-    lax_parsing_enabled_(false)
+    lax_parsing_enabled_(false),
+    ignore_sizem_for_pyramid_subblocks_(false)
 {
     // as default, all the checkers which are not flagged "isOptIn" are enabled
     CCheckerFactory::EnumerateCheckers(
@@ -133,6 +134,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     int max_number_of_findings_option;
     string print_details_option;
     string lax_parsing_enabled;
+    string ignore_sizem_for_pyramid_subblocks_enabled;
     string result_encoding_option;
     app.add_option("-s,--source", source_filename_options, "Specify the CZI-file to be checked.")
         ->option_text("FILENAME")
@@ -171,10 +173,19 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         ->check(print_details_validator);
     app.add_option("-l,--laxparsing", lax_parsing_enabled,
         "Specifies whether lax parsing for file opening is enabled.\n"
+        "This option allows operation on some malformed CZIs which would\n"
+        "otherwise not be analyzable at all.\n"
         "The argument may be one of 'true', 'false', 'yes'\n"
         "or 'no'. Default is 'no'.\n")
         ->option_text("BOOLEAN")
         ->check(lax_parsing_validator);
+    app.add_option("-i, --ignoresizem", ignore_sizem_for_pyramid_subblocks_enabled,
+        "Specifies whether to ignore the 'SizeM' field for pyramid subblocks.\n"
+        "This option allows operation on some malformed CZIs which would\n"
+        "otherwise not be analyzable at all.\n"
+        "The argument may be one of 'true', 'false', 'yes'\n"
+        "or 'no'. Default is 'false'.\n")
+        ->option_text("BOOLEAN");
     app.add_option("-e,--encoding", result_encoding_option,
         "Specifies which encoding should be used for result reporting.\n"
         "The argument may be one of 'json', 'xml', 'text'. Default is 'text'.\n")
@@ -231,6 +242,17 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     {
         string error_message;
         const bool parsed_ok = CCmdLineOptions::ParseBooleanArgument("laxparsing", lax_parsing_enabled, &this->lax_parsing_enabled_, &error_message);
+        if (!parsed_ok)
+        {
+            this->log_->WriteLineStdErr(error_message);
+            return ParseResult::Error;
+        }
+    }
+
+    if (!ignore_sizem_for_pyramid_subblocks_enabled.empty())
+    {
+        string error_message;
+        const bool parsed_ok = CCmdLineOptions::ParseBooleanArgument("ignoresizem", ignore_sizem_for_pyramid_subblocks_enabled, &this->ignore_sizem_for_pyramid_subblocks_, &error_message);
         if (!parsed_ok)
         {
             this->log_->WriteLineStdErr(error_message);

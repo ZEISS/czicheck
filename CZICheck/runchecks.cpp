@@ -40,6 +40,7 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
     {
         ICZIReader::OpenOptions options;
         options.lax_subblock_coordinate_checks = this->opts.GetLaxParsingEnabled();
+        options.ignore_sizem_for_pyramid_subblocks = this->opts.GetIgnoreSizeMForPyramidSubBlocks();
         spReader->Open(stream, &options);
     }
     catch (exception& ex)
