@@ -50,6 +50,16 @@ if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   find_package(CLI11 CONFIG REQUIRED)
 endif()
 
+if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
+  set(LIBCZI_HEADER_PATH "libCZI/libCZI.h")
+else()
+  set(LIBCZI_HEADER_PATH "libCZI.h")
+endif()
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/inc_libCZI.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/inc_libCZI.h
+               @ONLY)
+
 set(CZICHECKSRCFILES 
 "checkers/checkerbase.h"
 "checkers/checkerbase.cpp"
@@ -95,7 +105,6 @@ consoleio.h
 CZICheck.cpp
 IChecker.h
 IResultGatherer.h
-inc_libCZI.h
 resultgatherer.cpp
 resultgatherer.h
 resultgathererjson.h
