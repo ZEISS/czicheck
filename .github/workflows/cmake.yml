@@ -30,20 +30,25 @@ jobs:
       - name: Prep existing vcpkg installation
         shell: bash
         run: |
-          set -e
           BASELINE=$(grep -Po '"builtin-baseline"\s*:\s*"\K[0-9a-f]+' vcpkg.json)
           echo "Detected vcpkg baseline: $BASELINE"
+
           if [ -d "$VCPKG_ROOT/.git" ]; then
               echo "Using preinstalled vcpkg at $VCPKG_ROOT"
               cd "$VCPKG_ROOT"
+          fi
+
           if ! git cat-file -e "$BASELINE"^{commit} 2>/dev/null; then
               echo "Fetching vcpkg baseline commit $BASELINE..."
               git fetch --depth 1 origin "$BASELINE"
           fi
+
           git checkout "$BASELINE"
+
           if [ ! -f ./vcpkg ]; then
               ./bootstrap-vcpkg.sh
           fi
+
           echo "vcpkg is now at commit: $(git rev-parse HEAD)"
 
       - name: Configure CMake (Windows)
