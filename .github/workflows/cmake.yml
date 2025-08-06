@@ -40,7 +40,7 @@ jobs:
 
           if ! git cat-file -e "$BASELINE"^{commit} 2>/dev/null; then
               echo "Fetching vcpkg baseline commit $BASELINE..."
-              git fetch --depth 1 origin "$BASELINE"
+              git fetch
           fi
 
           git checkout "$BASELINE"
