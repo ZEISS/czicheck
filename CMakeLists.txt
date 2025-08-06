@@ -23,7 +23,10 @@ if(WIN32)
   # use "static C-runtime" -> https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake
   # Note: this requires CMAKE version 3.15+
   cmake_policy(SET CMP0091 NEW)
-  #set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  if(NOT CZICHECK_ENABLE_VCPKG_BOOTSTRAP OR VCPKG_TARGET_TRIPLET MATCHES "-static$")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 endif(WIN32)
 
 set(CMAKE_CXX_STANDARD 17)
