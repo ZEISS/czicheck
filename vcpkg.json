@@ -4,7 +4,8 @@
   "dependencies": [
     "libczi",
     "cli11",
-    "rapidjson"
+    "rapidjson",
+    "xerces-c"
   ],
   "builtin-baseline": "b0190b451303865b89ced9767caaab140c39f980"
 }

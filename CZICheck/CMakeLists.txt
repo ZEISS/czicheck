@@ -14,8 +14,11 @@ function(embed_resource resource_file_name source_file_name variable_name)
     file(WRITE "${source_file_name}" "${source}")
 endfunction()
 
-
-find_package(XercesC QUIET)
+if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
+  find_package(XercesC CONFIG REQUIRED)
+else()
+  find_package(XercesC QUIET)
+endif()
 
 if (XercesC_FOUND)
     set(CZICheck_XercesCAvailable 1)
@@ -134,11 +137,16 @@ target_link_libraries(CZICheck PRIVATE pugixml)
 target_include_directories(CZICheck
   PRIVATE ${LIBCZI_INCLUDE_DIR}
   PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
+
 if (XercesC_FOUND)
+  if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
+    target_link_libraries(CZICheck PRIVATE XercesC::XercesC)
+  else()
     target_link_libraries(CZICheck PRIVATE ${XercesC_LIBRARY})
+  endif()
 endif()
 target_include_directories(CZICheck PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-if (XercesC_FOUND)
+if (XercesC_FOUND AND NOT CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
     target_include_directories(CZICheck PRIVATE ${XercesC_INCLUDE_DIR})
 endif()
 
