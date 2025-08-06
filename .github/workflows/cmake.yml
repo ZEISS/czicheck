@@ -56,7 +56,7 @@ jobs:
 
           cd "$VCPKG_DIR"
 
-          if ! git cat-file -e "$BASELINE"^{commit} 2>/dev/null; then
+          if ! git cat-file -e "${BASELINE}^{commit}" 2>/dev/null; then
               echo "Fetching baseline commit $BASELINE..."
               git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow
           fi
