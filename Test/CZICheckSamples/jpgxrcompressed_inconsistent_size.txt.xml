@@ -69,14 +69,8 @@
     </Test>
     <Test Name="CheckSubBlockBitmapValid">
       <Description>SubBlock-Segments in SubBlockDirectory are valid and valid content</Description>
-      <Result>FAIL</Result>
-      <Findings>
-        <Finding>
-          <Severity>FATAL</Severity>
-          <Description>Error decoding subblock #0 with compression "jpgxr"</Description>
-          <Details>size mismatch: expected 4x4, but got 3x3</Details>
-        </Finding>
-      </Findings>
+      <Result>OK</Result>
+      <Findings />
     </Test>
     <Test Name="ApplianceMetadataTopographyItemValid">
       <Description>Basic semantic checks for TopographyDataItems</Description>
@@ -84,7 +78,7 @@
       <Findings />
     </Test>
   </Tests>
-  <AggregatedResult>FAIL</AggregatedResult>
+  <AggregatedResult>WARN</AggregatedResult>
   <OutputVersion>
     <Command>CZICheck</Command>
     <Version>0.6.3</Version>

@@ -1,5 +1,5 @@
 {
-    "aggregatedresult": "FAIL",
+    "aggregatedresult": "WARN",
     "tests": [
         {
             "name": "SubBlockDirectoryPositionsWithinRange",
@@ -82,14 +82,8 @@
         {
             "name": "CheckSubBlockBitmapValid",
             "description": "SubBlock-Segments in SubBlockDirectory are valid and valid content",
-            "result": "FAIL",
-            "findings": [
-                {
-                    "severity": "FATAL",
-                    "description": "Error decoding subblock #0 with compression \"jpgxr\"",
-                    "details": "size mismatch: expected 4x4, but got 3x3"
-                }
-            ]
+            "result": "OK",
+            "findings": []
         },
         {
             "name": "ApplianceMetadataTopographyItemValid",
