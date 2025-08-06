@@ -44,24 +44,26 @@ jobs:
 
           if [ -d "$GITHUB_WORKSPACE/external/vcpkg/.git" ]; then
               echo "Using cached vcpkg at external/vcpkg"
-              cd "$GITHUB_WORKSPACE/external/vcpkg"
-          elif [ -d "$VCPKG_ROOT/.git" ]; then
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+          elif [ -n "${VCPKG_ROOT:-}" ] && [ -d "$VCPKG_ROOT/.git" ]; then
               echo "Using preinstalled vcpkg at $VCPKG_ROOT"
-              cd "$VCPKG_ROOT"
+              VCPKG_DIR="$VCPKG_ROOT"
           else
-              echo "Performing minimal clone of vcpkg..."
+              echo "Performing minimal vcpkg clone..."
               git clone --filter=blob:none --no-checkout https://github.com/microsoft/vcpkg.git external/vcpkg
-              cd external/vcpkg
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
           fi
 
+          cd "$VCPKG_DIR"
+
           if ! git cat-file -e "$BASELINE"^{commit} 2>/dev/null; then
-              echo "Baseline commit not present; fetching..."
+              echo "Fetching baseline commit $BASELINE..."
               git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow
           fi
 
           git checkout "$BASELINE"
 
-          if [ ! -f ./vcpkg ]; then
+          if [ ! -f ./vcpkg ] && [ ! -f ./vcpkg.exe ]; then
               if [[ "$RUNNER_OS" == "Windows" ]]; then
                   ./bootstrap-vcpkg.bat
               else
@@ -70,16 +72,7 @@ jobs:
           fi
 
           echo "vcpkg is now at commit: $(git rev-parse HEAD)"
-
-          if [ -d "$GITHUB_WORKSPACE/external/vcpkg/.git" ]; then
-              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
-          elif [ -d "$VCPKG_ROOT/.git" ]; then
-              VCPKG_DIR="$VCPKG_ROOT"
-          else
-              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
-          fi
-
-          echo "VCPKG_DIR=$VCPKG_DIR" >> $GITHUB_ENV
+          echo "VCPKG_DIR=$VCPKG_DIR" >> "$GITHUB_ENV"
 
 
       - name: Configure CMake (Windows)
