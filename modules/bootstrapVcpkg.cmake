@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 Carl Zeiss Microscopy GmbH
+#
+# SPDX-License-Identifier: MIT
+
 if(DEFINED CMAKE_TOOLCHAIN_FILE)
     message(STATUS "CMAKE_TOOLCHAIN_FILE already set to '${CMAKE_TOOLCHAIN_FILE}', skipping vcpkg bootstrap.")
     return()
