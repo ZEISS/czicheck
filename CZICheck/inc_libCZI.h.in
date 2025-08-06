@@ -4,4 +4,4 @@
 
 #pragma once
 
-#include <@LIBCZI_HEADER_PATH@>
+#include <@CZICHECK_LIBCZI_HEADER_PATH@>
