@@ -108,7 +108,6 @@ runchecks.cpp
 runchecks.h
 utils.h
 utils.cpp
-pugiconfig.hpp
 )
 
 add_executable(CZICheck ${CZICHECKSRCFILES} )
