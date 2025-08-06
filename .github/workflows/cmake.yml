@@ -27,29 +27,60 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Cache vcpkg and packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            external/vcpkg
+            build/vcpkg_installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+
       - name: Prep existing vcpkg installation
-        shell: bash
+                shell: bash
         run: |
+          set -euo pipefail
           BASELINE=$(grep -Po '"builtin-baseline"\s*:\s*"\K[0-9a-f]+' vcpkg.json)
           echo "Detected vcpkg baseline: $BASELINE"
 
-          if [ -d "$VCPKG_ROOT/.git" ]; then
+          if [ -d "$GITHUB_WORKSPACE/external/vcpkg/.git" ]; then
+              echo "Using cached vcpkg at external/vcpkg"
+              cd "$GITHUB_WORKSPACE/external/vcpkg"
+          elif [ -d "$VCPKG_ROOT/.git" ]; then
               echo "Using preinstalled vcpkg at $VCPKG_ROOT"
               cd "$VCPKG_ROOT"
+          else
+              echo "Performing minimal clone of vcpkg..."
+              git clone --filter=blob:none --no-checkout https://github.com/microsoft/vcpkg.git external/vcpkg
+              cd external/vcpkg
           fi
 
           if ! git cat-file -e "$BASELINE"^{commit} 2>/dev/null; then
-              echo "Fetching vcpkg baseline commit $BASELINE..."
-              git fetch
+              echo "Baseline commit not present; fetching..."
+              git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow
           fi
 
           git checkout "$BASELINE"
 
           if [ ! -f ./vcpkg ]; then
-              ./bootstrap-vcpkg.sh
+              if [[ "$RUNNER_OS" == "Windows" ]]; then
+                  ./bootstrap-vcpkg.bat
+              else
+                  ./bootstrap-vcpkg.sh
+              fi
           fi
 
           echo "vcpkg is now at commit: $(git rev-parse HEAD)"
+
+          if [ -d "$GITHUB_WORKSPACE/external/vcpkg/.git" ]; then
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+          elif [ -d "$VCPKG_ROOT/.git" ]; then
+              VCPKG_DIR="$VCPKG_ROOT"
+          else
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+          fi
+
+          echo "VCPKG_DIR=$VCPKG_DIR" >> $GITHUB_ENV
+
 
       - name: Configure CMake (Windows)
         if: ${{ (matrix.os == 'windows-latest') }}
@@ -59,7 +90,7 @@ jobs:
           # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
           # on Windows, we need to point CMake to the vcpkg-toolchain-file
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
-                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
                 -DVCPKG_TARGET_TRIPLET=x64-windows-static \
                 -DCZICHECK_BUILD_TESTS=ON
 
