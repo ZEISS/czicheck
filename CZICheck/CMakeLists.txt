@@ -14,7 +14,7 @@ function(embed_resource resource_file_name source_file_name variable_name)
     file(WRITE "${source_file_name}" "${source}")
 endfunction()
 
-find_package(XercesC  QUIET)
+find_package(XercesC CONFIG QUIET)
 if (XercesC_FOUND)
     set(CZICheck_XercesCAvailable 1)
     message("XercesC library available -> version: ${XercesC_VERSION}")
