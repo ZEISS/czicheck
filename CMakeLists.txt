@@ -18,7 +18,6 @@ project(CZICheck
       DESCRIPTION "CZICheck is a validator for CZI-documents")
 
 
-
 if(WIN32)
   # use "static C-runtime" -> https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake
   # Note: this requires CMAKE version 3.15+
