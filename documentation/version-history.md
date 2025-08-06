@@ -16,3 +16,4 @@ version history                 {#version_history}
  0.6.1          | [28](https://github.com/ZEISS/czicheck/pull/28)      | update of metadata-schema (including Lf4d)
  0.6.2          | [29](https://github.com/ZEISS/czicheck/pull/29)      | fix issue in metadata-schema (with "TopographyDataItem" and with AxioScan-documents)
  0.6.3          | [31](https://github.com/ZEISS/czicheck/pull/31)      | add option to ignore "size-m-field-for-pyramid-subblocks"
+ 0.6.4          | [34](https://github.com/ZEISS/czicheck/pull/34)      | align with libCZI version 0.64.0
