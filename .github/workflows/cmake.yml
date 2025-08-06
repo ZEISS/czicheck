@@ -92,6 +92,7 @@ jobs:
         shell: bash
         run: |
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Build
