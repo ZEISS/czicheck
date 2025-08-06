@@ -46,7 +46,7 @@ if(NOT CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
 endif()
 
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-  find_package(libczi CONFIG REQUIRED)
+  find_package(libCZI CONFIG REQUIRED)
   find_package(CLI11 CONFIG REQUIRED)
 endif()
 
