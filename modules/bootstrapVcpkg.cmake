@@ -32,13 +32,43 @@ if(NOT EXISTS "${VCPKG_EXECUTABLE}")
     endif()
 
     if(NOT EXISTS "${VCPKG_DIR}/.git")
-        message(STATUS "vcpkg not found - cloning into ${VCPKG_DIR}...")
+        message(STATUS "vcpkg not found")
+        message(STATUS "Attempting to find baseline from vcpkg.json...")
+        file(READ "${CMAKE_SOURCE_DIR}/vcpkg.json" _vcpkg_manifest)
+        string(REGEX MATCH "\"builtin-baseline\"[ \t]*:[ \t]*\"([0-9a-f]+)\"" _ ${_vcpkg_manifest})
+        set(VCPKG_BASELINE_COMMIT "${CMAKE_MATCH_1}")
+
+        if(NOT VCPKG_BASELINE_COMMIT OR NOT VCPKG_BASELINE_COMMIT MATCHES "^[0-9a-f]+$")
+            message(WARNING
+                "Failed to extract builtin-baseline from vcpkg.json. "
+                "Ensure that your manifest defines a valid baseline like:\n"
+                "  \"builtin-baseline\": \"<commit sha>\""
+            )
+        else()
+            message(STATUS "Determined baseline commit: ${VCPKG_BASELINE_COMMIT}")
+        endif()
+
+        message(STATUS "Cloning vcpkg...")
         execute_process(
             COMMAND git clone --depth 1 https://github.com/microsoft/vcpkg.git "${VCPKG_DIR}"
             RESULT_VARIABLE GIT_CLONE_RESULT
         )
         if(NOT GIT_CLONE_RESULT EQUAL 0)
             message(FATAL_ERROR "Failed to clone vcpkg from GitHub.")
+        endif()
+        
+        if(DEFINED VCPKG_BASELINE_COMMIT)
+          message(STATUS "Fetching vcpkg baseline commit: ${VCPKG_BASELINE_COMMIT}"
+          execute_process(
+            COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" git fetch --depth 1 origin ${VCPKG_BASELINE_COMMIT}
+            RESULT_VARIABLE GIT_FETCH_RESULT
+            )
+          if(NOT GIT_FETCH_RESULT EQUAL 0)
+            message(FATAL_ERROR
+              "Failed to fetch vcpkg baseline commit ${VCPKG_BASELINE_COMMIT}. "
+              "Check that your builtin-baseline is correct and exists in the vcpkg repo."
+            )
+          endif()
         endif()
     else()
         message(STATUS "Found vcpkg folder at ${VCPKG_DIR}, skipping clone.")
