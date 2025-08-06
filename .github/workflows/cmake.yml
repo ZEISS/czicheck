@@ -27,20 +27,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install dependencies (Windows)
-        if: ${{ (matrix.os == 'windows-latest') }}
-        # on Windows, we rely on vcpkg to pull in dependencies
-        shell: bash
-        run: |
-          vcpkg install xerces-c --triplet x64-windows-static
-
-      - name: Install dependencies (Linux)
-        if: ${{ (matrix.os == 'ubuntu-latest') }}
-        # on Linux, we use apt to get our dependencies
-        shell: bash
-        run: |
-          sudo apt-get install libxerces-c-dev -y
-
       - name: Configure CMake (Windows)
         if: ${{ (matrix.os == 'windows-latest') }}
         shell: bash
