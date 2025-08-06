@@ -36,7 +36,7 @@ jobs:
           key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
       - name: Prep existing vcpkg installation
-                shell: bash
+        shell: bash
         run: |
           set -euo pipefail
           BASELINE=$(grep -Po '"builtin-baseline"\s*:\s*"\K[0-9a-f]+' vcpkg.json)
