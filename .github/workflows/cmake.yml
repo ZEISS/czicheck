@@ -39,7 +39,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          BASELINE=$(grep -Po '"builtin-baseline"\s*:\s*"\K[0-9a-f]+' vcpkg.json)
+          BASELINE=$(jq -r '.["builtin-baseline"]' vcpkg.json)
           echo "Detected vcpkg baseline: $BASELINE"
 
           if [ -d "$GITHUB_WORKSPACE/external/vcpkg/.git" ]; then
