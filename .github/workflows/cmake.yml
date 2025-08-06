@@ -25,21 +25,55 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install dependencies (Windows)
-        if: ${{ (matrix.os == 'windows-latest') }}
-        # on Windows, we rely on vcpkg to pull in dependencies
+      - name: Cache vcpkg and packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            external/vcpkg
+            build/vcpkg_installed
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+
+      - name: Prep existing vcpkg installation
         shell: bash
         run: |
-          vcpkg install xerces-c --triplet x64-windows-static
+          set -euo pipefail
+          BASELINE=$(jq -r '.["builtin-baseline"]' vcpkg.json)
+          echo "Detected vcpkg baseline: $BASELINE"
 
-      - name: Install dependencies (Linux)
-        if: ${{ (matrix.os == 'ubuntu-latest') }}
-        # on Linux, we use apt to get our dependencies
-        shell: bash
-        run: |
-          sudo apt-get install libxerces-c-dev -y
+          if [ -d "$GITHUB_WORKSPACE/external/vcpkg/.git" ]; then
+              echo "Using cached vcpkg at external/vcpkg"
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+          elif [ -n "${VCPKG_ROOT:-}" ] && [ -d "$VCPKG_ROOT/.git" ]; then
+              echo "Using preinstalled vcpkg at $VCPKG_ROOT"
+              VCPKG_DIR="$VCPKG_ROOT"
+          else
+              echo "Performing minimal vcpkg clone..."
+              git clone --filter=blob:none --no-checkout https://github.com/microsoft/vcpkg.git external/vcpkg
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+          fi
+
+          cd "$VCPKG_DIR"
+
+          if ! git cat-file -e "${BASELINE}^{commit}" 2>/dev/null; then
+              echo "Fetching baseline commit $BASELINE..."
+              git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow
+          fi
+
+          git checkout "$BASELINE"
+
+          if [ ! -f ./vcpkg ] && [ ! -f ./vcpkg.exe ]; then
+              if [[ "$RUNNER_OS" == "Windows" ]]; then
+                  ./bootstrap-vcpkg.bat
+              else
+                  ./bootstrap-vcpkg.sh
+              fi
+          fi
+
+          echo "vcpkg is now at commit: $(git rev-parse HEAD)"
+          echo "VCPKG_DIR=$VCPKG_DIR" >> "$GITHUB_ENV"
+
 
       - name: Configure CMake (Windows)
         if: ${{ (matrix.os == 'windows-latest') }}
@@ -49,7 +83,7 @@ jobs:
           # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
           # on Windows, we need to point CMake to the vcpkg-toolchain-file
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
-                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
                 -DVCPKG_TARGET_TRIPLET=x64-windows-static \
                 -DCZICHECK_BUILD_TESTS=ON
 
@@ -58,6 +92,7 @@ jobs:
         shell: bash
         run: |
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Build

@@ -12,6 +12,7 @@
 #include "pugiconfig.hpp"
 #include <string>
 
+
 class CResultGathererXml : public IResultGatherer
 {
 private:

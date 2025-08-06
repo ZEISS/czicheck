@@ -4,4 +4,4 @@
 
 #pragma once
 
-#include <libCZI.h>
+#include <@CZICHECK_LIBCZI_HEADER_PATH@>

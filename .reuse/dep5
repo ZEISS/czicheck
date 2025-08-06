@@ -3,7 +3,7 @@ Upstream-Name: CZICheck
 Upstream-Contact: Carl Zeiss Microscopy GmbH <github.microscopy@zeiss.com>
 Source: https://github.com/ZEISS/czicheck
 
-Files: .github/* .gitignore README.md LICENSE CODE_OF_CONDUCT.md CONTRIBUTING.md README.md SECURITY.md cla_corporate.txt cla_individual.txt THIRD_PARTY_LICENSES.txt
+Files: .github/* .gitignore README.md LICENSE CODE_OF_CONDUCT.md CONTRIBUTING.md README.md SECURITY.md cla_corporate.txt cla_individual.txt THIRD_PARTY_LICENSES.txt vcpkg.json
 Copyright: 2023 Carl Zeiss Microscopy GmbH
 License: MIT
 
