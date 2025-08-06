@@ -1,9 +1,10 @@
 {
-    "name": "czicheck",
-    "version-string": "1.0.0",
-    "dependencies": [
-        "libczi",
-        "pugixml",
-        "xerces-c"
-    ]
+  "name": "czicheck",
+  "version-string": "1.0.0",
+  "dependencies": [
+    "libczi",
+    "cli11",
+    "rapidjson"
+  ],
+  "builtin-baseline": "b0190b451303865b89ced9767caaab140c39f980"
 }

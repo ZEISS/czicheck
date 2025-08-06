@@ -1,65 +1,72 @@
-if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+if(DEFINED CMAKE_TOOLCHAIN_FILE)
+    message(STATUS "CMAKE_TOOLCHAIN_FILE already set to '${CMAKE_TOOLCHAIN_FILE}', skipping vcpkg bootstrap.")
+    return()
+endif()
 
-    set(VCPKG_DIR "${CMAKE_SOURCE_DIR}/external/vcpkg")
+set(BUILDING_IN_VISUAL_STUDIO OFF)
+if(DEFINED CMAKE_GENERATOR_INSTANCE OR DEFINED CMAKE_VS_INSTANCE)
+    set(BUILDING_IN_VISUAL_STUDIO ON)
+endif()
 
+set(VCPKG_DIR "${CMAKE_SOURCE_DIR}/external/vcpkg")
+if(WIN32)
+    set(VCPKG_EXECUTABLE "${VCPKG_DIR}/vcpkg.exe")
+else()
+    set(VCPKG_EXECUTABLE "${VCPKG_DIR}/vcpkg")
+endif()
+
+if(DEFINED ENV{VCPKG_ROOT} AND EXISTS "$ENV{VCPKG_ROOT}/vcpkg")
+    set(VCPKG_DIR "$ENV{VCPKG_ROOT}")
     if(WIN32)
         set(VCPKG_EXECUTABLE "${VCPKG_DIR}/vcpkg.exe")
     else()
         set(VCPKG_EXECUTABLE "${VCPKG_DIR}/vcpkg")
     endif()
+    message(STATUS "Using pre-existing vcpkg at ${VCPKG_DIR}")
+endif()
 
-    if(EXISTS "${VCPKG_EXECUTABLE}")
-        message(STATUS "Found existing vcpkg executable at ${VCPKG_EXECUTABLE}")
-        set(VCPKG_IS_CLONED TRUE)
-        set(VCPKG_IS_BOOTSTRAPPED TRUE)
-    else()
-        set(VCPKG_IS_CLONED FALSE)
-        if(EXISTS "${VCPKG_DIR}/.git" OR EXISTS "${VCPKG_DIR}/README.md")
-            set(VCPKG_IS_CLONED TRUE)
-        endif()
-
-        if(VCPKG_IS_CLONED)
-            message(STATUS "Found vcpkg folder at ${VCPKG_DIR}")
-        else()
-            message(STATUS "vcpkg not found - cloning into ${VCPKG_DIR}...")
-            execute_process(
-                COMMAND git clone --depth 1 https://github.com/microsoft/vcpkg.git "${VCPKG_DIR}"
-                RESULT_VARIABLE GIT_CLONE_RESULT
-            )
-            if(NOT GIT_CLONE_RESULT EQUAL 0)
-                message(FATAL_ERROR "Failed to clone vcpkg from GitHub.")
-            endif()
-            set(VCPKG_IS_CLONED TRUE)
-        endif()
-
-        if(NOT EXISTS "${VCPKG_EXECUTABLE}")
-            message(STATUS "Bootstrapping vcpkg...")
-            if(WIN32)
-                execute_process(
-                    COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" cmd /c bootstrap-vcpkg.bat
-                    RESULT_VARIABLE BOOTSTRAP_RESULT
-                )
-            else()
-                execute_process(
-                    COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" ./bootstrap-vcpkg.sh
-                    RESULT_VARIABLE BOOTSTRAP_RESULT
-                )
-            endif()
-
-            if(NOT BOOTSTRAP_RESULT EQUAL 0)
-                message(FATAL_ERROR "Failed to bootstrap vcpkg.")
-            endif()
-            message(STATUS "vcpkg bootstrapped successfully.")
-        else()
-            message(STATUS "vcpkg already bootstrapped.")
-        endif()
+if(NOT EXISTS "${VCPKG_EXECUTABLE}")
+    if(BUILDING_IN_VISUAL_STUDIO AND DEFINED ENV{VCPKG_ROOT})
+        message(STATUS "Visual Studio detected with VCPKG_ROOT, skipping local bootstrap.")
+        return()
     endif()
 
-    set(CMAKE_TOOLCHAIN_FILE "${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake"
-        CACHE STRING "Vcpkg toolchain file")
+    if(NOT EXISTS "${VCPKG_DIR}/.git")
+        message(STATUS "vcpkg not found - cloning into ${VCPKG_DIR}...")
+        execute_process(
+            COMMAND git clone --depth 1 https://github.com/microsoft/vcpkg.git "${VCPKG_DIR}"
+            RESULT_VARIABLE GIT_CLONE_RESULT
+        )
+        if(NOT GIT_CLONE_RESULT EQUAL 0)
+            message(FATAL_ERROR "Failed to clone vcpkg from GitHub.")
+        endif()
+    else()
+        message(STATUS "Found vcpkg folder at ${VCPKG_DIR}, skipping clone.")
+    endif()
 
-    set(VCPKG_FEATURE_FLAGS "manifests" CACHE STRING "")
+    message(STATUS "Bootstrapping vcpkg...")
+    if(WIN32)
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" cmd /c bootstrap-vcpkg.bat
+            RESULT_VARIABLE BOOTSTRAP_RESULT
+        )
+    else()
+        execute_process(
+            COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" ./bootstrap-vcpkg.sh
+            RESULT_VARIABLE BOOTSTRAP_RESULT
+        )
+    endif()
 
-    message(STATUS "vcpkg is ready. Toolchain file: ${CMAKE_TOOLCHAIN_FILE}")
-
+    if(NOT BOOTSTRAP_RESULT EQUAL 0)
+        message(FATAL_ERROR "Failed to bootstrap vcpkg.")
+    endif()
+else()
+    message(STATUS "Found vcpkg executable at ${VCPKG_EXECUTABLE}, skipping bootstrap.")
 endif()
+
+set(CMAKE_TOOLCHAIN_FILE "${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake"
+    CACHE STRING "Vcpkg toolchain file")
+
+set(VCPKG_FEATURE_FLAGS "manifests" CACHE STRING "")
+
+message(STATUS "vcpkg is ready. Toolchain file: ${CMAKE_TOOLCHAIN_FILE}")

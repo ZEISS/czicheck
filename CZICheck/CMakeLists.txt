@@ -14,7 +14,9 @@ function(embed_resource resource_file_name source_file_name variable_name)
     file(WRITE "${source_file_name}" "${source}")
 endfunction()
 
-find_package(XercesC CONFIG QUIET)
+
+find_package(XercesC QUIET)
+
 if (XercesC_FOUND)
     set(CZICheck_XercesCAvailable 1)
     message("XercesC library available -> version: ${XercesC_VERSION}")
@@ -29,15 +31,21 @@ else()
     message("XercesC library not found, the checker 'xmlmetadataschema' will **not** be available")
 endif()
 
-include(FetchContent)
-FetchContent_Declare(
-  cli11
-  GIT_REPOSITORY https://github.com/CLIUtils/CLI11
-  GIT_TAG        v2.3.2
-)
+if(NOT CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
+  include(FetchContent)
+  FetchContent_Declare(
+    cli11
+    GIT_REPOSITORY https://github.com/CLIUtils/CLI11
+    GIT_TAG        v2.3.2
+  )
 
-FetchContent_MakeAvailable(cli11)
+  FetchContent_MakeAvailable(cli11)
+endif()
 
+if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
+  find_package(libczi CONFIG REQUIRED)
+  find_package(CLI11 CONFIG REQUIRED)
+endif()
 
 set(CZICHECKSRCFILES 
 "checkers/checkerbase.h"
@@ -97,6 +105,7 @@ runchecks.cpp
 runchecks.h
 utils.h
 utils.cpp
+pugiconfig.hpp
 )
 
 add_executable(CZICheck ${CZICHECKSRCFILES} )
@@ -104,7 +113,24 @@ add_executable(CZICheck ${CZICHECKSRCFILES} )
 set_target_properties(CZICheck PROPERTIES CXX_STANDARD 17)
 target_compile_definitions(CZICheck PRIVATE _LIBCZISTATICLIB)
 
-target_link_libraries(CZICheck  PRIVATE libCZIStatic CLI11::CLI11 pugixml)
+target_link_libraries(CZICheck PRIVATE CLI11::CLI11)
+
+if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
+  if(TARGET libczi::libCZI)
+      add_library(libczi::libCZI_selected ALIAS libczi::libCZI)
+  elseif(TARGET libczi::libCZIStatic)
+      add_library(libczi::libCZI_selected ALIAS libczi::libCZIStatic)
+  else()
+      message(FATAL_ERROR "No suitable libCZI target found (neither shared nor static).")
+  endif()
+
+    target_link_libraries(CZICheck PRIVATE libczi::libCZI_selected)
+else()
+  target_link_libraries(CZICheck PRIVATE libCZIStatic)
+endif()
+
+target_link_libraries(CZICheck PRIVATE pugixml)
+
 target_include_directories(CZICheck
   PRIVATE ${LIBCZI_INCLUDE_DIR}
   PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
@@ -118,7 +144,7 @@ endif()
 
 IF(UNIX)
   # seems to be problem with glibc I'd reckon -> https://stackoverflow.com/questions/51584960/stdcall-once-throws-stdsystem-error-unknown-error-1
-  target_link_libraries(CZICheck  PUBLIC pthread)
+  target_link_libraries(CZICheck PUBLIC pthread)
 ENDIF(UNIX)
 
 IF(WIN32)
