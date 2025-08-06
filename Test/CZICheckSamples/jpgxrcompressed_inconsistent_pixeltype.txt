@@ -12,10 +12,8 @@ Test "Basic semantic checks of the XML-metadata" :
  WARN
 Test "validate the XML-metadata against XSD-schema" : OK
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
-Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" :
-  Error decoding subblock #0 with compression "jpgxr"
- FAIL
+Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" : OK
 
 
-Result: Errors Detected
+Result: With Warnings
