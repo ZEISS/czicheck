@@ -58,7 +58,7 @@ if(NOT EXISTS "${VCPKG_EXECUTABLE}")
         endif()
         
         if(DEFINED VCPKG_BASELINE_COMMIT)
-          message(STATUS "Fetching vcpkg baseline commit: ${VCPKG_BASELINE_COMMIT}"
+          message(STATUS "Fetching vcpkg baseline commit: ${VCPKG_BASELINE_COMMIT}")
           execute_process(
             COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" git fetch --depth 1 origin ${VCPKG_BASELINE_COMMIT}
             RESULT_VARIABLE GIT_FETCH_RESULT
