@@ -105,6 +105,6 @@
     ],
     "output_version": {
         "command": "CZICheck",
-        "version": "0.6.4"
+        "version": "0.6.5"
     }
 }
