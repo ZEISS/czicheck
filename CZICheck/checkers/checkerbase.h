@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../inc_libCZI.h"
+#include <inc_libCZI.h>
 #include "../checkerfactory.h"
 #include <memory>
 #include <utility>

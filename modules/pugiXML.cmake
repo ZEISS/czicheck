@@ -16,8 +16,10 @@ if (NOT pugixml_POPULATED)
   set(pugixml_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
   FetchContent_MakeAvailable(pugixml)
-
   set(PUGIXML_INCLUDE_DIRS ${pugixml_SOURCE_DIR}/include)
+  if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
+    target_compile_definitions(pugixml INTERFACE PUGIXML_WCHAR_MODE PUGIXML_HEADER_ONLY)
+  endif()
 endif()
 
 message(STATUS "PugiXML include dir at " ${PUGIXML_INCLUDE_DIRS})
