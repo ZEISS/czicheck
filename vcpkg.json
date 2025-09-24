@@ -1,6 +1,6 @@
 {
   "name": "czicheck",
-  "version-string": "0.6.4",
+  "version-string": "0.6.5",
   "dependencies": [
     "libczi",
     "rapidjson",
