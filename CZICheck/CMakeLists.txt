@@ -34,31 +34,18 @@ else()
     message("XercesC library not found, the checker 'xmlmetadataschema' will **not** be available")
 endif()
 
-if(NOT CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-  include(FetchContent)
-  FetchContent_Declare(
-    cli11
-    GIT_REPOSITORY https://github.com/CLIUtils/CLI11
-    GIT_TAG        v2.3.2
-  )
+include(FetchContent)
+FetchContent_Declare(
+  cli11
+  GIT_REPOSITORY https://github.com/CLIUtils/CLI11
+  GIT_TAG        v2.3.2
+)
 
-  FetchContent_MakeAvailable(cli11)
-endif()
+FetchContent_MakeAvailable(cli11)
 
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   find_package(libCZI CONFIG REQUIRED)
-  find_package(CLI11 CONFIG REQUIRED)
 endif()
-
-if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-  set(CZICHECK_LIBCZI_HEADER_PATH "libCZI/libCZI.h")
-else()
-  set(CZICHECK_LIBCZI_HEADER_PATH "libCZI.h")
-endif()
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/inc_libCZI.h.in
-               ${CMAKE_CURRENT_BINARY_DIR}/inc_libCZI.h
-               @ONLY)
 
 set(CZICHECKSRCFILES 
 "checkers/checkerbase.h"
@@ -93,30 +80,31 @@ set(CZICHECKSRCFILES
 "checkers/checkerSubBlkBitmapValid.cpp"
 "checkers/checkerTopographyApplianceValidation.h"
 "checkers/checkerTopographyApplianceValidation.cpp"
-checkerfactory.cpp
-checkerfactory.h
-checks.h
-checks.cpp
-CMakeLists.txt
-cmdlineoptions.cpp
-cmdlineoptions.h
-consoleio.cpp
-consoleio.h
-CZICheck.cpp
-IChecker.h
-IResultGatherer.h
-resultgatherer.cpp
-resultgatherer.h
-resultgathererjson.h
-resultgathererjson.cpp
-resultgathererxml.h
-resultgathererxml.cpp
-resultgathererfactory.h
-resultgathererfactory.cpp
-runchecks.cpp
-runchecks.h
-utils.h
-utils.cpp
+"checkerfactory.cpp"
+"checkerfactory.h"
+"checks.h"
+"checks.cpp"
+"CMakeLists.txt"
+"cmdlineoptions.cpp"
+"cmdlineoptions.h"
+"consoleio.cpp"
+"consoleio.h"
+"CZICheck.cpp"
+"IChecker.h"
+"IResultGatherer.h"
+"resultgatherer.cpp"
+"resultgatherer.h"
+"resultgathererjson.h"
+"resultgathererjson.cpp"
+"resultgathererxml.h"
+"resultgathererxml.cpp"
+"resultgathererfactory.h"
+"resultgathererfactory.cpp"
+"runchecks.cpp"
+"runchecks.h"
+"utils.h"
+"utils.cpp"
+"inc_libCZI.h"
 )
 
 add_executable(CZICheck ${CZICHECKSRCFILES} )
@@ -126,6 +114,8 @@ target_compile_definitions(CZICheck PRIVATE _LIBCZISTATICLIB)
 
 target_link_libraries(CZICheck PRIVATE CLI11::CLI11)
 
+target_include_directories(CZICheck PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   if(TARGET libczi::libCZI)
       add_library(libczi::libCZI_selected ALIAS libczi::libCZI)
@@ -134,16 +124,20 @@ if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   else()
       message(FATAL_ERROR "No suitable libCZI target found (neither shared nor static).")
   endif()
-
-    target_link_libraries(CZICheck PRIVATE libczi::libCZI_selected)
+  target_link_libraries(CZICheck PRIVATE libczi::libCZI_selected)
 else()
   target_link_libraries(CZICheck PRIVATE libCZIStatic)
 endif()
-
+if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
+  get_target_property(_libczi_includes libczi::libCZI_selected INTERFACE_INCLUDE_DIRECTORIES)
+  set(_libczi_include_with_subdir "${_libczi_includes}/libCZI")
+  target_include_directories(CZICheck PRIVATE ${_libczi_include_with_subdir})
+else()
+  target_include_directories(CZICheck PRIVATE ${LIBCZI_INCLUDE_DIR})
+endif()
 target_link_libraries(CZICheck PRIVATE pugixml)
 
 target_include_directories(CZICheck
-  PRIVATE ${LIBCZI_INCLUDE_DIR}
   PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
 
 if (XercesC_FOUND)

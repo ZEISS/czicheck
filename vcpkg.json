@@ -3,7 +3,6 @@
   "version-string": "0.6.4",
   "dependencies": [
     "libczi",
-    "cli11",
     "rapidjson",
     "xerces-c"
   ],
