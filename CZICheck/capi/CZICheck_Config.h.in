@@ -1,0 +1,23 @@
+// SPDX-FileCopyrightText: 2023 Carl Zeiss Microscopy GmbH
+//
+// SPDX-License-Identifier: MIT
+
+#pragma once
+
+#define CZICHECK_UNIX_ENVIRONMENT @CZICheck_UNIX_ENVIRONMENT@
+#define CZICHECK_WIN32_ENVIRONMENT @CZICheck_WIN32_ENVIRONMENT@
+
+#define CZICHECK_XERCESC_AVAILABLE @CZICheck_XercesCAvailable@
+
+// those numbers define the version of CZICheck - it is set in the root CMakeLists.txt (with the project declaration)
+#define CZICHECK_VERSION_MAJOR u8"@CZICheck_VERSION_MAJOR@"
+#define CZICHECK_VERSION_MINOR u8"@CZICheck_VERSION_MINOR@"
+#define CZICHECK_VERSION_PATCH u8"@CZICheck_VERSION_PATCH@"
+#define CZICHECK_VERSION_TWEAK u8"@CZICheck_VERSION_TWEAK@"
+#define CZICHECK_VERSION_PATCH_STR u8"@CZICheck_VERSION_PATCH@"
+
+#ifdef NDEBUG
+#define CZICHECK_VERSION_TWEAK_STR u8"@CZICheck_VERSION_TWEAK@"
+#else
+#define CZICHECK_VERSION_TWEAK_STR u8"@CZICheck_VERSION_TWEAK@-DEBUG"
+#endif

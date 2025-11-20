@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CziCheckSharp.Tests": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

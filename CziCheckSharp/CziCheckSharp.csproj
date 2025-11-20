@@ -1,0 +1,72 @@
+﻿<!-- SPDX-FileCopyrightText: 2025 Carl Zeiss Microscopy GmbH -->
+<!-- SPDX-License-Identifier: MIT -->
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>CS1591</NoWarn>
+
+    <!-- Native Library Locations (for packaging) -->
+    <Winx64LibLocation></Winx64LibLocation>
+    <Linuxx64LibLocation></Linuxx64LibLocation>
+
+    <!-- MinVer Configuration -->
+    <MinVerTagPrefix>CziCheckSharp-v</MinVerTagPrefix>
+
+    <!-- Package Metadata -->
+    <PackageId>m-ringler.CziCheckSharp</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Carl Zeiss Microscopy GmbH</Authors>
+    <Company>Carl Zeiss Microscopy GmbH</Company>
+    <Product>CziCheckSharp</Product>
+    <Description>A .NET wrapper for CZICheck, providing validation and checking capabilities for CZI (Carl Zeiss Image) files.</Description>
+    <Copyright>Copyright (c) 2023-2025 Carl Zeiss Microscopy GmbH</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/m-ringler/czicheck</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/m-ringler/czicheck</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>czi;zeiss;microscopy;imaging;validation;czicheck</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>See https://github.com/m-ringler/czicheck/blob/main/documentation/version-history.md</PackageReleaseNotes>
+    
+    <!-- Build Settings -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    
+    <!-- Deterministic builds -->
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MinVer" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <!-- Include Windows x64 native libraries if location is specified -->
+  <ItemGroup Condition="'$(Winx64LibLocation)' != ''">
+    <Content Include="$(Winx64LibLocation)" PackagePath="runtimes/win-x64/native" Pack="true" />
+  </ItemGroup>
+
+  <!-- Include Linux x64 native libraries if location is specified -->
+  <ItemGroup Condition="'$(Linuxx64LibLocation)' != ''">
+    <Content Include="$(Linuxx64LibLocation)" PackagePath="runtimes/linux-x64/native" Pack="true" />
+  </ItemGroup>
+
+</Project>

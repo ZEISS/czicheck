@@ -1,0 +1,269 @@
+name: CziCheckSharp NuGet Package
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-native:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            triplet: x64-linux-static
+            lib-extension: so
+            build-subdir: ""
+            artifact-name: libczicheckc-linux
+          - os: windows-latest
+            triplet: x64-windows-static
+            lib-extension: dll
+            build-subdir: Release/
+            artifact-name: libczicheckc-windows
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for MinVer to determine version from git tags
+
+      - name: Cache vcpkg and packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            external/vcpkg
+            build/vcpkg_installed
+          key: vcpkg-${{ runner.os }}-static-${{ hashFiles('vcpkg.json') }}
+
+      - name: Prep existing vcpkg installation
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASELINE=$(jq -r '.["builtin-baseline"]' vcpkg.json)
+          echo "Detected vcpkg baseline: $BASELINE"
+
+          if [ -d "$GITHUB_WORKSPACE/external/vcpkg/.git" ]; then
+              echo "Using cached vcpkg at external/vcpkg"
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+          elif [ -n "${VCPKG_ROOT:-}" ] && [ -d "$VCPKG_ROOT/.git" ]; then
+              echo "Using preinstalled vcpkg at $VCPKG_ROOT"
+              VCPKG_DIR="$VCPKG_ROOT"
+          else
+              echo "Performing minimal vcpkg clone..."
+              git clone --filter=blob:none --no-checkout https://github.com/microsoft/vcpkg.git external/vcpkg
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+          fi
+
+          cd "$VCPKG_DIR"
+
+          if ! git cat-file -e "${BASELINE}^{commit}" 2>/dev/null; then
+              echo "Fetching baseline commit $BASELINE..."
+              git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow
+          fi
+
+          git checkout "$BASELINE"
+
+          if [ ! -f ./vcpkg ] && [ ! -f ./vcpkg.exe ]; then
+              if [[ "$RUNNER_OS" == "Windows" ]]; then
+                  ./bootstrap-vcpkg.bat
+              else
+                  ./bootstrap-vcpkg.sh
+              fi
+          fi
+
+          echo "vcpkg is now at commit: $(git rev-parse HEAD)"
+          echo "VCPKG_DIR=$VCPKG_DIR" >> "$GITHUB_ENV"
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config Release
+
+      - name: Package native libraries
+        shell: bash
+        run: |
+          mkdir -p native-artifacts
+          cp build/CZICheck/capi/${{ matrix.build-subdir }}libczicheckc.${{ matrix.lib-extension }} native-artifacts/
+          if [ -f build/CZICheck/capi/${{ matrix.build-subdir }}libczicheckc.pdb ]; then
+            cp build/CZICheck/capi/${{ matrix.build-subdir }}libczicheckc.pdb native-artifacts/
+          fi
+          ls -la native-artifacts/
+
+      - name: Upload native artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: native-artifacts/*
+
+  test:
+    needs: build-native
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact-name: libczicheckc-linux
+          - os: windows-latest
+            artifact-name: libczicheckc-windows
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download native libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: native-libs
+
+      - name: List native libraries
+        shell: bash
+        run: |
+          echo "Native libraries downloaded:"
+          ls -la native-libs/
+
+      - name: Run tests
+        shell: bash
+        run: |
+          dotnet test CziCheckSharp.Tests/CziCheckSharp.Tests.csproj \
+            --configuration Release \
+            -p:NativeLibraryPath="${{ github.workspace }}/native-libs"
+
+  pack:
+    needs: test
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download Windows native libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: libczicheckc-windows
+          path: native-windows
+
+      - name: Download Linux native libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: libczicheckc-linux
+          path: native-linux
+
+      - name: List downloaded artifacts
+        shell: bash
+        run: |
+          echo "Windows libraries:"
+          ls -la native-windows/
+          echo "Linux libraries:"
+          ls -la native-linux/
+
+      - name: Create NuGet package
+        shell: bash
+        run: |
+          dotnet pack CziCheckSharp/CziCheckSharp.csproj \
+            --configuration Release \
+            --output ./nuget-output \
+            -p:Winx64LibLocation="${{ github.workspace }}/native-windows/*" \
+            -p:Linuxx64LibLocation="${{ github.workspace }}/native-linux/*"
+
+      - name: List NuGet packages
+        shell: bash
+        run: |
+          echo "Generated NuGet packages:"
+          ls -la nuget-output/
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: |
+            nuget-output/*.nupkg
+            nuget-output/*.snupkg
+
+  test-nuget-package:
+    needs: pack
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download NuGet packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: nuget-local
+
+      - name: List NuGet packages
+        shell: bash
+        run: |
+          echo "Downloaded NuGet packages:"
+          ls -la nuget-local/
+
+      - name: Extract package version
+        shell: bash
+        run: |
+          NUPKG=$(echo nuget-local/m-ringler.CziCheckSharp.*.nupkg)
+          VERSION=$(basename "$NUPKG" | sed 's/m-ringler\.CziCheckSharp\.\(.*\)\.nupkg/\1/')
+          echo "CZICHECK_VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "Using version: $VERSION"
+
+      - name: Clean test project build output
+        shell: bash
+        run: |
+          rm -rf CziCheckSharp.Tests/bin CziCheckSharp.Tests/obj
+          echo "Cleaned test project build output"
+
+      - name: Restore NuGet packages
+        shell: bash
+        run: |
+          dotnet restore CziCheckSharp.Tests/CziCheckSharp.Tests.csproj \
+            --source "${{ github.workspace }}/nuget-local" \
+            -p:Configuration=Release \
+            -p:CziCheckSharpVersion="$CZICHECK_VERSION" \
+            -p:UseNuGetPackage=true
+
+      - name: Test with NuGet package
+        shell: bash
+        run: |
+          dotnet test CziCheckSharp.Tests/CziCheckSharp.Tests.csproj \
+            --configuration Release \
+            --no-restore \
+            -p:UseNuGetPackage=true

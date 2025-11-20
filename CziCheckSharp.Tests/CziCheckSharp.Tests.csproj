@@ -1,0 +1,51 @@
+﻿<!-- SPDX-FileCopyrightText: 2025 Carl Zeiss Microscopy GmbH -->
+<!-- SPDX-License-Identifier: MIT -->
+
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <NativeLibraryPath Condition="'$(NativeLibraryPath)' == '' AND '$(UseNuGetPackage)' != 'true'">..\..\out\build\x64-Debug\CZICheck\capi</NativeLibraryPath>
+    <CziCheckSharpVersion Condition="'$(CziCheckSharpVersion)' == ''">*-*</CziCheckSharpVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AwesomeAssertions" Version="9.3.0" />
+    <PackageReference Include="AwesomeAssertions.Analyzers" Version="9.0.8">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <!-- Local development: Use ProjectReference (default) -->
+  <ItemGroup Condition="'$(UseNuGetPackage)' != 'true'">
+    <ProjectReference Include="..\CziCheckSharp\CziCheckSharp.csproj" />
+  </ItemGroup>
+
+  <!-- CI/NuGet testing: Use PackageReference with wildcard version including prerelease -->
+  <ItemGroup Condition="'$(UseNuGetPackage)' == 'true'">
+    <PackageReference Include="m-ringler.CziCheckSharp" Version="$(CziCheckSharpVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="AwesomeAssertions" />
+  </ItemGroup>
+
+  <!-- Copy native libraries when using ProjectReference (local dev) -->
+  <ItemGroup Condition="'$(UseNuGetPackage)' != 'true' AND '$(NativeLibraryPath)' != ''">
+    <None Include="$(NativeLibraryPath)\*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(NativeLibraryPath)\*.so" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(NativeLibraryPath)\*.pdb" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- When using PackageReference, native libs come from NuGet package automatically -->
+
+</Project>
