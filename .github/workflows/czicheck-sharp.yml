@@ -187,7 +187,8 @@ jobs:
             --configuration Release \
             --output ./nuget-output \
             -p:Winx64LibLocation="${{ github.workspace }}/native-windows/*" \
-            -p:Linuxx64LibLocation="${{ github.workspace }}/native-linux/*"
+            -p:Linuxx64LibLocation="${{ github.workspace }}/native-linux/*" \
+            -p:MinVerBuildMetadata="${{ github.run_id }}"
 
       - name: List NuGet packages
         shell: bash
