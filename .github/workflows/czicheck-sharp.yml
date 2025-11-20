@@ -252,6 +252,7 @@ jobs:
         shell: bash
         run: |
           dotnet restore CziCheckSharp.Tests/CziCheckSharp.Tests.csproj \
+            --source "https://api.nuget.org/v3/index.json" \
             --source "${{ github.workspace }}/nuget-local" \
             -p:Configuration=Release \
             -p:CziCheckSharpVersion="$CZICHECK_VERSION" \

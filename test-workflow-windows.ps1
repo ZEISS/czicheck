@@ -153,6 +153,7 @@ Write-Information "\nRunning tests with NuGet package..." -InformationAction Con
 
 Write-Information "Restoring NuGet packages..." -InformationAction Continue
 dotnet restore CziCheckSharp.Tests/CziCheckSharp.Tests.csproj `
+    --source "https://api.nuget.org/v3/index.json" `
     --source "$PWD\nuget-output" `
     -p:Configuration=Release `
     -p:CziCheckSharpVersion=$version `
