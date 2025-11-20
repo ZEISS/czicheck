@@ -15,7 +15,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            triplet: x64-linux-static
+            triplet: x64-linux
             lib-extension: so
             build-subdir: ""
             artifact-name: libczicheckc-linux
