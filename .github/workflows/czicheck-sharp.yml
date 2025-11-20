@@ -1,9 +1,6 @@
 name: CziCheckSharp NuGet Package
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 permissions:
@@ -15,7 +12,7 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            triplet: x64-linux-static
+            triplet: x64-linux
             lib-extension: so
             build-subdir: ""
             artifact-name: libczicheckc-linux
@@ -190,7 +187,8 @@ jobs:
             --configuration Release \
             --output ./nuget-output \
             -p:Winx64LibLocation="${{ github.workspace }}/native-windows/*" \
-            -p:Linuxx64LibLocation="${{ github.workspace }}/native-linux/*"
+            -p:Linuxx64LibLocation="${{ github.workspace }}/native-linux/*" \
+            -p:MinVerBuildMetadata="${{ github.run_id }}"
 
       - name: List NuGet packages
         shell: bash
@@ -255,6 +253,7 @@ jobs:
         shell: bash
         run: |
           dotnet restore CziCheckSharp.Tests/CziCheckSharp.Tests.csproj \
+            --source "https://api.nuget.org/v3/index.json" \
             --source "${{ github.workspace }}/nuget-local" \
             -p:Configuration=Release \
             -p:CziCheckSharpVersion="$CZICHECK_VERSION" \
