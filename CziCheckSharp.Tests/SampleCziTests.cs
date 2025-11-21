@@ -49,7 +49,7 @@ public class SampleCziTests
         await Ensure(cziFilePath, md5);
         _ = GetFileMd5(cziFilePath).Should().Be(md5);
 
-        CziCheckResult actual;
+        FileResult actual;
         var config = new Configuration
         {
             LaxParsing = true,
@@ -63,9 +63,9 @@ public class SampleCziTests
         }
 
         // ASSERT
-        var expected = CziCheckResult.FromJson(
-            expectedJsonContent,
-            actual.Error); // We don't have an expected error output
+        var expected = FileResult.FromJson(
+            cziFilePath,
+            expectedJsonContent);
 
         try
         {

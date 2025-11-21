@@ -1,16 +1,16 @@
 # CziCheckSharp
 
-A .NET wrapper for CZICheck, providing validation and checking capabilities for CZI (Carl Zeiss Image) files through a native P/Invoke interface.
+A .NET wrapper for CZICheck, providing validation and checking capabilities for CZI (Carl Zeiss Image) files.
+
+For the time being, this is not a ZEISS product, and there is no support by ZEISS.
 
 ## Overview
 
-CziCheckSharp provides a type-safe C# API for validating CZI files using the native CZICheck library. It wraps the C API (`libczicheckc`) and provides:
+CziCheckSharp provides a type-safe C# API for validating CZI files using the native CZICheck library. It provides:
 
 - Structured validation results with detailed findings
 - Configurable validation checks
-- JSON output parsing
-- Proper resource management through `IDisposable`
-- **Cross-platform support** with native libraries bundled for Windows (x64) and Linux (x64)
+- Cross-platform support with native libraries bundled for Windows (x64) and Linux (x64)
 
 ## Installation
 
@@ -73,6 +73,11 @@ var configuration = new Configuration
 
 using var checker = new CziChecker(configuration);
 var result = checker.Check("file.czi");
+
+foreach (var result in result.CheckerResults)
+{
+    Display(result);
+}
 ```
 
 ### Available Checks
@@ -98,33 +103,6 @@ Checks.HasValidApplianceMetadataTopography
 Checks.Default    // All checks except opt-in
 Checks.All        // All available checks
 Checks.OptIn      // Only the opt-in checks
-```
-
-## Results
-
-The `CziCheckResult` class provides:
-
-```csharp
-public class CziCheckResult
-{
-    public string? OverallResult { get; set; }           // "✔" or "❌"
-    public List<CheckerResult> CheckerResults { get; set; }
-    public string? Version { get; set; }
-    public string? Error { get; set; }
-}
-
-public class CheckerResult
-{
-    public string? CheckName { get; set; }
-    public string? Summary { get; set; }
-    public List<Finding>? Findings { get; set; }
-}
-
-public class Finding
-{
-    public string? Severity { get; set; }
-    public string? Information { get; set; }
-}
 ```
 
 ## Advanced: Custom Native Library Path
@@ -153,7 +131,7 @@ consult the [CZICheck building documentation](https://github.com/m-ringler/czich
 
 ## Error Handling
 
-The library handles errors through the `Error` property of `CziCheckResult`:
+The library handles errors by throwing exceptions, the `Error` property of `CziCheckResult` may contain additional information:
 
 ```csharp
 var result = checker.Check("file.czi");
@@ -174,7 +152,7 @@ Common error scenarios:
 Get the version of the underlying CZICheck library:
 
 ```csharp
-string version = CziChecker.GetVersion();
+string version = CziChecker.GetCziCheckVersion();
 Console.WriteLine($"CZICheck version: {version}");
 ```
 

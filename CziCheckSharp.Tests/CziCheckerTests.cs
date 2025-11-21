@@ -14,6 +14,6 @@ public class CziCheckerTests
     [Fact]
     public void GetVersion_ReturnsExpected()
     {
-        _ = CziChecker.GetVersion().Should().Be("0.6.5");
+        _ = CziChecker.GetCziCheckVersion().Should().Be("0.6.5");
     }
 }

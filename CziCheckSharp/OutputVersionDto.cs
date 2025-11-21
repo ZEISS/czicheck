@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 /// <summary>
 /// Represents the output version information.
 /// </summary>
-internal record class OutputVersion
+internal record class OutputVersionDto
 {
     [JsonPropertyName("command")]
     public string? Command { get; set; }

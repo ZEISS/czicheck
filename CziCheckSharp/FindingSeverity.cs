@@ -4,9 +4,9 @@
 
 namespace CziCheckSharp;
 
-public record class Finding(
-    FindingSeverity Severity,
-    string Description,
-    string Details)
+public enum FindingSeverity
 {
+    Info,
+    Warning,
+    Error,
 }
