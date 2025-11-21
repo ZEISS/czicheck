@@ -30,19 +30,23 @@ var configuration = new Configuration();
 using var checker = new CziChecker(configuration);
 
 // Validate a CZI file
-var result = checker.Check("sample.czi");
+FileResult result = checker.Check(file);
 
 // Check validation status
-if (result.OverallResult == "✔")
+if (result.FileStatus == CheckStatus.Ok)
 {
     Console.WriteLine("Validation passed!");
 }
 else
 {
-    Console.WriteLine($"Validation issues found:");
-    foreach (var checkerResult in result.CheckerResults)
+    Console.WriteLine($"Validation issues found in file {result.File}:");
+    foreach (var checkResult in result.CheckResults.Where(x => x.Status != CheckStatus.Ok))
     {
-        Console.WriteLine($"  {checkerResult.CheckName}: {checkerResult.Summary}");
+        Console.WriteLine($"  {checkResult.Check}: {checkResult.Status}");
+        foreach (var finding in checkResult.Findings)
+        {
+            Console.WriteLine($"    {finding.Severity}: {finding.Description}");
+        }
     }
 }
 ```
@@ -65,19 +69,14 @@ Customize which checks to run and how they behave:
 ```csharp
 var configuration = new Configuration
 {
-    Checks = Checks.Default,           // Or Checks.All, or specific flags
-    MaxFindings = 100,                 // Limit findings per check (-1 for unlimited)
-    LaxParsing = false,                // Enable tolerant CZI parsing
-    IgnoreSizeM = false                // Ignore M dimension for pyramid subblocks
+    Checks = Checks.Default, // Or Checks.All, or specific flags
+    MaxFindings = 100,       // Limit findings per check (-1 for unlimited)
+    LaxParsing = false,      // Enable tolerant CZI parsing
+    IgnoreSizeM = false      // Ignore M dimension for pyramid subblocks
 };
 
 using var checker = new CziChecker(configuration);
-var result = checker.Check("file.czi");
-
-foreach (var result in result.CheckerResults)
-{
-    Display(result);
-}
+var result = checker.Check(file);
 ```
 
 ### Available Checks
@@ -112,15 +111,14 @@ In most cases, the bundled native libraries work automatically. However, if you 
 ```csharp
 using System.Runtime.InteropServices;
 
-NativeLibrary.SetDllImportResolver(typeof(CziChecker).Assembly, (libraryName, assembly, searchPath) =>
-{
-    if (libraryName == "libczicheckc")
+NativeLibrary.SetDllImportResolver(
+    typeof(CziChecker).Assembly,
+    (libraryName, assembly, searchPath) => libraryName switch
     {
         // Load from custom path
-        return NativeLibrary.Load("/custom/path/to/libczicheckc.so");
-    }
-    return IntPtr.Zero;
-});
+        "libczicheckc" => NativeLibrary.Load("/custom/path/to/libczicheckc.so"),
+        _ => IntPtr.Zero,
+    });
 ```
 
 ### Building the Native Library
@@ -131,17 +129,7 @@ consult the [CZICheck building documentation](https://github.com/m-ringler/czich
 
 ## Error Handling
 
-The library handles errors by throwing exceptions, the `Error` property of `CziCheckResult` may contain additional information:
-
-```csharp
-var result = checker.Check("file.czi");
-
-if (!string.IsNullOrEmpty(result.Error))
-{
-    Console.WriteLine($"Error: {result.Error}");
-}
-```
-
+The library handles errors by throwing exceptions.
 Common error scenarios:
 - **File not found**: Check the file path
 - **DllNotFoundException**: This should not occur with the NuGet package as native libraries are bundled. If it does occur, ensure you're using a supported platform (Windows x64 or Linux x64)
