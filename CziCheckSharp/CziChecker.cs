@@ -24,7 +24,7 @@ public class CziChecker(Configuration configuration) : IDisposable
     private byte[] outputStringBuffer = new byte[48000];
     private readonly byte[] errorMessageBuffer = new byte[2048];
 
-    public bool IsDisposed => this.validator.IsDisposed;
+    public bool IsDisposed => this.validator.IsInvalid;
 
     public Configuration Configuration { get; } = configuration
         ?? throw new ArgumentNullException(nameof(configuration));
@@ -86,7 +86,7 @@ public class CziChecker(Configuration configuration) : IDisposable
     /// </exception>
     public unsafe CziCheckResult Check(string cziFilePath)
     {
-        ObjectDisposedException.ThrowIf(this.validator.IsDisposed, this);
+        ObjectDisposedException.ThrowIf(this.validator.IsInvalid, this);
 
         if (string.IsNullOrWhiteSpace(cziFilePath))
         {
