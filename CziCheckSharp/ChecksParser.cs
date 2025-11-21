@@ -40,7 +40,7 @@ public static class ChecksParser
         ["XmlMetadataSchemaValidation"] = Checks.HasXmlSchemaValidMetadata,
         ["CCheckOverlappingScenesOnLayer0"] = Checks.HasNoOverlappingScenesAtScale1,
         ["CheckSubBlockBitmapValid"] = Checks.HasValidSubBlockBitmaps,
-#if FUTURE
+#if FUTURE_CHECKS
         ["ConsistentMIndex"] = Checks.HasConsistentMIndices,
         ["AttachmentDirectoryPositionsWithinRange"] = Checks.HasValidAttachmentDirPositions,
 #endif

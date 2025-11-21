@@ -33,12 +33,4 @@ public record class Configuration
     /// otherwise not be analyzable at all. Default is false.
     /// </summary>
     public bool IgnoreSizeM { get; set; } = false;
-
-    /// <summary>
-    /// Timeout in milliseconds for the check operation.
-    /// A negative number means no timeout. Default is 60000 (60 seconds).
-    /// Note: This property is only used when running async operations and may not apply
-    /// to synchronous native library calls.
-    /// </summary>
-    public int TimeoutMilliseconds { get; set; } = 60000;
 }
