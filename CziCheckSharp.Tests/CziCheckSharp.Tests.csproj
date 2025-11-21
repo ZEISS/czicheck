@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <NativeLibraryPath Condition="'$(NativeLibraryPath)' == '' AND '$(UseNuGetPackage)' != 'true'">..\..\out\build\x64-Debug\CZICheck\capi</NativeLibraryPath>
+    <CziCheckNativeLibraryPath Condition="'$(CziCheckNativeLibraryPath)' == '' AND '$(UseNuGetPackage)' != 'true'">$(MSBuildThisFileDirectory)..\..\czicheck\out\build\x64-Debug\CZICheck\capi</CziCheckNativeLibraryPath>
     <CziCheckSharpVersion Condition="'$(CziCheckSharpVersion)' == ''">*-*</CziCheckSharpVersion>
   </PropertyGroup>
 
@@ -29,7 +29,7 @@
     <ProjectReference Include="..\CziCheckSharp\CziCheckSharp.csproj" />
   </ItemGroup>
 
-  <!-- CI/NuGet testing: Use PackageReference with wildcard version including prerelease -->
+  <!-- CI/NuGet testing: Use PackageReference -->
   <ItemGroup Condition="'$(UseNuGetPackage)' == 'true'">
     <PackageReference Include="m-ringler.CziCheckSharp" Version="$(CziCheckSharpVersion)" />
   </ItemGroup>
@@ -40,10 +40,10 @@
   </ItemGroup>
 
   <!-- Copy native libraries when using ProjectReference (local dev) -->
-  <ItemGroup Condition="'$(UseNuGetPackage)' != 'true' AND '$(NativeLibraryPath)' != ''">
-    <None Include="$(NativeLibraryPath)\*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="$(NativeLibraryPath)\*.so" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="$(NativeLibraryPath)\*.pdb" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  <ItemGroup Condition="'$(UseNuGetPackage)' != 'true' AND '$(CziCheckNativeLibraryPath)' != ''">
+    <None Include="$(CziCheckNativeLibraryPath)\*.dll" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(CziCheckNativeLibraryPath)\*.so" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(CziCheckNativeLibraryPath)\*.pdb" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!-- When using PackageReference, native libs come from NuGet package automatically -->

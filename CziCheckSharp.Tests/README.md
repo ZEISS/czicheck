@@ -15,10 +15,10 @@ The test project requires the native CZICheck C API library to be built before r
 
 ### Native Library Location
 
-The project is configured to copy native libraries from the path specified by the `NativeLibraryPath` MSBuild property in `CziCheckSharp.Tests.csproj`:
+The project is configured to copy native libraries from the path specified by the `CziCheckNativeLibraryPath` MSBuild property in `CziCheckSharp.Tests.csproj`:
 
 ```xml
-<NativeLibraryPath>..\..\out\build\x64-Debug\CZICheck\capi</NativeLibraryPath>
+<CziCheckNativeLibraryPath>..\..\out\build\x64-Debug\CZICheck\capi</CziCheckNativeLibraryPath>
 ```
 
 This corresponds to the CMake build output directory when using the `x64-Debug` configuration (see `CMakeSettings.json` in the repository root).
@@ -56,18 +56,18 @@ The expected build output path is defined in `CMakeSettings.json`:
 }
 ```
 
-If you use a different CMake configuration or build directory, update the `<NativeLibraryPath>` property in `CziCheckSharp.Tests.csproj` to point to your build output directory.
+If you use a different CMake configuration or build directory, update the `<CziCheckNativeLibraryPath>` property in `CziCheckSharp.Tests.csproj` to point to your build output directory.
 
 Alternatively, you can override it on the command line without modifying the `.csproj` file:
 
 ```bash
-dotnet test -p:NativeLibraryPath="..\..\out\build\x64-Release\CZICheck\capi"
+dotnet test -p:CziCheckNativeLibraryPath="..\..\out\build\x64-Release\CZICheck\capi"
 ```
 
 Or when building:
 
 ```bash
-dotnet build -p:NativeLibraryPath="path\to\your\native\libs"
+dotnet build -p:CziCheckNativeLibraryPath="path\to\your\native\libs"
 ```
 
 ## Running Tests

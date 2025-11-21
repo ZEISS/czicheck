@@ -65,7 +65,7 @@ public class SampleCziTests
         // ASSERT
         var expected = CziCheckResult.FromJson(
             expectedJsonContent,
-            actual.ErrorOutput); // We don't have an expected error output
+            actual.Error); // We don't have an expected error output
 
         try
         {

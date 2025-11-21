@@ -66,7 +66,7 @@ Get-ChildItem "native-artifacts/" | Format-Table Name, Length, LastWriteTime
 Write-Information "`n[5/7] Running tests..." -InformationAction Continue
 dotnet test CziCheckSharp.Tests/CziCheckSharp.Tests.csproj `
     --configuration Release `
-    -p:NativeLibraryPath="$PWD/native-artifacts"
+    -p:CziCheckNativeLibraryPath="$PWD/native-artifacts"
 
 if ($LASTEXITCODE -ne 0) {
     Write-Information "ERROR: Tests failed" -InformationAction Continue

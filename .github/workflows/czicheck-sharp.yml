@@ -143,7 +143,7 @@ jobs:
         run: |
           dotnet test CziCheckSharp.Tests/CziCheckSharp.Tests.csproj \
             --configuration Release \
-            -p:NativeLibraryPath="${{ github.workspace }}/native-libs"
+            -p:CziCheckNativeLibraryPath="${{ github.workspace }}/native-libs"
 
   pack:
     needs: test
