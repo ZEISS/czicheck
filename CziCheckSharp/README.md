@@ -110,7 +110,7 @@ public class CziCheckResult
     public string? OverallResult { get; set; }           // "✔" or "❌"
     public List<CheckerResult> CheckerResults { get; set; }
     public string? Version { get; set; }
-    public string? ErrorOutput { get; set; }
+    public string? Error { get; set; }
 }
 
 public class CheckerResult
@@ -147,64 +147,20 @@ NativeLibrary.SetDllImportResolver(typeof(CziChecker).Assembly, (libraryName, as
 
 ### Building the Native Library
 
-If you need to build the native library yourself (e.g., for unsupported platforms):
+If you need to build the native library yourself (e.g., for unsupported platforms)
+consult the [CZICheck building documentation](https://github.com/m-ringler/czicheck/blob/main/documentation/building.md).
 
-```bash
-# Clone the repository
-git clone https://github.com/ZEISS/czicheck.git
-cd czicheck
-
-# Build with CMake (example for Windows)
-cmake --preset x64-Debug
-cmake --build out/build/x64-Debug
-
-# The library will be in: out/build/x64-Debug/CZICheck/capi/
-```
-
-See the [CZICheck building documentation](https://github.com/ZEISS/czicheck/blob/main/documentation/building.md) for more details.
-
-## API Reference
-
-### CziChecker Class
-
-```csharp
-public class CziChecker : IDisposable
-{
-    // Constructor
-    public CziChecker(Configuration configuration);
-    
-    // Methods
-    public CziCheckResult Check(string cziFilePath);
-    public static string GetVersion();
-    
-    // Properties
-    public Configuration Configuration { get; }
-    public bool IsDisposed { get; }
-}
-```
-
-### Configuration Class
-
-```csharp
-public class Configuration
-{
-    public Checks Checks { get; init; } = Checks.Default;
-    public int MaxFindings { get; init; } = -1;
-    public bool LaxParsing { get; init; } = false;
-    public bool IgnoreSizeM { get; init; } = false;
-}
-```
 
 ## Error Handling
 
-The library handles errors through the `ErrorOutput` property of `CziCheckResult`:
+The library handles errors through the `Error` property of `CziCheckResult`:
 
 ```csharp
 var result = checker.Check("file.czi");
 
-if (!string.IsNullOrEmpty(result.ErrorOutput))
+if (!string.IsNullOrEmpty(result.Error))
 {
-    Console.WriteLine($"Error: {result.ErrorOutput}");
+    Console.WriteLine($"Error: {result.Error}");
 }
 ```
 
@@ -224,11 +180,11 @@ Console.WriteLine($"CZICheck version: {version}");
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/ZEISS/czicheck/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/m-ringler/czicheck/blob/main/LICENSE) file for details.
 
 ## Links
 
-- [CZICheck Repository](https://github.com/ZEISS/czicheck)
-- [CZICheck Documentation](https://github.com/ZEISS/czicheck/tree/main/documentation)
-- [Description of Checkers](https://github.com/ZEISS/czicheck/blob/main/documentation/description_of_checkers.md)
-- [Version History](https://github.com/ZEISS/czicheck/blob/main/documentation/version-history.md)
+- [CZICheck Repository](https://github.com/m-ringler/czicheck)
+- [CZICheck Documentation](https://github.com/m-ringler/czicheck/tree/main/documentation)
+- [Description of Checkers](https://github.com/m-ringler/czicheck/blob/main/documentation/description_of_checkers.md)
+- [Version History](https://github.com/m-ringler/czicheck/blob/main/documentation/version-history.md)

@@ -11,7 +11,7 @@ using System.Text.Json;
 /// </summary>
 public class CziCheckResult
 {
-    public string? ErrorOutput { get; init; }
+    public string? Error { get; init; }
 
     public string? OverallResult { get; init; }
 
@@ -33,7 +33,7 @@ public class CziCheckResult
                     OverallResult = output.OverallResult,
                     CheckerResults = output.Tests ?? [],
                     Version = output.OutputVersion?.Version,
-                    ErrorOutput = errorOutput
+                    Error = errorOutput
                 };
         }
         catch (JsonException ex)
@@ -50,7 +50,7 @@ public class CziCheckResult
     {
         return new CziCheckResult
         {
-            ErrorOutput = string.IsNullOrWhiteSpace(variableMessage)
+            Error = string.IsNullOrWhiteSpace(variableMessage)
                 ? constantMessage
                 : $"{constantMessage} {variableMessage}"
         };

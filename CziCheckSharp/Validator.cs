@@ -11,6 +11,15 @@ using System.Runtime.InteropServices;
 /// </summary>
 internal sealed class Validator : SafeHandle
 {
+    public enum Result
+    {
+        Success = 0,
+        BufferTooSmall = 1,
+        FileAccessError = 2,
+        InvalidPointer = 3,
+        UnsupportedCheck = 4,
+    }
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Validator"/> class.
     /// </summary>
@@ -48,7 +57,7 @@ internal sealed class Validator : SafeHandle
     /// <param name="errorMessageLength">On input: size of buffer. On output: length of error message.</param>
     /// <returns>Result code from validation.</returns>
     /// <exception cref="ObjectDisposedException">Thrown when the validator has been disposed.</exception>
-    public int ValidateFile(
+    public Result ValidateFile(
         string inputPath,
         nint jsonBuffer,
         ref ulong jsonBufferSize,
@@ -60,7 +69,7 @@ internal sealed class Validator : SafeHandle
         {
             this.DangerousAddRef(ref addedRef);
             
-            return NativeMethods.ValidateFile(
+            return (Result)NativeMethods.ValidateFile(
                 validator: this.handle,
                 inputPath: inputPath,
                 jsonBuffer: jsonBuffer,
