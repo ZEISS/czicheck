@@ -30,10 +30,10 @@ if(DEFINED ENV{VCPKG_ROOT} AND EXISTS "$ENV{VCPKG_ROOT}/vcpkg" AND NOT DEFINED V
 endif()
 
 if(NOT EXISTS "${VCPKG_EXECUTABLE}")
-    if(BUILDING_IN_VISUAL_STUDIO AND DEFINED ENV{VCPKG_ROOT})
-        message(STATUS "Visual Studio detected with VCPKG_ROOT, skipping local bootstrap.")
-        return()
-    endif()
+    # if(BUILDING_IN_VISUAL_STUDIO AND DEFINED ENV{VCPKG_ROOT})
+    #     message(STATUS "Visual Studio detected with VCPKG_ROOT, skipping local bootstrap.")
+    #     return()
+    # endif()
 
     if(NOT EXISTS "${VCPKG_DIR}/.git")
         message(STATUS "vcpkg not found")
