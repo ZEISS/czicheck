@@ -11,7 +11,15 @@
 #include "checks.h"
 #include "consoleio.h"
 
-class CCmdLineOptions
+// Abstract interface for checker options
+class ICheckerOptions
+{
+public:
+    virtual ~ICheckerOptions() = default;
+    virtual const std::shared_ptr<ILog>& GetLog() const = 0;
+};
+
+class CCmdLineOptions : public ICheckerOptions
 {
 public:
     enum class OutputEncodingFormat
@@ -54,7 +62,7 @@ public:
     [[nodiscard]] bool GetLaxParsingEnabled() const { return this->lax_parsing_enabled_; }
     [[nodiscard]] bool GetIgnoreSizeMForPyramidSubBlocks() const { return this->ignore_sizem_for_pyramid_subblocks_; }
     [[nodiscard]] const std::vector<CZIChecks>& GetChecksEnabled() const { return this->checks_enabled_; }
-    [[nodiscard]] const std::shared_ptr<ILog>& GetLog() const { return this->log_; }
+    [[nodiscard]] const std::shared_ptr<ILog>& GetLog() const override { return this->log_; }
     [[nodiscard]] const OutputEncodingFormat GetOutputEncodingFormat() const { return this->result_encoding_type_; }
 private:
     static bool ParseBooleanArgument(const std::string& argument_key, const std::string& argument_value, bool* boolean_value, std::string* error_message);

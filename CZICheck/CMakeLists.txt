@@ -222,3 +222,6 @@ if (CZICHECK_BUILD_TESTS)
     message("Python not found, CZICheck-Test will not run.")
   endif()
 endif()
+
+# Add the C API library subdirectory
+add_subdirectory(capi)
