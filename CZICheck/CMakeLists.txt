@@ -183,7 +183,7 @@ configure_file (
 # checking platform -> https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/Checking-Platform
 #                   -> https://stackoverflow.com/questions/9160335/os-specific-instructions-in-cmake-how-to
 
-# install(TARGETS ${CZICHECK_EXECUTABLE} RUNTIME  DESTINATION bin)
+install(TARGETS ${CZICHECK_EXECUTABLE} RUNTIME  DESTINATION bin)
 
 if (CZICHECK_BUILD_TESTS)
   include(ExternalData)
