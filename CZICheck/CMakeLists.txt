@@ -149,9 +149,9 @@ target_include_directories(${CZICHECK_STATIC_LIB}
 
 if (XercesC_FOUND)
   if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-    target_link_libraries(${CZICHECK_STATIC_LIB} PRIVATE XercesC::XercesC)
+    target_link_libraries(${CZICHECK_STATIC_LIB} PUBLIC XercesC::XercesC)
   else()
-    target_link_libraries(${CZICHECK_STATIC_LIB} PRIVATE ${XercesC_LIBRARY})
+    target_link_libraries(${CZICHECK_STATIC_LIB} PUBLIC ${XercesC_LIBRARY})
   endif()
 endif()
 if (XercesC_FOUND AND NOT CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
