@@ -49,7 +49,7 @@
 ///
 /// \returns    A new validator instance for the specified configuration, or NULL if parameters are invalid.
 extern "C" CAPI_EXPORT void* CreateValidator(uint64_t checks_bitmask, int32_t max_findings, bool lax_parsing,
-                                             bool ignore_sizem);
+                                            bool ignore_sizem);
 
 ///
 /// Validates a single CZI file with the specified validator.

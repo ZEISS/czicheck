@@ -8,6 +8,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "CZICheck_Config.h"
 #include "checkerfactory.h"
@@ -31,7 +32,7 @@ XERCES_CPP_NAMESPACE_USE
 // Dummy ILog implementation that does nothing (for internal use only)
 class CNullLog : public ILog
 {
-   public:
+public:
     void SetColor(ConsoleColor foreground, ConsoleColor background) override {}
     void WriteLineStdOut(const char* sz) override {}
     void WriteLineStdOut(const wchar_t* sz) override {}
@@ -48,20 +49,20 @@ class CNullLog : public ILog
 // Helper class that mimics CCmdLineOptions but with programmatic configuration
 class CValidatorOptions : public ICheckerOptions
 {
-   private:
+private:
     std::vector<CZIChecks> checks_enabled_;
     int max_findings_;
     bool lax_parsing_;
     bool ignore_sizem_;
     std::shared_ptr<ILog> log_;
 
-   public:
+public:
     CValidatorOptions(const std::vector<CZIChecks>& checks, int max_findings, bool lax_parsing, bool ignore_sizem)
-        : checks_enabled_(checks),
-          max_findings_(max_findings),
-          lax_parsing_(lax_parsing),
-          ignore_sizem_(ignore_sizem),
-          log_(CNullLog::CreateInstance())
+            : checks_enabled_(checks),
+            max_findings_(max_findings),
+            lax_parsing_(lax_parsing),
+            ignore_sizem_(ignore_sizem),
+            log_(CNullLog::CreateInstance())
     {
     }
 
@@ -76,7 +77,7 @@ class CValidatorOptions : public ICheckerOptions
 // Internal validator class
 class CziValidator final
 {
-   private:
+private:
     std::vector<CZIChecks> checks_;
     int max_findings_;
     bool lax_parsing_;
@@ -163,12 +164,12 @@ class CziValidator final
         }
     }
 
-   public:
+public:
     CziValidator(uint64_t checks_bitmask, int32_t max_findings, bool lax_parsing, bool ignore_sizem)
-        : checks_(BitmaskToChecks(checks_bitmask)),
-          max_findings_(max_findings),
-          lax_parsing_(lax_parsing),
-          ignore_sizem_(ignore_sizem)
+            : checks_(BitmaskToChecks(checks_bitmask)),
+            max_findings_(max_findings),
+            lax_parsing_(lax_parsing),
+            ignore_sizem_(ignore_sizem)
     {
     }
 
@@ -290,7 +291,7 @@ class CziValidator final
 // C API Implementation
 
 extern "C" CAPI_EXPORT void* CreateValidator(uint64_t checks_bitmask, int32_t max_findings, bool lax_parsing,
-                                             bool ignore_sizem)
+                                            bool ignore_sizem)
 {
     // Validate parameters
     if (checks_bitmask == 0)
@@ -409,7 +410,7 @@ extern "C" CAPI_EXPORT bool GetLibVersionString(char* buffer, uint64_t* size)
     }
 
     std::string version_str = std::string(CZICHECK_VERSION_MAJOR) + "." + std::string(CZICHECK_VERSION_MINOR) + "." +
-                              std::string(CZICHECK_VERSION_PATCH);
+                            std::string(CZICHECK_VERSION_PATCH);
 
     uint64_t required_size = version_str.length() + 1;  // +1 for null terminator
 
