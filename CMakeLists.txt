@@ -17,7 +17,10 @@ project(CZICheck
       HOMEPAGE_URL "https://github.com/ZEISS/czicheck"
       DESCRIPTION "CZICheck is a validator for CZI-documents")
 
-
+# define target names
+set(CZICHECK_STATIC_LIB "CZIcheck_static")
+set(CZICHECK_EXECUTABLE "CZICheck")
+set(CZICHECK_SHARED_LIB "CZIcheck_shared")
 
 if(WIN32)
   # use "static C-runtime" -> https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake

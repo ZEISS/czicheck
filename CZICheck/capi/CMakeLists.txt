@@ -26,94 +26,28 @@ else()
     message("XercesC library not found, the checker 'xmlmetadataschema' will **not** be available in capi")
 endif()
 
-include(FetchContent)
-
-set (TARGET_NAME libczicheckc)
-
 # Source files for the C API library (reusing most of the CZICheck sources)
 set(CAPI_SRCFILES 
     capi.h
-    capi.cpp
-    ../checkers/checkerbase.h
-    ../checkers/checkerbase.cpp
-    ../checkers/checkerConsistentCoordinates.cpp
-    ../checkers/checkerConsistentCoordinates.h
-    ../checkers/checkerSubBlkDirPositions.cpp
-    ../checkers/checkerSubBlkDirPositions.h
-    ../checkers/checkerSubBlkSegmentsValid.cpp
-    ../checkers/checkerSubBlkSegmentsValid.h
-    ../checkers/checkerDuplicateCoordinates.h
-    ../checkers/checkerDuplicateCoordinates.cpp
-    ../checkers/checkerBenabled.h
-    ../checkers/checkerBenabled.cpp
-    ../checkers/checkerSamePixeltypePerChannel.h
-    ../checkers/checkerSamePixeltypePerChannel.cpp
-    ../checkers/checkerXmlMetadataXsdValidation.h
-    ../checkers/checkerXmlMetadataXsdValidation.cpp
-    ../checkers/checkerXmlMetadataXsdSchema.h
-    ../checkers/checkerXmlMetadataXsdSchema.cpp
-    ../checkers/checkerMissingMindex.h
-    ../checkers/checkerMissingMindex.cpp
-    ../checkers/checkerPlanesStartIndices.h
-    ../checkers/checkerPlanesStartIndices.cpp
-    ../checkers/checkerConsecutivePlaneIndices.h
-    ../checkers/checkerConsecutivePlaneIndices.cpp
-    ../checkers/checkerXmlBasicMetadataValidation.h
-    ../checkers/checkerXmlBasicMetadataValidation.cpp
-    ../checkers/checkerOverlappingScenes.h
-    ../checkers/checkerOverlappingScenes.cpp
-    ../checkers/checkerSubBlkBitmapValid.h
-    ../checkers/checkerSubBlkBitmapValid.cpp
-    ../checkers/checkerTopographyApplianceValidation.h
-    ../checkers/checkerTopographyApplianceValidation.cpp
-    ../checkerfactory.cpp
-    ../checkerfactory.h
-    ../checks.h
-    ../checks.cpp
-    ../cmdlineoptions.cpp
-    ../cmdlineoptions.h
-    ../consoleio.cpp
-    ../consoleio.h
-    ../IChecker.h
-    ../IResultGatherer.h
-    ../resultgatherer.cpp
-    ../resultgatherer.h
-    ../resultgathererjson.h
-    ../resultgathererjson.cpp
-    ../resultgathererxml.h
-    ../resultgathererxml.cpp
-    ../resultgathererfactory.h
-    ../resultgathererfactory.cpp
-    ../runchecks.cpp
-    ../runchecks.h
-    ../utils.h
-    ../utils.cpp
-    ../inc_libCZI.h
-)
+    capi.cpp)
 
-add_library (${TARGET_NAME} SHARED ${CAPI_SRCFILES})
+add_library(${CZICHECK_SHARED_LIB} SHARED ${CAPI_SRCFILES})
 
 if(WIN32)
   set(CZICHECK_RCVersion ${CZICheck_VERSION_MAJOR},${CZICheck_VERSION_MINOR},${CZICheck_VERSION_PATCH},0)
-  set(CZICHECK_RCVersion_STR ${CZICheck_VERSION_MAJOR},${CZICheck_VERSION_MINOR},${CZICheck_VERSION_PATCH},0)
 
-  configure_file (
-    CZICheck_Resource.rc.in CZICheck_Resource.rc @ONLY
-  )
+  configure_file(CZICheck_Resource.rc.in CZICheck_Resource.rc @ONLY)
+  target_sources(${CZICHECK_SHARED_LIB} PRIVATE "${CMAKE_CURRENT_BINARY_DIR}/CZICheck_Resource.rc")
 
-  add_library(${TARGET_NAME}_Version OBJECT "${CMAKE_CURRENT_BINARY_DIR}/CZICheck_Resource.rc")
-  set_property(TARGET ${TARGET_NAME}_Version PROPERTY INCLUDE_DIRECTORIES "")
-  target_link_libraries(${TARGET_NAME} PRIVATE ${TARGET_NAME}_Version)
-
-  target_compile_options(${TARGET_NAME} PUBLIC "$<$<C_COMPILER_ID:MSVC>:/utf-8>")
-  target_compile_options(${TARGET_NAME} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+  target_compile_options(${CZICHECK_SHARED_LIB} PUBLIC "$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+  target_compile_options(${CZICHECK_SHARED_LIB} PUBLIC "$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
-set_target_properties(${TARGET_NAME} PROPERTIES PREFIX "")
-set_target_properties(${TARGET_NAME} PROPERTIES CXX_STANDARD 17)
+set_target_properties(${CZICHECK_SHARED_LIB} PROPERTIES PREFIX "")
+set_target_properties(${CZICHECK_SHARED_LIB} PROPERTIES CXX_STANDARD 17)
 
 include(GenerateExportHeader)
-GENERATE_EXPORT_HEADER(${TARGET_NAME}
+GENERATE_EXPORT_HEADER(${CZICHECK_SHARED_LIB}
     BASE_NAME CAPI)
 
 # prepare the CZICheck_Config.h file - which is then to be found in the binary directory ${CMAKE_CURRENT_BINARY_DIR}
@@ -126,52 +60,7 @@ IF(UNIX)
   set(CZICheck_WIN32_ENVIRONMENT 0)
 ENDIF()
 
-configure_file (
-  "${CMAKE_CURRENT_SOURCE_DIR}/CZICheck_Config.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/CZICheck_Config.h")
-
-target_compile_definitions(${TARGET_NAME} PRIVATE _LIBCZISTATICLIB)
-
 # Link CLI11 (required by cmdlineoptions.cpp even though we don't use parsing in capi)
 # CLI11 is already made available by the parent CMakeLists.txt via FetchContent
-target_link_libraries(${TARGET_NAME} PRIVATE CLI11::CLI11)
-
-
-# Link libraries
-if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-  if(TARGET libczi::libCZI)
-      add_library(libczi::libCZI_selected ALIAS libczi::libCZI)
-  elseif(TARGET libczi::libCZIStatic)
-      add_library(libczi::libCZI_selected ALIAS libczi::libCZIStatic)
-  else()
-      message(FATAL_ERROR "No suitable libCZI target found (neither shared nor static).")
-  endif()
-  target_link_libraries(${TARGET_NAME} PRIVATE libczi::libCZI_selected)
-else()
-  target_link_libraries(${TARGET_NAME} PRIVATE libCZIStatic)
-endif()
-
-target_link_libraries(${TARGET_NAME} PRIVATE pugixml)
-
-if (XercesC_FOUND)
-  if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-    target_link_libraries(${TARGET_NAME} PRIVATE XercesC::XercesC)
-  else()
-    target_link_libraries(${TARGET_NAME} PRIVATE ${XercesC_LIBRARY})
-  endif()
-endif()
-
-# Include directories
-target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-target_include_directories(${TARGET_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/..)
-
-if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-  get_target_property(_libczi_includes libczi::libCZI_selected INTERFACE_INCLUDE_DIRECTORIES)
-  set(_libczi_include_with_subdir "${_libczi_includes}/libCZI")
-  target_include_directories(${TARGET_NAME} PRIVATE ${_libczi_include_with_subdir})
-else()
-  target_include_directories(${TARGET_NAME} PRIVATE ${LIBCZI_INCLUDE_DIR})
-endif()
-
-target_include_directories(${TARGET_NAME}
-  PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
+target_link_libraries(${CZICHECK_SHARED_LIB} PUBLIC ${CZICHECK_STATIC_LIB})
+target_include_directories(${CZICHECK_SHARED_LIB} PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

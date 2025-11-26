@@ -11,7 +11,7 @@ BEGIN
         BLOCK "040904E4"
         BEGIN
             VALUE "FileVersion",       "@CZICHECK_RCVersion@\0"
-            VALUE "ProductVersion",    "@CZICHECK_RCVersion_STR@\0"
+            VALUE "ProductVersion",    "@CZICHECK_RCVersion@\0"
             Value "ProductName",       "@TARGET_NAME@\0"
             Value "LegalCopyright",    "Carl Zeiss Microscopy GmbH 2023\0"
         END
