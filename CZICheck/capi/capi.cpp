@@ -4,6 +4,7 @@
 
 #include "capi.h"
 
+#include <cstddef>
 #include <cstring>
 #include <memory>
 #include <sstream>
@@ -402,7 +403,7 @@ extern "C" CAPI_EXPORT void GetLibVersion(int32_t* major, int32_t* minor, int32_
     }
 }
 
-extern "C" CAPI_EXPORT bool GetLibVersionString(char* buffer, uint64_t* size)
+extern "C" CAPI_EXPORT bool GetLibVersionString(char* buffer, size_t* size)
 {
     if (size == nullptr)
     {

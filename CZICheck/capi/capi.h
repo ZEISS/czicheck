@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include <cstddef>
 #include <cstdint>
 
 #include "capi_export.h"
@@ -108,4 +109,4 @@ extern "C" CAPI_EXPORT void GetLibVersion(int32_t* major, int32_t* minor, int32_
 ///
 /// \returns    True if the buffer size was sufficient (and in this case the text is copied to the buffer); false
 /// otherwise (and in this case the required size is written to *size).
-extern "C" CAPI_EXPORT bool GetLibVersionString(char* buffer, uint64_t* size);
+extern "C" CAPI_EXPORT bool GetLibVersionString(char* buffer, size_t* size);
