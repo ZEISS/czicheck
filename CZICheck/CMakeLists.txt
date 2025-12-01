@@ -47,74 +47,82 @@ if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   find_package(libCZI CONFIG REQUIRED)
 endif()
 
-set(CZICHECKSRCFILES 
-"checkers/checkerbase.h"
-"checkers/checkerbase.cpp"
-"checkers/checkerConsistentCoordinates.cpp"
-"checkers/checkerConsistentCoordinates.h"
-"checkers/checkerSubBlkDirPositions.cpp"
-"checkers/checkerSubBlkDirPositions.h"
-"checkers/checkerSubBlkSegmentsValid.cpp"
-"checkers/checkerSubBlkSegmentsValid.h"
-"checkers/checkerDuplicateCoordinates.h"
-"checkers/checkerDuplicateCoordinates.cpp"
-"checkers/checkerBenabled.h"
-"checkers/checkerBenabled.cpp"
-"checkers/checkerSamePixeltypePerChannel.h"
-"checkers/checkerSamePixeltypePerChannel.cpp"
-"checkers/checkerXmlMetadataXsdValidation.h"
-"checkers/checkerXmlMetadataXsdValidation.cpp"
-"checkers/checkerXmlMetadataXsdSchema.h"
-"checkers/checkerXmlMetadataXsdSchema.cpp"
-"checkers/checkerMissingMindex.h"
-"checkers/checkerMissingMindex.cpp"
-"checkers/checkerPlanesStartIndices.h"
-"checkers/checkerPlanesStartIndices.cpp"
-"checkers/checkerConsecutivePlaneIndices.h"
-"checkers/checkerConsecutivePlaneIndices.cpp"
-"checkers/checkerXmlBasicMetadataValidation.h"
-"checkers/checkerXmlBasicMetadataValidation.cpp"
-"checkers/checkerOverlappingScenes.h"
-"checkers/checkerOverlappingScenes.cpp"
-"checkers/checkerSubBlkBitmapValid.h"
-"checkers/checkerSubBlkBitmapValid.cpp"
-"checkers/checkerTopographyApplianceValidation.h"
-"checkers/checkerTopographyApplianceValidation.cpp"
-"checkerfactory.cpp"
-"checkerfactory.h"
-"checks.h"
-"checks.cpp"
-"CMakeLists.txt"
-"cmdlineoptions.cpp"
-"cmdlineoptions.h"
-"consoleio.cpp"
-"consoleio.h"
-"CZICheck.cpp"
-"IChecker.h"
-"IResultGatherer.h"
-"resultgatherer.cpp"
-"resultgatherer.h"
-"resultgathererjson.h"
-"resultgathererjson.cpp"
-"resultgathererxml.h"
-"resultgathererxml.cpp"
-"resultgathererfactory.h"
-"resultgathererfactory.cpp"
-"runchecks.cpp"
-"runchecks.h"
-"utils.h"
-"utils.cpp"
-"inc_libCZI.h"
-)
+set(CZICHECKLIBFILES
+  "checkers/checkerbase.h"
+  "checkers/checkerbase.cpp"
+  "checkers/checkerConsistentCoordinates.cpp"
+  "checkers/checkerConsistentCoordinates.h"
+  "checkers/checkerSubBlkDirPositions.cpp"
+  "checkers/checkerSubBlkDirPositions.h"
+  "checkers/checkerSubBlkSegmentsValid.cpp"
+  "checkers/checkerSubBlkSegmentsValid.h"
+  "checkers/checkerDuplicateCoordinates.h"
+  "checkers/checkerDuplicateCoordinates.cpp"
+  "checkers/checkerBenabled.h"
+  "checkers/checkerBenabled.cpp"
+  "checkers/checkerSamePixeltypePerChannel.h"
+  "checkers/checkerSamePixeltypePerChannel.cpp"
+  "checkers/checkerXmlMetadataXsdValidation.h"
+  "checkers/checkerXmlMetadataXsdValidation.cpp"
+  "checkers/checkerXmlMetadataXsdSchema.h"
+  "checkers/checkerXmlMetadataXsdSchema.cpp"
+  "checkers/checkerMissingMindex.h"
+  "checkers/checkerMissingMindex.cpp"
+  "checkers/checkerPlanesStartIndices.h"
+  "checkers/checkerPlanesStartIndices.cpp"
+  "checkers/checkerConsecutivePlaneIndices.h"
+  "checkers/checkerConsecutivePlaneIndices.cpp"
+  "checkers/checkerXmlBasicMetadataValidation.h"
+  "checkers/checkerXmlBasicMetadataValidation.cpp"
+  "checkers/checkerOverlappingScenes.h"
+  "checkers/checkerOverlappingScenes.cpp"
+  "checkers/checkerSubBlkBitmapValid.h"
+  "checkers/checkerSubBlkBitmapValid.cpp"
+  "checkers/checkerTopographyApplianceValidation.h"
+  "checkers/checkerTopographyApplianceValidation.cpp"
+  "checkerfactory.cpp"
+  "checkerfactory.h"
+  "checks.h"
+  "checks.cpp"
+  "IChecker.h"
+  "IResultGatherer.h"
+  "resultgatherer.cpp"
+  "resultgatherer.h"
+  "resultgathererjson.h"
+  "resultgathererjson.cpp"
+  "resultgathererxml.h"
+  "resultgathererxml.cpp"
+  "resultgathererfactory.h"
+  "resultgathererfactory.cpp"
+  "runchecks.cpp"
+  "runchecks.h"
+  "utils.h"
+  "utils.cpp"
+  "inc_libCZI.h")
 
-add_executable(CZICheck ${CZICHECKSRCFILES} )
+set(CZICHECKSRCFILES
+  "cmdlineoptions.cpp"
+  "cmdlineoptions.h"
+  "consoleio.cpp"
+  "consoleio.h"
+  "CZICheck.cpp")
 
-set_target_properties(CZICheck PROPERTIES CXX_STANDARD 17)
-target_compile_definitions(CZICheck PRIVATE _LIBCZISTATICLIB)
+set(CZI_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(CZICheck PRIVATE CLI11::CLI11)
+add_library(${CZICHECK_STATIC_LIB} STATIC ${CZICHECKLIBFILES})
+set_property(TARGET ${CZICHECK_STATIC_LIB} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_include_directories(CZICheck PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+add_executable(${CZICHECK_EXECUTABLE} ${CZICHECKSRCFILES})
+
+set_target_properties(${CZICHECK_STATIC_LIB} PROPERTIES CXX_STANDARD 17)
+target_compile_definitions(${CZICHECK_STATIC_LIB} PUBLIC _LIBCZISTATICLIB)
+
+target_link_libraries(${CZICHECK_EXECUTABLE} PRIVATE CLI11::CLI11)
+
+target_link_libraries(${CZICHECK_EXECUTABLE} PRIVATE ${CZICHECK_STATIC_LIB})
+
+target_include_directories(${CZICHECK_STATIC_LIB} PUBLIC ${CZI_SRC_DIR})
+target_include_directories(${CZICHECK_EXECUTABLE} PRIVATE ${CZI_SRC_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   if(TARGET libczi::libCZI)
@@ -124,58 +132,58 @@ if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   else()
       message(FATAL_ERROR "No suitable libCZI target found (neither shared nor static).")
   endif()
-  target_link_libraries(CZICheck PRIVATE libczi::libCZI_selected)
+  target_link_libraries(${CZICHECK_STATIC_LIB} PRIVATE libczi::libCZI_selected)
 else()
-  target_link_libraries(CZICheck PRIVATE libCZIStatic)
+  target_link_libraries(${CZICHECK_STATIC_LIB} PRIVATE libCZIStatic)
 endif()
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   get_target_property(_libczi_includes libczi::libCZI_selected INTERFACE_INCLUDE_DIRECTORIES)
   set(_libczi_include_with_subdir "${_libczi_includes}/libCZI")
-  target_include_directories(CZICheck PRIVATE ${_libczi_include_with_subdir})
+  target_include_directories(${CZICHECK_STATIC_LIB} PUBLIC ${_libczi_include_with_subdir})
 else()
-  target_include_directories(CZICheck PRIVATE ${LIBCZI_INCLUDE_DIR})
+  target_include_directories(${CZICHECK_STATIC_LIB} PUBLIC ${LIBCZI_INCLUDE_DIR})
 endif()
-target_link_libraries(CZICheck PRIVATE pugixml)
+target_link_libraries(${CZICHECK_STATIC_LIB} PRIVATE pugixml)
 
-target_include_directories(CZICheck
-  PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
+target_include_directories(${CZICHECK_STATIC_LIB}
+  PUBLIC ${RAPIDJSON_INCLUDE_DIRS})
 
 if (XercesC_FOUND)
   if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-    target_link_libraries(CZICheck PRIVATE XercesC::XercesC)
+    target_link_libraries(${CZICHECK_STATIC_LIB} PUBLIC XercesC::XercesC)
   else()
-    target_link_libraries(CZICheck PRIVATE ${XercesC_LIBRARY})
+    target_link_libraries(${CZICHECK_STATIC_LIB} PUBLIC ${XercesC_LIBRARY})
   endif()
 endif()
-target_include_directories(CZICheck PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (XercesC_FOUND AND NOT CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-    target_include_directories(CZICheck PRIVATE ${XercesC_INCLUDE_DIR})
+  target_include_directories(${CZICHECK_STATIC_LIB} PUBLIC ${XercesC_INCLUDE_DIR})
 endif()
+
+target_include_directories(${CZICHECK_STATIC_LIB} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 IF(UNIX)
   # seems to be problem with glibc I'd reckon -> https://stackoverflow.com/questions/51584960/stdcall-once-throws-stdsystem-error-unknown-error-1
-  target_link_libraries(CZICheck PUBLIC pthread)
+  target_link_libraries(${CZICHECK_STATIC_LIB} PUBLIC pthread)
 ENDIF(UNIX)
 
 IF(WIN32)
-	set(CZICheck_UNIX_ENVIRONMENT 0)
-	set(CZICheck_WIN32_ENVIRONMENT 1)
+  set(CZICheck_UNIX_ENVIRONMENT 0)
+  set(CZICheck_WIN32_ENVIRONMENT 1)
 ENDIF()
 IF(UNIX)
   set(CZICheck_UNIX_ENVIRONMENT 1)
-	set(CZICheck_WIN32_ENVIRONMENT 0)
+  set(CZICheck_WIN32_ENVIRONMENT 0)
 ENDIF()
 
 
 configure_file (
   "${CMAKE_CURRENT_SOURCE_DIR}/CZICheck_Config.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/CZICheck_Config.h"
-  )
+  "${CMAKE_CURRENT_BINARY_DIR}/CZICheck_Config.h")
 
 # checking platform -> https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/Checking-Platform
 #                   -> https://stackoverflow.com/questions/9160335/os-specific-instructions-in-cmake-how-to
 
-install(TARGETS CZICheck RUNTIME  DESTINATION bin)
+install(TARGETS ${CZICHECK_EXECUTABLE} RUNTIME  DESTINATION bin)
 
 if (CZICHECK_BUILD_TESTS)
   include(ExternalData)
@@ -196,7 +204,7 @@ if (CZICHECK_BUILD_TESTS)
     ExternalData_Add_Test(Test_CZICheck
         NAME Test-CZICheck 
         COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/test/CZICheckRunTests.py 
-          --executable $<TARGET_FILE:CZICheck> 
+          --executable $<TARGET_FILE:${CZICHECK_EXECUTABLE}> 
           --knowngoodresultspath ${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples 
           --test_list ${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/TestCasesLists.txt
           -r differentpixeltypeinchannel.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/differentpixeltypeinchannel.czi}
@@ -222,3 +230,7 @@ if (CZICHECK_BUILD_TESTS)
     message("Python not found, CZICheck-Test will not run.")
   endif()
 endif()
+
+# Add the C API library subdirectory
+add_subdirectory(capi)
+
