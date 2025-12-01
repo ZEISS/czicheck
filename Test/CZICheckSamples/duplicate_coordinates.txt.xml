@@ -99,6 +99,6 @@
   <AggregatedResult>FAIL</AggregatedResult>
   <OutputVersion>
     <Command>CZICheck</Command>
-    <Version>0.6.5</Version>
+    <Version>0.6.6</Version>
   </OutputVersion>
 </TestResults>
