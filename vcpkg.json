@@ -2,9 +2,12 @@
   "name": "czicheck",
   "version-string": "0.6.5",
   "dependencies": [
-    "libczi",
+    {
+      "name": "libczi",
+      "features": ["curl", "azureblobstore"]
+    },
     "rapidjson",
     "xerces-c"
   ],
-  "builtin-baseline": "b0190b451303865b89ced9767caaab140c39f980"
+  "builtin-baseline": "84bab45d415d22042bd0b9081aea57f362da3f35"
 }

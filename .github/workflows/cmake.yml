@@ -74,7 +74,6 @@ jobs:
           echo "vcpkg is now at commit: $(git rev-parse HEAD)"
           echo "VCPKG_DIR=$VCPKG_DIR" >> "$GITHUB_ENV"
 
-
       - name: Configure CMake (Windows)
         if: ${{ (matrix.os == 'windows-latest') }}
         shell: bash
@@ -85,6 +84,9 @@ jobs:
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
                 -DVCPKG_TARGET_TRIPLET=x64-windows-static \
+                -DLIBCZI_BUILD_CURL_BASED_STREAM=ON \
+                -DLIBCZI_BUILD_AZURESDK_BASED_STREAM=ON \
+                -DLIBCZI_BUILD_PREFER_EXTERNALPACKAGE_LIBCURL=ON \
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Configure CMake (Linux)
@@ -93,6 +95,9 @@ jobs:
         run: |
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
+                -DLIBCZI_BUILD_CURL_BASED_STREAM=ON \
+                -DLIBCZI_BUILD_AZURESDK_BASED_STREAM=ON \
+                -DLIBCZI_BUILD_PREFER_EXTERNALPACKAGE_LIBCURL=ON \
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Build
