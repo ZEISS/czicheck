@@ -247,3 +247,39 @@ See the following example:
      </OutputVersion>
     </TestResults>
 
+
+## URL-based CZI sources (v0.7.0+)
+
+Starting with version 0.7.0, CZICheck supports reading CZI files from HTTP/HTTPS URLs using the `--source-stream-class` option.
+
+### Basic URL access
+
+To check a CZI file accessible via HTTP/HTTPS:
+
+```bash
+CZICheck --source "https://example.com/data.czi" --source-stream-class curl
+```
+
+### Azure Blob Storage with SAS token
+
+For Azure Blob Storage, include the SAS token directly in the URL:
+
+```bash
+CZICheck --source "https://account.blob.core.windows.net/container/file.czi?sv=2021-08-06&..." --source-stream-class curl
+```
+
+### Stream properties (optional)
+
+The `--property` option allows configuring stream behavior for advanced scenarios:
+
+```bash
+CZICheck --source "https://example.com/data.czi" --source-stream-class curl \
+  --property timeout=60 \
+  --property buffer_size=16384
+```
+
+**Note:** For basic HTTP/HTTPS and Azure Blob Storage with SAS tokens, the `--property` option is typically not needed.
+
+### Available stream classes
+
+Use `CZICheck --version` to see all available stream classes and their descriptions.

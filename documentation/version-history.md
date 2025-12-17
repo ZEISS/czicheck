@@ -18,3 +18,4 @@ version history                 {#version_history}
  0.6.3          | [31](https://github.com/ZEISS/czicheck/pull/31)      | add option to ignore "size-m-field-for-pyramid-subblocks"
  0.6.4          | [34](https://github.com/ZEISS/czicheck/pull/34)      | align with libCZI 0.64.0 and pin version
  0.6.5          | [36](https://github.com/ZEISS/czicheck/pull/36)      | enable libCZI vpkg consumption and add optional bootstrap
+ 0.7.0          | [43](https://github.com/ZEISS/czicheck/pull/43)      | add support for URL-based CZI sources (HTTP/HTTPS streams via curl)
