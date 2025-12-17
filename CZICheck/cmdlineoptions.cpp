@@ -217,6 +217,13 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         app.exit(e);
         return ParseResult::Exit;
     }
+    catch (const CLI::Success& e)
+    {
+        // CLI11 throws CLI::Success for --version flag
+        // This is expected and should result in exit code 0
+        app.exit(e);
+        return ParseResult::Exit;
+    }
     catch (const CLI::ParseError& e)
     {
         app.exit(e);

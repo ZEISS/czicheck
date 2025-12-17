@@ -186,9 +186,7 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
         }
     }
     
-    // Convert wide string filename to UTF-8 for StreamsFactory
-    std::string uri = convertToUtf8(command_line_options.GetCZIFilename());
-    
-    auto stream = libCZI::StreamsFactory::CreateStream(stream_info, uri);
+    // Pass the wide string URI directly to CreateStream
+    auto stream = libCZI::StreamsFactory::CreateStream(stream_info, command_line_options.GetCZIFilename());
     return stream;
 }
