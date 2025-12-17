@@ -24,7 +24,7 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
     shared_ptr<libCZI::IStream> stream;
     try
     {
-        stream = libCZI::CreateStreamFromFile(this->opts.GetCZIFilename().c_str());
+        stream = CreateSourceStream(this->opts);
     }
     catch (exception& ex)
     {

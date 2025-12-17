@@ -43,6 +43,37 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 {
     CLI::App app{ CCmdLineOptions::GetAppDescription(), "CZICheck" };
 
+    // Set up version flag with custom callback to show stream classes
+    app.set_version_flag("-v,--version", GetVersionNumber(), "Show version information and available stream classes");
+    app.version_ptr()->callback([this]() {
+        ostringstream version_info;
+        version_info << "CZICheck version " << GetVersionNumber() << endl << endl;
+        version_info << "Available stream classes:" << endl;
+        
+        try
+        {
+            libCZI::StreamsFactory::Initialize();
+            auto stream_classes = libCZI::StreamsFactory::GetStreamClassesInfo();
+            
+            for (const auto& stream_class : stream_classes)
+            {
+                version_info << "  " << stream_class.class_name;
+                if (!stream_class.short_description.empty())
+                {
+                    version_info << " - " << stream_class.short_description;
+                }
+                version_info << endl;
+            }
+        }
+        catch (...)
+        {
+            version_info << "  (unable to enumerate stream classes)" << endl;
+        }
+        
+        this->log_->WriteLineStdOut(version_info.str());
+        throw CLI::Success();
+    });
+
     ostringstream string_stream;
     string_stream <<
         "The exit code of CZICheck is" << endl <<
@@ -136,6 +167,8 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     string lax_parsing_enabled;
     string ignore_sizem_for_pyramid_subblocks_enabled;
     string result_encoding_option;
+    string source_stream_class_option;
+    vector<string> property_bag_options;
     app.add_option("-s,--source", source_filename_options, "Specify the CZI-file to be checked.")
         ->option_text("FILENAME")
         ->required();
@@ -191,6 +224,16 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         "The argument may be one of 'json', 'xml', 'text'. Default is 'text'.\n")
         ->option_text("ENCODING")
         ->check(encodings_validator);
+    app.add_option("--source-stream-class", source_stream_class_option,
+        "Specifies the stream class to use for opening the source file.\n"
+        "If not specified, a default file-stream will be used. Use --version\n"
+        "to see available stream classes.\n")
+        ->option_text("STREAM-CLASS");
+    app.add_option("--property", property_bag_options,
+        "Specifies properties for the stream class as key=value pairs.\n"
+        "Can be specified multiple times for multiple properties.\n"
+        "Example: --property timeout=30 --property buffer_size=8192\n")
+        ->option_text("KEY=VALUE");
 
     // Parse the command line arguments
     try
@@ -269,6 +312,29 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
             this->log_->WriteLineStdErr(error_message);
             return ParseResult::Error;
         }
+    }
+
+    // Parse source stream class option
+    if (!source_stream_class_option.empty())
+    {
+        this->source_stream_class_ = source_stream_class_option;
+    }
+
+    // Parse property bag options (key=value pairs)
+    for (const auto& prop : property_bag_options)
+    {
+        size_t equals_pos = prop.find('=');
+        if (equals_pos == string::npos || equals_pos == 0 || equals_pos == prop.length() - 1)
+        {
+            ostringstream error_stream;
+            error_stream << "Invalid property format: '" << prop << "'. Expected format: key=value";
+            this->log_->WriteLineStdErr(error_stream.str());
+            return ParseResult::Error;
+        }
+
+        string key = prop.substr(0, equals_pos);
+        string value = prop.substr(equals_pos + 1);
+        this->property_bag_[key] = value;
     }
 
     return  ParseResult::OK;

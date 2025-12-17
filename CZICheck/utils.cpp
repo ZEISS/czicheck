@@ -4,6 +4,8 @@
 
 #include <CZICheck_Config.h>
 #include "utils.h"
+#include "cmdlineoptions.h"
+#include "inc_libCZI.h"
 #include <cwctype>
 #include <memory>
 #include <sstream>
@@ -141,3 +143,31 @@ int CommandlineArgsWindowsHelper::GetArgc()
     return static_cast<int>(this->pointers_to_arguments_.size());
 }
 #endif
+
+std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& command_line_options)
+{
+    // If no stream class is specified, use the default file stream
+    if (command_line_options.GetSourceStreamClass().empty())
+    {
+        return libCZI::CreateStreamFromFile(command_line_options.GetCZIFilename().c_str());
+    }
+
+    // Otherwise, use the StreamsFactory with the specified stream class and property bag
+    libCZI::StreamsFactory::Initialize();
+    
+    libCZI::StreamsFactory::CreateStreamInfo stream_info;
+    stream_info.class_name = command_line_options.GetSourceStreamClass();
+    
+    // Convert property bag from map to the format expected by StreamsFactory
+    const auto& property_bag = command_line_options.GetPropertyBag();
+    for (const auto& [key, value] : property_bag)
+    {
+        stream_info.property_bag[key] = value;
+    }
+    
+    // Convert wide string filename to UTF-8 for StreamsFactory
+    std::string uri = convertToUtf8(command_line_options.GetCZIFilename());
+    
+    auto stream = libCZI::StreamsFactory::CreateStream(stream_info, uri);
+    return stream;
+}

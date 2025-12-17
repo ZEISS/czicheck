@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <map>
 #include "checks.h"
 #include "consoleio.h"
 
@@ -29,6 +30,8 @@ private:
     bool lax_parsing_enabled_;
     bool ignore_sizem_for_pyramid_subblocks_;
     OutputEncodingFormat result_encoding_type_ { OutputEncodingFormat::TEXT };
+    std::string source_stream_class_;
+    std::map<std::string, std::string> property_bag_;
 public:
     /// Values that represent the result of the "Parse"-operation.
     enum class ParseResult
@@ -56,6 +59,8 @@ public:
     [[nodiscard]] const std::vector<CZIChecks>& GetChecksEnabled() const { return this->checks_enabled_; }
     [[nodiscard]] const std::shared_ptr<ILog>& GetLog() const { return this->log_; }
     [[nodiscard]] const OutputEncodingFormat GetOutputEncodingFormat() const { return this->result_encoding_type_; }
+    [[nodiscard]] const std::string& GetSourceStreamClass() const { return this->source_stream_class_; }
+    [[nodiscard]] const std::map<std::string, std::string>& GetPropertyBag() const { return this->property_bag_; }
 private:
     static bool ParseBooleanArgument(const std::string& argument_key, const std::string& argument_value, bool* boolean_value, std::string* error_message);
     static bool ParseChecksArgument(const std::string& str, std::vector<CZIChecks>* checks_enabled, std::string* error_message);
