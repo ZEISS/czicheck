@@ -43,36 +43,8 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 {
     CLI::App app{ CCmdLineOptions::GetAppDescription(), "CZICheck" };
 
-    // Set up version flag with custom callback to show stream classes
-    app.set_version_flag("-v,--version", GetVersionNumber(), "Show version information and available stream classes");
-    app.version_ptr()->callback([this]() {
-        ostringstream version_info;
-        version_info << "CZICheck version " << GetVersionNumber() << endl << endl;
-        version_info << "Available stream classes:" << endl;
-        
-        try
-        {
-            libCZI::StreamsFactory::Initialize();
-            auto stream_classes = libCZI::StreamsFactory::GetStreamClassesInfo();
-            
-            for (const auto& stream_class : stream_classes)
-            {
-                version_info << "  " << stream_class.class_name;
-                if (!stream_class.short_description.empty())
-                {
-                    version_info << " - " << stream_class.short_description;
-                }
-                version_info << endl;
-            }
-        }
-        catch (...)
-        {
-            version_info << "  (unable to enumerate stream classes)" << endl;
-        }
-        
-        this->log_->WriteLineStdOut(version_info.str());
-        throw CLI::Success();
-    });
+    // Set up version flag
+    app.set_version_flag("-v,--version", GetVersionNumber());
 
     ostringstream string_stream;
     string_stream <<
@@ -226,8 +198,8 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         ->check(encodings_validator);
     app.add_option("--source-stream-class", source_stream_class_option,
         "Specifies the stream class to use for opening the source file.\n"
-        "If not specified, a default file-stream will be used. Use --version\n"
-        "to see available stream classes.\n")
+        "If not specified, a default file-stream will be used.\n"
+        "Available stream classes: 'curl' (for HTTP/HTTPS URLs)\n")
         ->option_text("STREAM-CLASS");
     app.add_option("--property", property_bag_options,
         "Specifies properties for the stream class as key=value pairs.\n"

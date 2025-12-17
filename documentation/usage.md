@@ -282,4 +282,5 @@ CZICheck --source "https://example.com/data.czi" --source-stream-class curl \
 
 ### Available stream classes
 
-Use `CZICheck --version` to see all available stream classes and their descriptions.
+The following stream classes are available:
+- **curl** - For accessing CZI files via HTTP/HTTPS URLs
