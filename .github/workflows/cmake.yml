@@ -61,6 +61,11 @@ jobs:
               git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow
           fi
 
+          # Ensure we have a full clone for vcpkg versioning to work properly
+          echo "Converting to full clone for vcpkg versioning..."
+          git fetch --unshallow || true
+          git fetch origin
+
           git checkout "$BASELINE"
 
           if [ ! -f ./vcpkg ] && [ ! -f ./vcpkg.exe ]; then
