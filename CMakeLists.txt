@@ -34,9 +34,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/modules" ${CMAKE_MODULE_PATH})
 
-# Enable libCZI stream support for curl and Azure SDK
+# Enable libCZI stream support (curl for HTTP/HTTPS URLs)
 set(LIBCZI_BUILD_CURL_BASED_STREAM ON CACHE BOOL "Enable curl-based streams" FORCE)
-set(LIBCZI_BUILD_AZURESDK_BASED_STREAM ON CACHE BOOL "Enable Azure SDK-based streams" FORCE)
 set(LIBCZI_BUILD_PREFER_EXTERNALPACKAGE_LIBCURL ON CACHE BOOL "Use external libcurl package" FORCE)
 
 if(NOT CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
