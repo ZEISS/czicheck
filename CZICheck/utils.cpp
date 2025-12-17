@@ -158,11 +158,32 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
     libCZI::StreamsFactory::CreateStreamInfo stream_info;
     stream_info.class_name = command_line_options.GetSourceStreamClass();
     
-    // Convert property bag from map to the format expected by StreamsFactory
-    const auto& property_bag = command_line_options.GetPropertyBag();
-    for (const auto& [key, value] : property_bag)
+    // Get property information to convert property names to IDs
+    int property_info_count;
+    const libCZI::StreamsFactory::StreamPropertyBagPropertyInfo* property_infos = 
+        libCZI::StreamsFactory::GetStreamPropertyBagPropertyInfo(&property_info_count);
+    
+    // Convert property bag from string keys to integer keys
+    const auto& property_bag_strings = command_line_options.GetPropertyBag();
+    for (const auto& [key, value] : property_bag_strings)
     {
-        stream_info.property_bag[key] = value;
+        // Find the property ID for this property name
+        int property_id = -1;
+        for (int i = 0; i < property_info_count; ++i)
+        {
+            if (key == property_infos[i].property_name)
+            {
+                property_id = property_infos[i].property_id;
+                break;
+            }
+        }
+        
+        if (property_id >= 0)
+        {
+            // For now, treat all properties as strings
+            // libCZI will handle the conversion if needed
+            stream_info.property_bag[property_id] = libCZI::StreamsFactory::Property(value);
+        }
     }
     
     // Convert wide string filename to UTF-8 for StreamsFactory
