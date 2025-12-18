@@ -30,7 +30,6 @@ void CResultGathererJson::StartCheck(CZIChecks check)
     test_run.AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(checker_display_name, allocator), allocator);
     test_run.AddMember(rapidjson::Value(kTestResultId, allocator), rapidjson::Value(rapidjson::kStringType), allocator);
     test_run.AddMember(rapidjson::Value(kTestFindingsId, allocator), rapidjson::Value(rapidjson::kArrayType), allocator);
-    test_run.AddMember(rapidjson::Value(kTestFailFastId, allocator), rapidjson::Value(false), allocator);
 
     this->test_results_.PushBack(test_run, allocator);
     this->current_checker_id = std::string(CZIChecksToString(check));
