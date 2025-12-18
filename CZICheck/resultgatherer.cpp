@@ -94,6 +94,24 @@ void CResultGatherer::ReportFinding(const Finding& finding)
     }
 }
 
+bool CResultGatherer::HasFatal(CZIChecks check) const
+{
+    const auto it = this->results_.find(check);
+    if (it == this->results_.end()) return false;
+    return it->second.fatalMessagesCount > 0;
+}
+
+bool CResultGatherer::IsFailFastEnabled() const
+{
+    return this->options_.GetFailFastEnabled();
+}
+
+void CResultGatherer::NotifyFailFastStop(CZIChecks check)
+{
+    // Print a single line explaining why we stopped
+    this->options_.GetLog()->WriteStdOut("  Fail-fast: stopping after first error\n");
+}
+
 void CResultGatherer::FinalizeChecks()
 {
     switch (this->GetAggregatedResult())

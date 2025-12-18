@@ -41,16 +41,22 @@ void CCheckSubBlkBitmapValid::RunCheck()
                     {
                         auto bitmap = sub_block->CreateBitmap();
                     }
-                    catch (exception& exception)
-                    {
-                        IResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
-                        finding.severity = IResultGatherer::Severity::Fatal;
-                        stringstream ss;
-                        ss << "Error decoding subblock #" << index << " with compression \"" << Utils::CompressionModeToInformalString(compression_mode) << "\"";
-                        finding.information = ss.str();
-                        finding.details = exception.what();
-                        this->result_gatherer_.ReportFinding(finding);
-                    }
+                        catch (exception& exception)
+                        {
+                            IResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
+                            finding.severity = IResultGatherer::Severity::Fatal;
+                            stringstream ss;
+                            ss << "Error decoding subblock #" << index << " with compression \"" << Utils::CompressionModeToInformalString(compression_mode) << "\"";
+                            finding.information = ss.str();
+                            finding.details = exception.what();
+                            this->result_gatherer_.ReportFinding(finding);
+
+                            if (this->result_gatherer_.IsFailFastEnabled() && this->result_gatherer_.HasFatal(CCheckSubBlkBitmapValid::kCheckType))
+                            {
+                                this->result_gatherer_.NotifyFailFastStop(CCheckSubBlkBitmapValid::kCheckType);
+                                return false; // stop enumeration
+                            }
+                        }
                 }
                 else
                 {
@@ -71,6 +77,12 @@ void CCheckSubBlkBitmapValid::RunCheck()
                 finding.information = ss.str();
                 finding.details = exception.what();
                 this->result_gatherer_.ReportFinding(finding);
+
+                if (this->result_gatherer_.IsFailFastEnabled() && this->result_gatherer_.HasFatal(CCheckSubBlkBitmapValid::kCheckType))
+                {
+                    this->result_gatherer_.NotifyFailFastStop(CCheckSubBlkBitmapValid::kCheckType);
+                    return false;
+                }
             }
 
             return true;

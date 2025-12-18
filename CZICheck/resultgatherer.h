@@ -30,4 +30,7 @@ public:
     void ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
     void FinalizeChecks() override;
+    bool HasFatal(CZIChecks check) const override;
+    bool IsFailFastEnabled() const override;
+    void NotifyFailFastStop(CZIChecks check) override;
 };

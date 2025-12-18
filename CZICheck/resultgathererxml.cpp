@@ -130,3 +130,20 @@ void CResultGathererXml::FinalizeChecks()
     this->options_.GetLog()->WriteStdOut(xml_document_stream.str());
 }
 
+bool CResultGathererXml::HasFatal(CZIChecks check) const
+{
+    const auto it = this->results_.find(check);
+    if (it == this->results_.end()) return false;
+    return it->second.fatalMessagesCount > 0;
+}
+
+bool CResultGathererXml::IsFailFastEnabled() const
+{
+    return this->options_.GetFailFastEnabled();
+}
+
+void CResultGathererXml::NotifyFailFastStop(CZIChecks check)
+{
+    this->options_.GetLog()->WriteStdOut("  Fail-fast: stopping after first error\n");
+}
+

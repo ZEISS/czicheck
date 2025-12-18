@@ -141,6 +141,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     string result_encoding_option;
     string source_stream_class_option;
     vector<string> property_bag_options;
+    string fail_fast_option;
     app.add_option("-s,--source", source_filename_options, "Specify the CZI-file to be checked.")
         ->option_text("FILENAME")
         ->required();
@@ -201,6 +202,9 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         "If not specified, a default file-stream will be used.\n"
         "Available stream classes: 'curl' (for HTTP/HTTPS URLs)\n")
         ->option_text("STREAM-CLASS");
+    bool fail_fast_flag = false;
+    app.add_flag("--fail-fast", fail_fast_flag,
+        "If present, stop scanning a test after the first error finding.");
     app.add_option("--property", property_bag_options,
         "Specifies properties for the stream class as key=value pairs.\n"
         "Can be specified multiple times for multiple properties.\n"
@@ -298,6 +302,9 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     {
         this->source_stream_class_ = source_stream_class_option;
     }
+
+    // Set fail-fast flag from the parsed flag value
+    this->fail_fast_enabled_ = fail_fast_flag;
 
     // Parse property bag options (key=value pairs)
     for (const auto& prop : property_bag_options)

@@ -18,6 +18,7 @@ public:
         std::uint32_t fatalMessagesCount;
         std::uint32_t warningMessagesCount;
         std::uint32_t infoMessagesCount;
+        bool failFastStopped{ false };
 
         std::uint32_t GetTotalMessagesCount() const { return this->fatalMessagesCount + this->warningMessagesCount + this->infoMessagesCount; }
     };
@@ -62,6 +63,9 @@ public:
     virtual void ReportFinding(const Finding& finding) = 0;
     virtual void FinishCheck(CZIChecks check) = 0;
     virtual void FinalizeChecks() = 0;
+    virtual bool HasFatal(CZIChecks check) const = 0;
+    virtual bool IsFailFastEnabled() const = 0;
+    virtual void NotifyFailFastStop(CZIChecks check) = 0;
     virtual ~IResultGatherer() = default;
     IResultGatherer() = default;
     IResultGatherer(const IResultGatherer&) = delete;             // copy constructor

@@ -30,6 +30,7 @@ void CResultGathererJson::StartCheck(CZIChecks check)
     test_run.AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(checker_display_name, allocator), allocator);
     test_run.AddMember(rapidjson::Value(kTestResultId, allocator), rapidjson::Value(rapidjson::kStringType), allocator);
     test_run.AddMember(rapidjson::Value(kTestFindingsId, allocator), rapidjson::Value(rapidjson::kArrayType), allocator);
+    test_run.AddMember(rapidjson::Value(kTestFailFastId, allocator), rapidjson::Value(false), allocator);
 
     this->test_results_.PushBack(test_run, allocator);
     this->current_checker_id = std::string(CZIChecksToString(check));
@@ -117,4 +118,44 @@ void CResultGathererJson::FinalizeChecks()
 
     this->json_document_.Accept(writer);
     this->options_.GetLog()->WriteStdOut(str_buf.GetString());
+}
+
+bool CResultGathererJson::HasFatal(CZIChecks check) const
+{
+    const auto it = this->results_.find(check);
+    if (it == this->results_.end()) return false;
+    return it->second.fatalMessagesCount > 0;
+}
+
+bool CResultGathererJson::IsFailFastEnabled() const
+{
+    return this->options_.GetFailFastEnabled();
+}
+
+void CResultGathererJson::NotifyFailFastStop(CZIChecks check)
+{
+    // Mark in-memory state that this check was stopped due to fail-fast
+    const auto it = this->results_.find(check);
+    if (it != this->results_.end())
+    {
+        it->second.failFastStopped = true;
+    }
+
+    // Update the JSON object for the current checker to include the flag
+    auto allocator = this->json_document_.GetAllocator();
+    for (int res { 0 }; res < this->test_results_.Size(); ++res)
+    {
+        if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
+        {
+            if (this->test_results_[res].HasMember(kTestFailFastId))
+            {
+                this->test_results_[res][kTestFailFastId].SetBool(true);
+            }
+            else
+            {
+                this->test_results_[res].AddMember(rapidjson::Value(kTestFailFastId, allocator), rapidjson::Value(true), allocator);
+            }
+            break;
+        }
+    }
 }

@@ -41,6 +41,12 @@ void CCheckSubBlkSegmentsValid::RunCheck()
                 finding.information = ss.str();
                 finding.details = exception.what();
                 this->result_gatherer_.ReportFinding(finding);
+
+                if (this->result_gatherer_.IsFailFastEnabled() && this->result_gatherer_.HasFatal(CCheckSubBlkSegmentsValid::kCheckType))
+                {
+                    this->result_gatherer_.NotifyFailFastStop(CCheckSubBlkSegmentsValid::kCheckType);
+                    return false; // stop enumeration for this check
+                }
             }
 
             return true;

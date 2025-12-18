@@ -55,6 +55,10 @@ Options:
   --property KEY=VALUE        Additional properties to pass to the stream class.
                               Can be specified multiple times for multiple properties.
 
+    --fail-fast                 If present, stop scanning a test after the first error finding.
+                                                            Use this to reduce noisy repeated findings when a test
+                                                            will produce many errors for the same root cause.
+
 
 The exit code of CZICheck is
  0  - all checks completed without an error or a warning
@@ -312,3 +316,15 @@ CZICheck --source "https://example.com/data.czi" --source-stream-class curl_http
 
 The following stream classes are available:
 -- **curl_http_inputstream** - For accessing CZI files via HTTP/HTTPS URLs
+
+## Fail-fast examples
+
+To stop scanning a test after the first ERROR-level finding (reduce noise):
+
+```bash
+# text output (default)
+CZICheck --fail-fast -s "yourfile.czi" -c subblkbitmapvalid
+
+# JSON output
+CZICheck --fail-fast --encoding json -s "yourfile.czi" -c subblkbitmapvalid
+```

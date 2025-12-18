@@ -30,6 +30,9 @@ public:
     void ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
     void FinalizeChecks() override;
+    bool HasFatal(CZIChecks check) const override;
+    bool IsFailFastEnabled() const override;
+    void NotifyFailFastStop(CZIChecks check) override;
 private:
     static constexpr const char* kTestNameId = "name";
     static constexpr const char* kTestContainerId = "tests";
@@ -39,5 +42,6 @@ private:
     static constexpr const char* kTestSeverityId = "severity";
     static constexpr const char* kTestDetailsId = "details";
     static constexpr const char* kTestAggregationId = "aggregatedresult";
+    static constexpr const char* kTestFailFastId = "fail_fast_stopped";
 };
 
