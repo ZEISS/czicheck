@@ -49,15 +49,18 @@ Options:
                               The argument may be one of 'json', 'xml', 'text'. Default is 'text'.
 
   --source-stream-class CLASS Specifies the stream class to use for accessing the source file.
-                            Use 'curl_http_inputstream' for HTTP/HTTPS URLs.
+                              Use 'curl_http_inputstream' for HTTP/HTTPS URLs.
                               If not specified, uses standard file I/O.
 
   --property KEY=VALUE        Additional properties to pass to the stream class.
                               Can be specified multiple times for multiple properties.
 
-    --fail-fast                 If present, stop scanning a test after the first error finding.
-                                                            Use this to reduce noisy repeated findings when a test
-                                                            will produce many errors for the same root cause.
+  --fail-fast                 If present, stop scanning a test after the first error finding.
+                              Use this to reduce noisy repeated findings when a test
+                              will produce many errors for the same root cause.
+  --subblock-threads INTEGER  Specifies how many threads to use when processing subblocks in parallel. 
+                              Default is 1 (no parallelism). 
+                              Increase this to overlap decoding and I/O work. Example: `--subblock-threads 4`.
 
 
 The exit code of CZICheck is

@@ -16,6 +16,7 @@
 #include "CLI/App.hpp"
 #include "CLI/Formatter.hpp"
 #include "CLI/Config.hpp"
+#include <thread>
 
 using namespace std;
 
@@ -205,6 +206,10 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     bool fail_fast_flag = false;
     app.add_flag("--fail-fast", fail_fast_flag,
         "If present, stop scanning a test after the first error finding.");
+    int subblock_threads_option = 1;
+    app.add_option("--subblock-threads", subblock_threads_option,
+        "Specifies how many threads to use when processing subblocks in parallel. Default is 1 (no parallelism).")
+        ->option_text("INTEGER");
     app.add_option("--property", property_bag_options,
         "Specifies properties for the stream class as key=value pairs.\n"
         "Can be specified multiple times for multiple properties.\n"
@@ -305,6 +310,13 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 
     // Set fail-fast flag from the parsed flag value
     this->fail_fast_enabled_ = fail_fast_flag;
+    // Clamp the requested subblock threads to a reasonable maximum (hardware_concurrency or fallback 8)
+    int hw = static_cast<int>(std::thread::hardware_concurrency());
+    if (hw <= 0) hw = 8; // fallback
+    int requested = subblock_threads_option;
+    if (requested <= 0) requested = 1; // treat 0 or negative as 1
+    if (requested > hw) requested = hw;
+    this->subblock_threads_ = requested;
 
     // Parse property bag options (key=value pairs)
     for (const auto& prop : property_bag_options)

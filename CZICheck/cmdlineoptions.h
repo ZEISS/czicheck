@@ -33,6 +33,7 @@ private:
     std::string source_stream_class_;
     std::map<std::string, std::string> property_bag_;
     bool fail_fast_enabled_ { false };
+    int subblock_threads_{ 1 };
 public:
     /// Values that represent the result of the "Parse"-operation.
     enum class ParseResult
@@ -63,6 +64,7 @@ public:
     [[nodiscard]] const std::string& GetSourceStreamClass() const { return this->source_stream_class_; }
     [[nodiscard]] const std::map<std::string, std::string>& GetPropertyBag() const { return this->property_bag_; }
     [[nodiscard]] bool GetFailFastEnabled() const { return this->fail_fast_enabled_; }
+    [[nodiscard]] int GetSubblockThreads() const { return this->subblock_threads_; }
 private:
     static bool ParseBooleanArgument(const std::string& argument_key, const std::string& argument_value, bool* boolean_value, std::string* error_message);
     static bool ParseChecksArgument(const std::string& str, std::vector<CZIChecks>* checks_enabled, std::string* error_message);

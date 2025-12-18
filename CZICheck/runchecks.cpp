@@ -60,6 +60,7 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
     {
         checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
     }
+    checkerAdditionalInfo.subblockThreads = this->opts.GetSubblockThreads();
 
     const auto& checksToRun = this->opts.GetChecksEnabled();
     for (auto checkType : checksToRun)
