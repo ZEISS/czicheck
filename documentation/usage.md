@@ -6,13 +6,14 @@
 Running CZICheck with the `--help` option will print a brief summary of the available options and their usage:
 
 ```
-CZICheck version 0.6.1, using libCZI version 0.62.6
+CZICheck version 0.7.0, using libCZI version 0.67.2
 
 Usage: CZICheck [OPTIONS]
 
 Options:
   -h,--help                   Print this help message and exit
   -s,--source FILENAME        Specify the CZI-file to be checked.
+                              This can be a local file path or a URL (when used with --source-stream-class).
   -c,--checks CHECKS-TO-BE-RUN
                               Specifies a comma-separated list of short-names of checkers
                               to run. In addition to the short-names, the following
@@ -47,6 +48,13 @@ Options:
   -e,--encoding ENCODING      Specifies which encoding should be used for result reporting.
                               The argument may be one of 'json', 'xml', 'text'. Default is 'text'.
 
+  --source-stream-class CLASS Specifies the stream class to use for accessing the source file.
+                            Use 'curl_http_inputstream' for HTTP/HTTPS URLs.
+                              If not specified, uses standard file I/O.
+
+  --property KEY=VALUE        Additional properties to pass to the stream class.
+                              Can be specified multiple times for multiple properties.
+
 
 The exit code of CZICheck is
  0  - all checks completed without an error or a warning
@@ -76,6 +84,8 @@ All checkers listed at the bottom are available for use. The ones marked with `[
 
 # example
 
+## Local file checking
+
 Here is the output of a sample run:
 
 ![alt text](assets/sample_run_1.png "sample run")
@@ -83,6 +93,24 @@ Here is the output of a sample run:
 All checkers run one after the other. If a checker finds a problem, it will print a message to the console. Those messages are categorized into three categories: `error`, `warning` and `info`. 
 The result of a checker is then one of `OK`, `WARN` or `FAIL`. The result of the complete operation is then the aggregation of all checkers (and the return code of the application is then chosen
 according to above table).
+
+## URL stream checking
+
+CZICheck version 0.7.0 and later supports checking CZI files from HTTP/HTTPS URLs without downloading them first:
+
+```bash
+# Check a file from HTTP/HTTPS URL
+CZICheck --source-stream-class curl_http_inputstream \
+  -s "https://example.com/path/to/file.czi" \
+  -c all
+
+# Check Azure Blob Storage with SAS token
+CZICheck --source-stream-class curl_http_inputstream \
+  -s "https://account.blob.core.windows.net/container/file.czi?sv=2021-10-04&sp=r&sig=..." \
+  -c all
+```
+
+For detailed information about URL stream support, see the [URL Stream Usage Guide](url-stream-usage.md).
 
 ## output encoding
 
@@ -257,7 +285,7 @@ Starting with version 0.7.0, CZICheck supports reading CZI files from HTTP/HTTPS
 To check a CZI file accessible via HTTP/HTTPS:
 
 ```bash
-CZICheck --source "https://example.com/data.czi" --source-stream-class curl
+CZICheck --source "https://example.com/data.czi" --source-stream-class curl_http_inputstream
 ```
 
 ### Azure Blob Storage with SAS token
@@ -265,7 +293,7 @@ CZICheck --source "https://example.com/data.czi" --source-stream-class curl
 For Azure Blob Storage, include the SAS token directly in the URL:
 
 ```bash
-CZICheck --source "https://account.blob.core.windows.net/container/file.czi?sv=2021-08-06&..." --source-stream-class curl
+CZICheck --source "https://account.blob.core.windows.net/container/file.czi?sv=2021-08-06&..." --source-stream-class curl_http_inputstream
 ```
 
 ### Stream properties (optional)
@@ -273,7 +301,7 @@ CZICheck --source "https://account.blob.core.windows.net/container/file.czi?sv=2
 The `--property` option allows configuring stream behavior for advanced scenarios:
 
 ```bash
-CZICheck --source "https://example.com/data.czi" --source-stream-class curl \
+CZICheck --source "https://example.com/data.czi" --source-stream-class curl_http_inputstream \
   --property timeout=60 \
   --property buffer_size=16384
 ```
@@ -283,4 +311,4 @@ CZICheck --source "https://example.com/data.czi" --source-stream-class curl \
 ### Available stream classes
 
 The following stream classes are available:
-- **curl** - For accessing CZI files via HTTP/HTTPS URLs
+-- **curl_http_inputstream** - For accessing CZI files via HTTP/HTTPS URLs

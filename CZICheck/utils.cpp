@@ -9,6 +9,7 @@
 #include <cwctype>
 #include <memory>
 #include <sstream>
+#include <iostream>
 
 #if CZICHECK_WIN32_ENVIRONMENT
 #include <Windows.h>
@@ -186,7 +187,8 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
         }
     }
     
-    // Pass the wide string URI directly to CreateStream
-    auto stream = libCZI::StreamsFactory::CreateStream(stream_info, command_line_options.GetCZIFilename());
-    return stream;
+    // For HTTP/HTTPS streams (curl), we need to convert the wstring URL to UTF-8 string
+    // The curl stream class only accepts std::string URIs
+    const std::string uri_utf8 = convertToUtf8(command_line_options.GetCZIFilename());
+    return libCZI::StreamsFactory::CreateStream(stream_info, uri_utf8);
 }

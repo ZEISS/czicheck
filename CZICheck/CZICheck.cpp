@@ -78,8 +78,14 @@ int main(int argc, char** argv)
             return_code = 5;
         }
     }
+    else if (arguments_parse_result == CCmdLineOptions::ParseResult::Exit)
+    {
+        // --version or --help flag used - exit gracefully with code 0
+        return_code = 0;
+    }
     else
     {
+        // ParseResult::Error - invalid arguments
         return_code = 10;
     }
 

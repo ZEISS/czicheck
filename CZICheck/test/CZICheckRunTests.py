@@ -86,7 +86,7 @@ class Parameters:
                 if os.path.isabs(redirected_filename):
                     return redirected_filename
                 else:
-                    os.path.join(self._folder_with_czi_files, redirected_filename)
+                    return os.path.join(self._folder_with_czi_files, redirected_filename)
 
         return os.path.join(self._folder_with_czi_files, name)
 
@@ -129,11 +129,38 @@ def compare_result_of_test_to_knowngood(result: str, knowngood: str):
     return True
 
 
-def check_file(cmdline_parameters: Parameters, czi_filename: str, expected_result_file: str, expected_returncode: int):
-    cmdlineargs = [cmdline_parameters.get_fully_qualified_czicheck_executable(), '-s',
-                   cmdline_parameters.build_fully_qualified_czi_filename(czi_filename),
-                   '-c','all', '--laxparsing', 'true']
-    print(f"test {czi_filename}")
+def check_file(cmdline_parameters: Parameters, czi_filename: str, expected_result_file: str, expected_returncode: int, 
+               stream_class: str = None, properties: str = None):
+    # Build base command line arguments
+    cmdlineargs = [cmdline_parameters.get_fully_qualified_czicheck_executable()]
+    
+    # If stream_class is specified, use URL stream functionality
+    if stream_class and stream_class.strip():
+        # Convert file path to file:// URL for testing URL stream functionality
+        abs_path = os.path.abspath(cmdline_parameters.build_fully_qualified_czi_filename(czi_filename))
+        if sys.platform == 'win32':
+            # Windows: file:///C:/path/to/file.czi
+            file_url = 'file:///' + abs_path.replace('\\', '/')
+        else:
+            # Unix: file:///path/to/file.czi
+            file_url = 'file://' + abs_path
+        
+        cmdlineargs.extend(['-s', file_url])
+        cmdlineargs.extend(['--source-stream-class', stream_class])
+        
+        # Add properties if specified (format: "key1=value1,key2=value2")
+        if properties and properties.strip():
+            for prop in properties.split(','):
+                if '=' in prop:
+                    cmdlineargs.extend(['--property', prop.strip()])
+    else:
+        # Traditional file access
+        cmdlineargs.extend(['-s', cmdline_parameters.build_fully_qualified_czi_filename(czi_filename)])
+    
+    cmdlineargs.extend(['-c', 'all', '--laxparsing', 'true'])
+    
+    test_description = f"{czi_filename} (stream_class={stream_class})" if stream_class else czi_filename
+    print(f"test {test_description}")
 
     testouput_encoding_list = ["text", "json", "xml"]
     testoutput_results = [False, False, False]
@@ -179,8 +206,11 @@ with open(parameters.get_fully_qualified_testlist_filename()) as csv_file:
     for row in csv_reader:
         if row['czifilename'] and not row['czifilename'].isspace() and not row['czifilename'].startswith('#'):
             numberOfTests = numberOfTests + 1
+            # Get optional stream_class and properties columns (for URL stream tests)
+            stream_class = row.get('stream_class', '').strip()
+            properties = row.get('properties', '').strip()
             testOk = check_file(parameters, row['czifilename'], row['known_good_output'],
-                                int(row['expected_return_code']))
+                                int(row['expected_return_code']), stream_class, properties)
             if not testOk:
                 numberOfFailedTests = numberOfFailedTests + 1
 

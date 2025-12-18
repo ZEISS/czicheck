@@ -1,4 +1,4 @@
-czifilename,expected_return_code,known_good_output
+czifilename,expected_return_code,known_good_output,stream_class,properties
 
 # The column 'czifilename" specifies a CZI to be checked. The following rules apply:
 # * if option '--czisourcepath' is given to CZICheckRunTests.py, then this path is prepended to the filename
@@ -11,24 +11,41 @@ czifilename,expected_return_code,known_good_output
 # The column 'know_good_output' gives the filename of the program's expected output (to stdout). This filename is searched
 #  for in the path given with the option '--knowngoodresultspath'. The special value '*' is instructing to NOT check
 #  the program's output, so this comparison is skipped.
+#
+# The column 'stream_class' (optional, new in 0.7.0) specifies the stream class to use for opening the file.
+#  When specified, the test framework converts the file path to a file:// URL and uses --source-stream-class.
+#  Leave empty for traditional file access. Example values: 'curl_http_inputstream'
+#
+# The column 'properties' (optional, new in 0.7.0) specifies properties for the stream class as comma-separated
+#  key=value pairs. Example: 'timeout=30,buffer_size=8192'
 
-differentpixeltypeinchannel.czi,1,differentpixeltypeinchannel.txt
+differentpixeltypeinchannel.czi,1,differentpixeltypeinchannel.txt,,
   
-duplicate_coordinates.czi,2,duplicate_coordinates.txt
-inconsistent_coordinates.czi,2,inconsistent_coordinates.txt
-layer_0_subblocks_with_no_m_index.czi,1,layer_0_subblocks_with_no_m_index.txt
-negative_plane_start_index.czi,1,negative_plane_start_index.txt
-positive_plane_start_index.czi,1,positive_plane_start_index.txt
-sparse_planes.czi,1,sparse_planes.txt
-pixeltype_mismatch_between_metadata_and_subblocks.czi,2,pixeltype_mismatch_between_metadata_and_subblocks.txt
+duplicate_coordinates.czi,2,duplicate_coordinates.txt,,
+inconsistent_coordinates.czi,2,inconsistent_coordinates.txt,,
+layer_0_subblocks_with_no_m_index.czi,1,layer_0_subblocks_with_no_m_index.txt,,
+negative_plane_start_index.czi,1,negative_plane_start_index.txt,,
+positive_plane_start_index.czi,1,positive_plane_start_index.txt,,
+sparse_planes.czi,1,sparse_planes.txt,,
+pixeltype_mismatch_between_metadata_and_subblocks.czi,2,pixeltype_mismatch_between_metadata_and_subblocks.txt,,
 
 # The following czi file must not exist. If the input file is not accessible, CZICheck should return error code 5.
 # Note that this does not compare the output to stdout - '*' is a special value instruction to skip this test.
-inaccessible_file.czi,5,*
-overlapping_scenes.czi,2,overlapping_scenes.txt
-jpgxrcompressed_inconsistent_size.czi,1,jpgxrcompressed_inconsistent_size.txt
-jpgxrcompressed_inconsistent_pixeltype.czi,1,jpgxrcompressed_inconsistent_pixeltype.txt
-edf-missing-texture.czi,2,edf-missing-texture.txt
-edf-superfluous.czi,2,edf-superfluous.txt
-invalid_componentbitcount.czi,1,invalid_componentbitcount.txt
-edf-superfluous-missing-channel-subblock.czi,2,edf-superfluous-missing-channel-subblock.txt
+inaccessible_file.czi,5,*,,
+overlapping_scenes.czi,2,overlapping_scenes.txt,,
+jpgxrcompressed_inconsistent_size.czi,1,jpgxrcompressed_inconsistent_size.txt,,
+jpgxrcompressed_inconsistent_pixeltype.czi,1,jpgxrcompressed_inconsistent_pixeltype.txt,,
+edf-missing-texture.czi,2,edf-missing-texture.txt,,
+edf-superfluous.czi,2,edf-superfluous.txt,,
+invalid_componentbitcount.czi,1,invalid_componentbitcount.txt,,
+edf-superfluous-missing-channel-subblock.czi,2,edf-superfluous-missing-channel-subblock.txt,,
+# URL stream tests (new in version 0.7.0)
+# These tests use the --source-stream-class option to test URL stream functionality
+# The optional columns are: stream_class, properties
+# When stream_class is specified, the test framework converts the file path to a file:// URL
+# Format: czifilename,expected_return_code,known_good_output,stream_class,properties
+
+# Test basic URL stream functionality with curl_http_inputstream stream class (using file:// URL)
+differentpixeltypeinchannel.czi,1,differentpixeltypeinchannel.txt,curl_http_inputstream,
+duplicate_coordinates.czi,2,duplicate_coordinates.txt,curl_http_inputstream,
+inconsistent_coordinates.czi,2,inconsistent_coordinates.txt,curl_http_inputstream,

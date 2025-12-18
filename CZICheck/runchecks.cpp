@@ -54,7 +54,12 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
     auto resultsGatherer = CreateResultGatherer(opts);
 
     CheckerCreateInfo checkerAdditionalInfo;
-    checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
+    // Only determine the file size for local file inputs. For URL or other stream classes
+    // the total file size is unknown and should remain 0 to avoid incorrect assumptions.
+    if (this->opts.GetSourceStreamClass().empty())
+    {
+        checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
+    }
 
     const auto& checksToRun = this->opts.GetChecksEnabled();
     for (auto checkType : checksToRun)
