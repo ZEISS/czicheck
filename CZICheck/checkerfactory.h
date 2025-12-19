@@ -27,8 +27,6 @@ struct CheckerCreateInfo
     /// The size of the CZI-file in bytes. A value of 0 means "file size is unknown" (and this could happen
     /// if we allow for other streams than files).
     std::uint64_t totalFileSize{ 0 };
-    /// Number of threads to use when processing subblocks in parallel. Default 1.
-    int subblockThreads{ 1 };
 };
 
 /// Factory for creating checker instances.

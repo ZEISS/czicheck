@@ -6,10 +6,6 @@
 #include <exception>
 #include <sstream>
 #include <memory>
-#include <thread>
-#include <atomic>
-#include <vector>
-#include <mutex>
 
 using namespace libCZI;
 using namespace std;
@@ -28,57 +24,39 @@ CCheckSubBlkBitmapValid::CCheckSubBlkBitmapValid(
 void CCheckSubBlkBitmapValid::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckSubBlkBitmapValid::kCheckType);
-    // First enumerate subblock indices so we can process them in parallel and cancel early when desired
-    std::vector<int> indices;
-    this->reader_->EnumerateSubBlocks([&indices](int index, const SubBlockInfo&)->bool { indices.push_back(index); return true; });
 
-    if (indices.empty())
-    {
-        this->result_gatherer_.FinishCheck(CCheckSubBlkBitmapValid::kCheckType);
-        return;
-    }
-
-    unsigned int num_threads = static_cast<unsigned int>(this->additional_info_.subblockThreads);
-    if (num_threads == 0) num_threads = 1;
-    std::atomic<size_t> next_index(0);
-    std::atomic<bool> cancel{ false };
-    std::mutex gatherer_mutex;
-
-    auto worker = [&]() {
-        while (!cancel.load())
+    this->reader_->EnumerateSubBlocks(
+        [this](int index, const SubBlockInfo& info)->bool
         {
-            const size_t i = next_index.fetch_add(1);
-            if (i >= indices.size()) break;
-            const int index = indices[i];
-
             try
             {
                 auto sub_block = this->reader_->ReadSubBlock(index);
                 const auto compression_mode = sub_block->GetSubBlockInfo().GetCompressionMode();
                 if (compression_mode != CompressionMode::Invalid)
                 {
+                    // According to documentation, for a subblock with a compression mode which is *not* supported by
+                    //  libCZI, we'd be getting CompressionMode::Invalid here. So, if we get a valid compression mode,
+                    //  then we can rightfully expect that the subblock can be decoded, or that we can get a bitmap here
                     try
                     {
                         auto bitmap = sub_block->CreateBitmap();
                     }
-                    catch (exception& exception)
-                    {
-                        IResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
-                        finding.severity = IResultGatherer::Severity::Fatal;
-                        stringstream ss;
-                        ss << "Error decoding subblock #" << index << " with compression \"" << Utils::CompressionModeToInformalString(compression_mode) << "\"";
-                        finding.information = ss.str();
-                        finding.details = exception.what();
+                        catch (exception& exception)
                         {
-                            std::lock_guard<std::mutex> lg(gatherer_mutex);
+                            IResultGatherer::Finding finding(CCheckSubBlkBitmapValid::kCheckType);
+                            finding.severity = IResultGatherer::Severity::Fatal;
+                            stringstream ss;
+                            ss << "Error decoding subblock #" << index << " with compression \"" << Utils::CompressionModeToInformalString(compression_mode) << "\"";
+                            finding.information = ss.str();
+                            finding.details = exception.what();
                             this->result_gatherer_.ReportFinding(finding);
+
                             if (this->result_gatherer_.IsFailFastEnabled() && this->result_gatherer_.HasFatal(CCheckSubBlkBitmapValid::kCheckType))
                             {
                                 this->result_gatherer_.NotifyFailFastStop(CCheckSubBlkBitmapValid::kCheckType);
-                                cancel.store(true);
+                                return false; // stop enumeration
                             }
                         }
-                    }
                 }
                 else
                 {
@@ -87,7 +65,6 @@ void CCheckSubBlkBitmapValid::RunCheck()
                     stringstream ss;
                     ss << "Subblock #" << index << " has a non-standard compression mode (" << sub_block->GetSubBlockInfo().compressionModeRaw << ")";
                     finding.information = ss.str();
-                    std::lock_guard<std::mutex> lg(gatherer_mutex);
                     this->result_gatherer_.ReportFinding(finding);
                 }
             }
@@ -99,27 +76,17 @@ void CCheckSubBlkBitmapValid::RunCheck()
                 ss << "Error reading subblock #" << index;
                 finding.information = ss.str();
                 finding.details = exception.what();
+                this->result_gatherer_.ReportFinding(finding);
+
+                if (this->result_gatherer_.IsFailFastEnabled() && this->result_gatherer_.HasFatal(CCheckSubBlkBitmapValid::kCheckType))
                 {
-                    std::lock_guard<std::mutex> lg(gatherer_mutex);
-                    this->result_gatherer_.ReportFinding(finding);
-                    if (this->result_gatherer_.IsFailFastEnabled() && this->result_gatherer_.HasFatal(CCheckSubBlkBitmapValid::kCheckType))
-                    {
-                        this->result_gatherer_.NotifyFailFastStop(CCheckSubBlkBitmapValid::kCheckType);
-                        cancel.store(true);
-                    }
+                    this->result_gatherer_.NotifyFailFastStop(CCheckSubBlkBitmapValid::kCheckType);
+                    return false;
                 }
             }
-        }
-    };
 
-    std::vector<std::thread> workers;
-    workers.reserve(num_threads);
-    for (unsigned int t = 0; t < num_threads; ++t)
-    {
-        workers.emplace_back(worker);
-    }
-
-    for (auto &w : workers) w.join();
+            return true;
+        });
 
     this->result_gatherer_.FinishCheck(CCheckSubBlkBitmapValid::kCheckType);
 }
