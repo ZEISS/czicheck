@@ -176,7 +176,6 @@ jobs:
           key: vcpkg-alpine-${{ hashFiles('vcpkg.json') }}
 
       - name: Prep existing vcpkg installation
-        shell: bash
         run: |
           set -euo pipefail
           BASELINE=$(jq -r '.["builtin-baseline"]' vcpkg.json)
@@ -220,7 +219,6 @@ jobs:
           echo "VCPKG_DIR=$VCPKG_DIR" >> "$GITHUB_ENV"
 
       - name: Configure CMake
-        shell: bash
         run: |
           cmake -G Ninja -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=Release \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
@@ -240,7 +238,6 @@ jobs:
           ctest -C Release --verbose
 
       - name: Debug - Show complete file tree
-        shell: bash
         run: |
           echo "=== Environment ==="
           echo "PWD: $(pwd)"
@@ -264,7 +261,6 @@ jobs:
           ls -laR "${{github.workspace}}/build" | head -300
 
       - name: Package
-        shell: bash
         working-directory: ${{github.workspace}}
         run: |
           set -x  # Enable command tracing for debugging
