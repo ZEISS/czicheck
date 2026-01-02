@@ -228,7 +228,8 @@ jobs:
                 -DLIBCZI_BUILD_PREFER_EXTERNALPACKAGE_LIBCURL=ON \
                 -DCZICHECK_BUILD_TESTS=ON \
                 -DCMAKE_C_FLAGS="-static-libgcc" \
-                -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++"
+                -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++" \
+                -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config Release
