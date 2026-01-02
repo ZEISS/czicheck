@@ -220,7 +220,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -G Ninja -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=Release \
+          cmake -G Ninja -B "${GITHUB_WORKSPACE}/build" -DCMAKE_BUILD_TYPE=Release \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
                 -DLIBCZI_BUILD_CURL_BASED_STREAM=ON \
                 -DLIBCZI_BUILD_PREFER_EXTERNALPACKAGE_LIBCURL=ON \
@@ -232,21 +232,18 @@ jobs:
       - name: Build
         run: |
           set -x  # Enable command tracing
-          cmake --build ${{github.workspace}}/build --config Release --verbose
+          cmake --build ${GITHUB_WORKSPACE}/build --config Release --verbose
           BUILD_EXIT=$?
           echo "=== Build exit code: $BUILD_EXIT ==="
 
           echo "=== Checking build directory structure ==="
-          ls -laR ${{github.workspace}}/build/CZICheck/ || echo "CZICheck directory missing"
-
-          echo "=== Searching for ANY CZICheck file in build directory ==="
-          find ${{github.workspace}}/build -name "*CZICheck*" -type f -exec ls -lh {} \; || echo "No CZICheck files found"
+          ls -laR ${GITHUB_WORKSPACE}/build/CZICheck/ || echo "CZICheck directory missing"
 
           echo "=== Searching for ALL executables in build directory ==="
-          find ${{github.workspace}}/build -type f -executable -exec ls -lh {} \; || echo "No executables found"
+          find ${GITHUB_WORKSPACE}/build -type f -executable -exec ls -lh {} \; || echo "No executables found"
 
           echo "=== Checking specific binary location ==="
-          BINARY_PATH="${{github.workspace}}/build/CZICheck/CZICheck"
+          BINARY_PATH="${GITHUB_WORKSPACE}/build/CZICheck/CZICheck"
           if [ -f "$BINARY_PATH" ]; then
             echo "✓ Binary found at: $BINARY_PATH"
             ls -lh "$BINARY_PATH"
@@ -255,13 +252,13 @@ jobs:
           else
             echo "✗ ERROR: Binary NOT found at expected location: $BINARY_PATH"
             echo "=== Checking if it was built but moved ==="
-            find ${{github.workspace}} -name "CZICheck" -type f -executable 2>/dev/null || echo "Binary not found anywhere in workspace"
+            find ${GITHUB_WORKSPACE} -name "CZICheck" -type f -executable 2>/dev/null || echo "Binary not found anywhere in workspace"
             exit 1
           fi
 
       - name: CTest
         run: |
-          cd "${{github.workspace}}/build"
+          cd "${GITHUB_WORKSPACE}/build"
           ctest -C Release --verbose
 
       - name: Debug - Show complete file tree
@@ -277,19 +274,19 @@ jobs:
           git status || echo "Not a git repo or git failed"
           echo ""
           echo "=== Looking for CZICheck binary specifically ==="
-          ls -la "${{github.workspace}}/build/CZICheck/" || echo "CZICheck directory not found"
+          ls -la "${GITHUB_WORKSPACE}/build/CZICheck/" || echo "CZICheck directory not found"
           echo ""
           echo "=== All executable files in build directory ==="
-          find "${{github.workspace}}/build" -type f -executable -ls || echo "No executables found"
+          find "${GITHUB_WORKSPACE}/build" -type f -executable -ls || echo "No executables found"
           echo ""
           echo "=== All files named CZICheck (any type) ==="
-          find "${{github.workspace}}" -name "CZICheck" || echo "No CZICheck files found"
+          find "${GITHUB_WORKSPACE}" -name "CZICheck" || echo "No CZICheck files found"
           echo ""
           echo "=== First 50 files in workspace ==="
-          find "${{github.workspace}}" -type f | head -50
+          find "${GITHUB_WORKSPACE}" -type f | head -50
           echo ""
           echo "=== License file location ==="
-          ls -la "${{github.workspace}}/THIRD_PARTY_LICENSES.txt" || echo "License not found in root"
+          ls -la "${GITHUB_WORKSPACE}/THIRD_PARTY_LICENSES.txt" || echo "License not found in root"
 
       - name: Package
         run: |
