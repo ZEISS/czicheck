@@ -242,55 +242,34 @@ jobs:
       - name: Package
         shell: bash
         run: |
-          # Use absolute paths to avoid confusion
-          WORKSPACE_ROOT="${{github.workspace}}"
-          BUILD_DIR="$WORKSPACE_ROOT/build"
-          RELEASE_ROOT="$WORKSPACE_ROOT/release"
+          # Work from workspace directory and use relative paths like czicompress/pyramidizer do
+          cd "${{github.workspace}}"
+          pwd
+          echo "DEBUG: Workspace contents:"
+          ls -la
 
-          mkdir -p "$RELEASE_ROOT"
+          mkdir -p release
           name="CZICheck-alpine-x64-$(git describe --always)"
-          RELEASE_DIR="$RELEASE_ROOT/${name}"
-          mkdir -p "$RELEASE_DIR"
+          mkdir -p "release/${name}"
 
-          echo "DEBUG: Checking build directory: $BUILD_DIR"
-          if [ -d "$BUILD_DIR" ]; then
-              ls -F "$BUILD_DIR"
-              if [ -d "$BUILD_DIR/CZICheck" ]; then
-                  echo "DEBUG: Listing CZICheck subdir:"
-                  ls -F "$BUILD_DIR/CZICheck"
-              fi
+          # Copy binary using relative path
+          if [ -f "./build/CZICheck/CZICheck" ]; then
+            echo "Found binary at ./build/CZICheck/CZICheck"
+            cp "./build/CZICheck/CZICheck" "release/${name}/"
           else
-              echo "::error::Build directory $BUILD_DIR does not exist!"
-              exit 1
+            echo "::error::Could not find CZICheck binary at ./build/CZICheck/CZICheck"
+            exit 1
           fi
 
-          # Copy binary
-          if [ -f "$BUILD_DIR/CZICheck/CZICheck" ]; then
-            echo "Found binary at standard location"
-            cp "$BUILD_DIR/CZICheck/CZICheck" "$RELEASE_DIR/"
+          # Copy license using relative path
+          if [ -f "./THIRD_PARTY_LICENSES.txt" ]; then
+            cp "./THIRD_PARTY_LICENSES.txt" "release/${name}/"
           else
-            echo "Binary not found at standard location, searching in $BUILD_DIR..."
-            FOUND_BIN=$(find "$BUILD_DIR" -name "CZICheck" -type f | head -n 1)
-            if [ -n "$FOUND_BIN" ]; then
-                echo "Found binary at $FOUND_BIN"
-                cp "$FOUND_BIN" "$RELEASE_DIR/"
-            else
-                echo "::error::Could not find CZICheck binary!"
-                exit 1
-            fi
-          fi
-
-          # Copy license
-          echo "DEBUG: Looking for license at: $WORKSPACE_ROOT/THIRD_PARTY_LICENSES.txt"
-          ls -la "$WORKSPACE_ROOT" | grep THIRD_PARTY || echo "License file not found in workspace root"
-          if [ -f "$WORKSPACE_ROOT/THIRD_PARTY_LICENSES.txt" ]; then
-              cp "$WORKSPACE_ROOT/THIRD_PARTY_LICENSES.txt" "$RELEASE_DIR/"
-          else
-              echo "::warning::THIRD_PARTY_LICENSES.txt not found, skipping"
+            echo "::warning::THIRD_PARTY_LICENSES.txt not found, skipping"
           fi
 
           echo "artifactName=${name}" >> "$GITHUB_ENV"
-          echo "artifactPath=$RELEASE_DIR" >> "$GITHUB_ENV"
+          echo "artifactPath=${{github.workspace}}/release/${name}" >> "$GITHUB_ENV"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
