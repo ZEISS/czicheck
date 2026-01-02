@@ -222,10 +222,8 @@ jobs:
       - name: Configure CMake
         shell: bash
         run: |
-          cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=Release \
+          cmake -G Ninja -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=Release \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
-                -DVCPKG_TARGET_TRIPLET=x64-linux-musl \
-                -DVCPKG_OVERLAY_TRIPLETS="${VCPKG_DIR}/triplets/community" \
                 -DLIBCZI_BUILD_CURL_BASED_STREAM=ON \
                 -DLIBCZI_BUILD_PREFER_EXTERNALPACKAGE_LIBCURL=ON \
                 -DCZICHECK_BUILD_TESTS=ON \
