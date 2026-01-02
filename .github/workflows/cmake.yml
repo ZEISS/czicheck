@@ -151,3 +151,115 @@ jobs:
         with:
           path: ${{ env.artifactPath }}/
           name: ${{ env.artifactName }}
+
+  build-alpine:
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    env:
+      VCPKG_FORCE_SYSTEM_BINARIES: 1
+    steps:
+      - name: Install dependencies
+        run: |
+          apk update
+          apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat
+          git config --global --add safe.directory '*'
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Cache vcpkg and packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            external/vcpkg
+            build/vcpkg_installed
+          key: vcpkg-alpine-${{ hashFiles('vcpkg.json') }}
+
+      - name: Prep existing vcpkg installation
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASELINE=$(jq -r '.["builtin-baseline"]' vcpkg.json)
+          echo "Detected vcpkg baseline: $BASELINE"
+
+          if [ -d "$GITHUB_WORKSPACE/external/vcpkg/.git" ]; then
+              echo "Using cached vcpkg at external/vcpkg"
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+          elif [ -n "${VCPKG_ROOT:-}" ] && [ -d "$VCPKG_ROOT/.git" ]; then
+              echo "Using preinstalled vcpkg at $VCPKG_ROOT"
+              VCPKG_DIR="$VCPKG_ROOT"
+          else
+              echo "Performing minimal vcpkg clone..."
+              git clone --filter=blob:none --no-checkout https://github.com/microsoft/vcpkg.git external/vcpkg
+              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+          fi
+
+          cd "$VCPKG_DIR"
+
+          if ! git cat-file -e "${BASELINE}^{commit}" 2>/dev/null; then
+              echo "Fetching baseline commit $BASELINE..."
+              git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow
+          fi
+
+          # Ensure we have a full clone for vcpkg versioning to work properly
+          echo "Converting to full clone for vcpkg versioning..."
+          git fetch --unshallow || true
+          git fetch origin
+
+          git checkout "$BASELINE"
+
+          if [ ! -f ./vcpkg ] && [ ! -f ./vcpkg.exe ]; then
+              if [[ "$RUNNER_OS" == "Windows" ]]; then
+                  ./bootstrap-vcpkg.bat
+              else
+                  ./bootstrap-vcpkg.sh
+              fi
+          fi
+
+          echo "vcpkg is now at commit: $(git rev-parse HEAD)"
+          echo "VCPKG_DIR=$VCPKG_DIR" >> "$GITHUB_ENV"
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
+                -DVCPKG_TARGET_TRIPLET=x64-linux-musl \
+                -DVCPKG_OVERLAY_TRIPLETS="${VCPKG_DIR}/triplets/community" \
+                -DLIBCZI_BUILD_CURL_BASED_STREAM=ON \
+                -DLIBCZI_BUILD_PREFER_EXTERNALPACKAGE_LIBCURL=ON \
+                -DCZICHECK_BUILD_TESTS=ON \
+                -DCMAKE_C_FLAGS="-static-libgcc" \
+                -DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++"
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config Release
+
+      - name: CTest
+        run: |
+          cd "${{github.workspace}}/build"
+          ctest -C Release --verbose
+
+      - name: Prepare licenses
+        shell: bash
+        run: |
+          cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/
+
+      - name: Package
+        shell: bash
+        run: |
+          mkdir release
+          name="CZICheck-alpine-x64-$(git describe --always)"
+          mkdir "release/${name}"
+          cd ./build/CZICheck
+          cp "CZICheck" "./../../release/${name}/"
+          cp "THIRD_PARTY_LICENSES.txt" "./../../release/${name}/"
+          cd ../..
+          echo "artifactName=${name}" >> "$GITHUB_ENV"
+          echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.artifactPath }}/
+          name: ${{ env.artifactName }}
