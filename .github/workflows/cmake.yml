@@ -241,32 +241,75 @@ jobs:
 
       - name: Package
         shell: bash
+        working-directory: ${{github.workspace}}
         run: |
-          # Work from workspace directory and use relative paths like czicompress/pyramidizer do
-          cd "${{github.workspace}}"
-          pwd
-          echo "DEBUG: Workspace contents:"
+          set -x  # Enable command tracing for debugging
+
+          # Show current environment
+          echo "Current directory: $(pwd)"
+          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
+          echo "Workspace parameter: ${{github.workspace}}"
+
+          # List workspace root
+          echo "=== Workspace root contents ==="
           ls -la
 
+          # List build directory
+          echo "=== Build directory contents ==="
+          if [ -d "build/CZICheck" ]; then
+            ls -la build/CZICheck/
+          else
+            echo "build/CZICheck directory not found!"
+          fi
+
+          # Create release directory
           mkdir -p release
           name="CZICheck-alpine-x64-$(git describe --always)"
           mkdir -p "release/${name}"
 
-          # Copy binary using relative path
-          if [ -f "./build/CZICheck/CZICheck" ]; then
-            echo "Found binary at ./build/CZICheck/CZICheck"
-            cp "./build/CZICheck/CZICheck" "release/${name}/"
-          else
-            echo "::error::Could not find CZICheck binary at ./build/CZICheck/CZICheck"
+          # Copy binary - try multiple possible locations
+          BINARY_COPIED=false
+          for location in \
+            "build/CZICheck/CZICheck" \
+            "build/CZICheck/Release/CZICheck" \
+            "build/CZICheck/Debug/CZICheck"; do
+            if [ -f "$location" ]; then
+              echo "Found binary at: $location"
+              cp "$location" "release/${name}/"
+              BINARY_COPIED=true
+              break
+            fi
+          done
+
+          if [ "$BINARY_COPIED" = false ]; then
+            echo "::error::Could not find CZICheck binary in any expected location"
+            find build -name "CZICheck" -type f || true
             exit 1
           fi
 
-          # Copy license using relative path
-          if [ -f "./THIRD_PARTY_LICENSES.txt" ]; then
-            cp "./THIRD_PARTY_LICENSES.txt" "release/${name}/"
-          else
-            echo "::warning::THIRD_PARTY_LICENSES.txt not found, skipping"
+          # Copy license - try multiple possible locations/names
+          LICENSE_COPIED=false
+          for license_file in \
+            "THIRD_PARTY_LICENSES.txt" \
+            "../THIRD_PARTY_LICENSES.txt" \
+            "../../THIRD_PARTY_LICENSES.txt"; do
+            if [ -f "$license_file" ]; then
+              echo "Found license at: $license_file"
+              cp "$license_file" "release/${name}/"
+              LICENSE_COPIED=true
+              break
+            fi
+          done
+
+          if [ "$LICENSE_COPIED" = false ]; then
+            echo "::warning::THIRD_PARTY_LICENSES.txt not found in workspace, checking repository root"
+            # In Alpine containers, the checkout might be in a subdirectory
+            find . -maxdepth 3 -name "THIRD_PARTY_LICENSES.txt" -type f | head -1 | xargs -I {} cp {} "release/${name}/" || echo "::warning::License file not found anywhere"
           fi
+
+          # Verify artifact contents
+          echo "=== Artifact contents ==="
+          ls -la "release/${name}/"
 
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=${{github.workspace}}/release/${name}" >> "$GITHUB_ENV"
