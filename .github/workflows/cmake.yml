@@ -252,7 +252,14 @@ jobs:
           name="CZICheck-alpine-x64-$(git describe --always)"
           mkdir "release/${name}"
           cd ./build/CZICheck
-          cp "CZICheck" "./../../release/${name}/"
+          # The executable might be in a subdirectory depending on CMake generator/version, but usually it's here for Ninja
+          # However, let's be safe and find it or assume it's in the root of build/CZICheck
+          if [ -f "CZICheck" ]; then
+            cp "CZICheck" "./../../release/${name}/"
+          else
+             # Fallback: try to find it if it's not in the immediate directory
+             find . -name "CZICheck" -type f -exec cp {} "./../../release/${name}/" \;
+          fi
           cp "THIRD_PARTY_LICENSES.txt" "./../../release/${name}/"
           cd ../..
           echo "artifactName=${name}" >> "$GITHUB_ENV"
