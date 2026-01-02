@@ -285,6 +285,9 @@ jobs:
 
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=$RELEASE_DIR" >> "$GITHUB_ENV"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
           path: ${{ env.artifactPath }}/
           name: ${{ env.artifactName }}
