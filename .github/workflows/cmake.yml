@@ -239,6 +239,30 @@ jobs:
           cd "${{github.workspace}}/build"
           ctest -C Release --verbose
 
+      - name: Debug - Show complete file tree
+        shell: bash
+        run: |
+          echo "=== Environment ==="
+          echo "PWD: $(pwd)"
+          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
+          echo "HOME: ${HOME}"
+          df -h
+          echo ""
+          echo "=== Git status ==="
+          git status || echo "Not a git repo or git failed"
+          echo ""
+          echo "=== Complete workspace tree after build ==="
+          find "${{github.workspace}}" -type f | head -200
+          echo ""
+          echo "=== Specifically looking for CZICheck binary ==="
+          find "${{github.workspace}}" -name "*CZICheck*" -type f -ls
+          echo ""
+          echo "=== Specifically looking for license file ==="
+          find "${{github.workspace}}" -name "*THIRD_PARTY*" -type f -ls
+          echo ""
+          echo "=== Build directory structure ==="
+          ls -laR "${{github.workspace}}/build" | head -300
+
       - name: Package
         shell: bash
         working-directory: ${{github.workspace}}
