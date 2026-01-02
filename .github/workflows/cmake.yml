@@ -246,11 +246,23 @@ jobs:
           name="CZICheck-alpine-x64-$(git describe --always)"
           mkdir "release/${name}"
 
+          echo "DEBUG: Listing build directory contents:"
+          find ./build -name "CZICheck*"
+
           # Copy binary (try standard location first, then fallback search)
           if [ -f "./build/CZICheck/CZICheck" ]; then
             cp "./build/CZICheck/CZICheck" "release/${name}/"
           else
-            find ./build -name "CZICheck" -type f -exec cp {} "release/${name}/" \;
+            echo "Binary not found at ./build/CZICheck/CZICheck, searching..."
+            # Search for CZICheck or czicheck
+            FOUND_BIN=$(find ./build -name "CZICheck" -type f -o -name "czicheck" -type f | head -n 1)
+            if [ -n "$FOUND_BIN" ]; then
+                echo "Found binary at $FOUND_BIN"
+                cp "$FOUND_BIN" "release/${name}/"
+            else
+                echo "::error::Could not find CZICheck binary!"
+                exit 1
+            fi
           fi
 
           # Copy license
