@@ -239,29 +239,23 @@ jobs:
           cd "${{github.workspace}}/build"
           ctest -C Release --verbose
 
-      - name: Prepare licenses
-        shell: bash
-        run: |
-          mkdir -p ./build/CZICheck
-          cp ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/
-
       - name: Package
         shell: bash
         run: |
           mkdir release
           name="CZICheck-alpine-x64-$(git describe --always)"
           mkdir "release/${name}"
-          cd ./build/CZICheck
-          # The executable might be in a subdirectory depending on CMake generator/version, but usually it's here for Ninja
-          # However, let's be safe and find it or assume it's in the root of build/CZICheck
-          if [ -f "CZICheck" ]; then
-            cp "CZICheck" "./../../release/${name}/"
+
+          # Copy binary (try standard location first, then fallback search)
+          if [ -f "./build/CZICheck/CZICheck" ]; then
+            cp "./build/CZICheck/CZICheck" "release/${name}/"
           else
-             # Fallback: try to find it if it's not in the immediate directory
-             find . -name "CZICheck" -type f -exec cp {} "./../../release/${name}/" \;
+            find ./build -name "CZICheck" -type f -exec cp {} "release/${name}/" \;
           fi
-          cp "THIRD_PARTY_LICENSES.txt" "./../../release/${name}/"
-          cd ../..
+
+          # Copy license
+          cp "THIRD_PARTY_LICENSES.txt" "release/${name}/"
+
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
 
