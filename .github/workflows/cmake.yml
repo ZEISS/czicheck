@@ -281,7 +281,13 @@ jobs:
           fi
 
           # Copy license
-          cp "$WORKSPACE_ROOT/THIRD_PARTY_LICENSES.txt" "$RELEASE_DIR/"
+          echo "DEBUG: Looking for license at: $WORKSPACE_ROOT/THIRD_PARTY_LICENSES.txt"
+          ls -la "$WORKSPACE_ROOT" | grep THIRD_PARTY || echo "License file not found in workspace root"
+          if [ -f "$WORKSPACE_ROOT/THIRD_PARTY_LICENSES.txt" ]; then
+              cp "$WORKSPACE_ROOT/THIRD_PARTY_LICENSES.txt" "$RELEASE_DIR/"
+          else
+              echo "::warning::THIRD_PARTY_LICENSES.txt not found, skipping"
+          fi
 
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=$RELEASE_DIR" >> "$GITHUB_ENV"
