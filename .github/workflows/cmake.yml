@@ -242,7 +242,8 @@ jobs:
       - name: Prepare licenses
         shell: bash
         run: |
-          cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/
+          mkdir -p ./build/CZICheck
+          cp ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/
 
       - name: Package
         shell: bash
