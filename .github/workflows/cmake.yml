@@ -23,16 +23,22 @@ jobs:
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ${{ matrix.os }}
 
+    env:
+      # GitHub-hosted runners (incl. ubuntu-latest) provide VCPKG_INSTALLATION_ROOT.
+      # Keep a fallback to VCPKG_ROOT for compatibility.
+      VCPKG_INSTALLATION_ROOT: ${{ env.VCPKG_INSTALLATION_ROOT || env.VCPKG_ROOT }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache vcpkg and packages
+      - name: Cache vcpkg downloads
+        if: ${{ env.VCPKG_INSTALLATION_ROOT != '' }}
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.VCPKG_INSTALLATION_ROOT }}
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+            ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
+          key: vcpkg-downloads-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
       # - name: Prep existing vcpkg installation
       #   shell: bash
@@ -87,9 +93,8 @@ jobs:
         shell: bash
         run: |
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
-                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON
-
       - name: Build
         # Build your program with the given configuration
         run: cmake --build ${{github.workspace}}/build --config ${{matrix.build}}
