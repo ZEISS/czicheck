@@ -53,6 +53,9 @@ jobs:
             ls -la "${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems" || true
           fi
 
+      - name: Print ENV
+        run: printenv
+
       - name: Cache vcpkg downloads
         if: ${{ env.VCPKG_INSTALLATION_ROOT != '' }}
         uses: actions/cache@v4
