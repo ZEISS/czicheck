@@ -27,18 +27,21 @@ void CCheckDuplicateCoordinates::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckDuplicateCoordinates::kCheckType);
 
-    vector<SubBlockInfo> subblock_infos;
-    subblock_infos.reserve(this->reader_->GetStatistics().subBlockCount);
-
-    this->reader_->EnumerateSubBlocks(
-        [&](int index, const SubBlockInfo& info)->bool
+    this->RunCheckDefaultExceptionHandling([this]()
         {
-            subblock_infos.emplace_back(info);
-            return true;
+            vector<SubBlockInfo> subblock_infos;
+            subblock_infos.reserve(this->reader_->GetStatistics().subBlockCount);
+
+            this->reader_->EnumerateSubBlocks(
+                [&](int index, const SubBlockInfo& info)->bool
+                {
+                    subblock_infos.emplace_back(info);
+                    return true;
+                });
+
+
+            this->CheckForDuplicates(subblock_infos);
         });
-
-
-    this->CheckForDuplicates(subblock_infos);
 
     this->result_gatherer_.FinishCheck(CCheckDuplicateCoordinates::kCheckType);
 }
@@ -186,7 +189,7 @@ void CCheckDuplicateCoordinates::CheckForDuplicates(vector<SubBlockInfo>& subblo
         stringstream ss;
         ss << "duplicate subblock #" << *it << " and # " << *(it + 1) << " : \"" << GetSubblockAsString(subblock_infos[*it]) << "\"";
         finding.information = ss.str();
-        this->result_gatherer_.ReportFinding(finding);
+        this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
     }
 }
 

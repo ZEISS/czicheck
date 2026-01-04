@@ -6,6 +6,11 @@
 #include "checkerfactory.h"
 #include "utils.h"
 
+#include "rapidjson/rapidjson.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
+
 #include <ostream>
 #include <string>
 #include <utility>
@@ -13,7 +18,7 @@
 using namespace std;
 
 CResultGathererJson::CResultGathererJson(const CCmdLineOptions& options)
-    : options_(options)
+    : ResultGathererBase(options)
 {
     this->json_document_.SetArray();
     this->test_results_ = rapidjson::Value(rapidjson::kArrayType);
@@ -65,7 +70,7 @@ void CResultGathererJson::FinishCheck(CZIChecks check)
     }
 }
 
-void CResultGathererJson::ReportFinding(const Finding& finding)
+IResultGatherer::ReportFindingResult CResultGathererJson::ReportFinding(const Finding& finding)
 {
     const auto it = this->results_.find(finding.check);
     const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
@@ -84,6 +89,8 @@ void CResultGathererJson::ReportFinding(const Finding& finding)
             this->test_results_[res][kTestFindingsId].PushBack(current_finding, allocator);
         }
     }
+
+    return this->DetermineReportFindingResult(finding);
 }
 
 void CResultGathererJson::FinalizeChecks()
@@ -116,5 +123,5 @@ void CResultGathererJson::FinalizeChecks()
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(str_buf);
 
     this->json_document_.Accept(writer);
-    this->options_.GetLog()->WriteStdOut(str_buf.GetString());
+    this->GetLog()->WriteStdOut(str_buf.GetString());
 }

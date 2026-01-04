@@ -25,17 +25,20 @@ void CCheckConsistentCoordinates::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckConsistentCoordinates::kCheckType);
 
-    vector<SubBlockInfo> subBlockInfos;
-    subBlockInfos.reserve(this->reader_->GetStatistics().subBlockCount);
-
-    this->reader_->EnumerateSubBlocks(
-        [&](int index, const SubBlockInfo& info)->bool
+    this->RunCheckDefaultExceptionHandling([this]()
         {
-            subBlockInfos.emplace_back(info);
-            return true;
-        });
+            vector<SubBlockInfo> subBlockInfos;
+            subBlockInfos.reserve(this->reader_->GetStatistics().subBlockCount);
 
-    this->CheckForSameDimensions(subBlockInfos);
+            this->reader_->EnumerateSubBlocks(
+                [&](int index, const SubBlockInfo& info)->bool
+                {
+                    subBlockInfos.emplace_back(info);
+                    return true;
+                });
+
+            this->CheckForSameDimensions(subBlockInfos);
+        });
 
     this->result_gatherer_.FinishCheck(CCheckConsistentCoordinates::kCheckType);
 }
@@ -61,7 +64,7 @@ void CCheckConsistentCoordinates::CheckForSameDimensions(const std::vector<libCZ
             ss << "subblock #" << i << " has dimensions \"" << GetDimensionsAsInformalString(&info.coordinate)
                 << "\", whereas \"" << GetDimensionsAsInformalString(&expected_dimensions) << "\" was expected.";
             finding.information = ss.str();
-            this->result_gatherer_.ReportFinding(finding);
+            this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
         }
     }
 }

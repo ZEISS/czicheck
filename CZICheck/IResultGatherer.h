@@ -14,7 +14,7 @@ class IResultGatherer
 public:
     struct CheckResult
     {
-    CheckResult() : fatalMessagesCount(0), warningMessagesCount(0), infoMessagesCount(0) {}
+        CheckResult() : fatalMessagesCount(0), warningMessagesCount(0), infoMessagesCount(0) {}
         std::uint32_t fatalMessagesCount;
         std::uint32_t warningMessagesCount;
         std::uint32_t infoMessagesCount;
@@ -35,6 +35,16 @@ public:
         WithWarnings,       ///< There have been one or more warnings, but not fatal error.
         ErrorsDetected      ///< There have been one or more fatal errors.
     };
+
+    /// This enum is returned by 'ReportFinding(..)' to indicate whether processing should continue or stop.
+    /// It allows an 'IResultGatherer' implementation the influence whether the caller should continue running
+    /// checks and reporting additional findings, or stop early (e.g. when fail-fast mode is enabled).
+    enum class ReportFindingResult
+    {
+        Continue,   ///< Continue reporting findings.
+        Stop        ///< Stop reporting findings (e.g. when fail-fast is enabled).
+    };
+
     struct Finding
     {
         explicit Finding(CZIChecks check) :check(check), severity(Severity::Info) {}
@@ -59,7 +69,7 @@ protected:
 
 public:
     virtual void StartCheck(CZIChecks check) = 0;
-    virtual void ReportFinding(const Finding& finding) = 0;
+    [[nodiscard]] virtual ReportFindingResult ReportFinding(const Finding& finding) = 0;
     virtual void FinishCheck(CZIChecks check) = 0;
     virtual void FinalizeChecks() = 0;
     virtual ~IResultGatherer() = default;
@@ -79,7 +89,7 @@ public:
         {
             total_fatal_messages_count += i.second.fatalMessagesCount;
             total_warning_messages_count += i.second.warningMessagesCount;
-            total_info_messages_count += i.second.warningMessagesCount;
+            total_info_messages_count += i.second.infoMessagesCount;
         }
 
         if (total_fatal_messages_count > 0)

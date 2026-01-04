@@ -25,16 +25,19 @@ void CCheckBasicMetadataValidation::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckBasicMetadataValidation::kCheckType);
 
-    // note: "GetCziMetadataAndReportErrors" will report a warning in case the ICziMetadata-object cannot be constructed
-    const auto czi_metadata = this->GetCziMetadataAndReportErrors(CCheckBasicMetadataValidation::kCheckType);
-    if (czi_metadata)
-    {
-        const auto doc_info = czi_metadata->GetDocumentInfo();
+    this->RunCheckDefaultExceptionHandling([this]()
+        {
+            // note: "GetCziMetadataAndReportErrors" will report a warning in case the ICziMetadata-object cannot be constructed
+            const auto czi_metadata = this->GetCziMetadataAndReportErrors(CCheckBasicMetadataValidation::kCheckType);
+            if (czi_metadata)
+            {
+                const auto doc_info = czi_metadata->GetDocumentInfo();
 
-        this->CheckSizeInformation(doc_info);
-        this->CheckChannelInformation(doc_info);
-        this->CheckPixelTypeInformation(czi_metadata);
-    }
+                this->CheckSizeInformation(doc_info);
+                this->CheckChannelInformation(doc_info);
+                this->CheckPixelTypeInformation(czi_metadata);
+            }
+        });
 
     this->result_gatherer_.FinishCheck(CCheckBasicMetadataValidation::kCheckType);
 }
@@ -76,7 +79,7 @@ void CCheckBasicMetadataValidation::CheckSizeInformation(const std::shared_ptr<l
         }
 
         finding.information = ss.str();
-        this->result_gatherer_.ReportFinding(finding);
+        this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
     }
 
     // now, check whether the start/size are the same
@@ -117,7 +120,7 @@ void CCheckBasicMetadataValidation::CheckSizeInformation(const std::shared_ptr<l
         }
 
         finding.information = ss.str();
-        this->result_gatherer_.ReportFinding(finding);
+        this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
     }
 }
 
@@ -138,7 +141,7 @@ void CCheckBasicMetadataValidation::CheckChannelInformation(const std::shared_pt
         IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
         finding.severity = IResultGatherer::Severity::Warning;
         finding.information = "No valid channel-information found in metadata";
-        this->result_gatherer_.ReportFinding(finding);
+        this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
         return;
     }
 
@@ -149,7 +152,7 @@ void CCheckBasicMetadataValidation::CheckChannelInformation(const std::shared_pt
         stringstream ss;
         ss << "document statistics gives " << channel_count_from_statistics << " channels, whereas in XML-metadata " << channel_info->GetChannelCount() << " channels are found.";
         finding.information = ss.str();
-        this->result_gatherer_.ReportFinding(finding);
+        this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
     }
 }
 
@@ -163,7 +166,7 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
         IResultGatherer::Finding finding(CCheckBasicMetadataValidation::kCheckType);
         finding.severity = IResultGatherer::Severity::Info;
         finding.information = "No valid channel-information found in metadata";
-        this->result_gatherer_.ReportFinding(finding);
+        this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
         return;
     }
 
@@ -190,7 +193,7 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
                         << ", metadata: " << Utils::PixelTypeToInformalString(channel_info_pixel_type)
                         << ", subBlock: " << Utils::PixelTypeToInformalString(subBlockInfo.pixelType);
                     finding.information = ss.str();
-                    this->result_gatherer_.ReportFinding(finding);
+                    this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
                 }
             }
             else
@@ -200,7 +203,7 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
                 stringstream ss;
                 ss << "No sub block-information found for channel index " << channelIndex << ", metadata pixelType: " << Utils::PixelTypeToInformalString(channel_info_pixel_type);
                 finding.information = ss.str();
-                this->result_gatherer_.ReportFinding(finding);
+                this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
             }
         }
         else
@@ -210,7 +213,7 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
             stringstream ss;
             ss << "No valid channel pixel_type information found in metadata for channel #" << channelIndex << ".";
             finding.information = ss.str();
-            this->result_gatherer_.ReportFinding(finding);
+            this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
         }
 
         // check for presence and basic validity of "ComponentBitCount" information
@@ -231,7 +234,7 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
                 stringstream ss;
                 ss << "No valid ComponentBitCount information found in metadata for channel #" << channelIndex << ".";
                 finding.information = ss.str();
-                this->result_gatherer_.ReportFinding(finding);
+                this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
             }
         }
         else
@@ -254,7 +257,7 @@ void CCheckBasicMetadataValidation::CheckPixelTypeInformation(const std::shared_
                     << "PixelType: " << Utils::PixelTypeToInformalString(channel_info_pixel_type)
                     << ", ComponentBitCount: " << channel_info_component_bit_count;
                 finding.information = ss.str();
-                this->result_gatherer_.ReportFinding(finding);
+                this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
             }
         }
     }

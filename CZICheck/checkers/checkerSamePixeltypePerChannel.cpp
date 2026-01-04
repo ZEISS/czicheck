@@ -26,19 +26,22 @@ void CCheckSamePixeltypePerChannel::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckSamePixeltypePerChannel::kCheckType);
 
-    const auto statistics = this->reader_->GetStatistics();
-    int start_c, size_c;
-
-    // If there is no C-index with the statistics, this means that no C-dimension is used (with any subblock).
-    // In this case, we don't do any check currently - we might want to check then whether all subblocks have
-    //  the same pixel type.
-    if (statistics.dimBounds.TryGetInterval(DimensionIndex::C, &start_c, &size_c))
-    {
-        for (int c = start_c; c < start_c + size_c; ++c)
+    this->RunCheckDefaultExceptionHandling([this]()
         {
-            this->CheckIfSamePixeltypeInChannel(c);
-        }
-    }
+            const auto statistics = this->reader_->GetStatistics();
+            int start_c, size_c;
+
+            // If there is no C-index with the statistics, this means that no C-dimension is used (with any subblock).
+            // In this case, we don't do any check currently - we might want to check then whether all subblocks have
+            //  the same pixel type.
+            if (statistics.dimBounds.TryGetInterval(DimensionIndex::C, &start_c, &size_c))
+            {
+                for (int c = start_c; c < start_c + size_c; ++c)
+                {
+                    this->CheckIfSamePixeltypeInChannel(c);
+                }
+            }
+        });
 
     this->result_gatherer_.FinishCheck(CCheckSamePixeltypePerChannel::kCheckType);
 }
@@ -63,7 +66,7 @@ void CCheckSamePixeltypePerChannel::CheckIfSamePixeltypeInChannel(int c)
                     ss << "pixeltype of subblock #" << index << " (" << Utils::PixelTypeToInformalString(info.pixelType) <<
                         ") differs from the pixeltype determined for channel " << c << " (" << Utils::PixelTypeToInformalString(pixeltype) << ")";
                     finding.information = ss.str();
-                    this->result_gatherer_.ReportFinding(finding);
+                    this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
                 }
             }
             else

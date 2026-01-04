@@ -25,6 +25,8 @@ public:
         IResultGatherer& result_gatherer,
         const CheckerCreateInfo& additional_info);
     void RunCheck() override;
+protected:
+    friend class ParserErrorHandler;
 private:
     std::string GetCziMetadataXml();
 };

@@ -4,11 +4,6 @@
 
 #pragma once
 
-#include <memory>
-#include "inc_libCZI.h"
-#include "resultgatherer.h"
-#include "checks.h"
-
 /// The interface of a "checker class".
 class IChecker
 {

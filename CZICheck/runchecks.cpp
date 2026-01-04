@@ -24,7 +24,7 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
     shared_ptr<libCZI::IStream> stream;
     try
     {
-        stream = libCZI::CreateStreamFromFile(this->opts.GetCZIFilename().c_str());
+        stream = CreateSourceStream(this->opts);
     }
     catch (exception& ex)
     {
@@ -54,16 +54,29 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
     auto resultsGatherer = CreateResultGatherer(opts);
 
     CheckerCreateInfo checkerAdditionalInfo;
+    // Only determine the file size for local file inputs. For URL or other stream classes
+    // the total file size is unknown and should remain 0 to avoid incorrect assumptions.
+    if (this->opts.GetSourceStreamClass().empty())
+    {
     checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
+    }
 
     const auto& checksToRun = this->opts.GetChecksEnabled();
     for (auto checkType : checksToRun)
     {
         auto checker = CCheckerFactory::CreateChecker(checkType, spReader, *resultsGatherer, checkerAdditionalInfo);
         checker->RunCheck();
+
+        // if fail-fast is enabled overall, and errors have been detected, we stop here.
+        if (this->opts.GetFailFastMode() == CCmdLineOptions::FailFastMode::FailFastForFatalErrorsOverall &&
+            resultsGatherer->GetAggregatedResult() == IResultGatherer::AggregatedResult::ErrorsDetected)
+        {
+            break;
+        }
     }
 
     result = resultsGatherer->GetAggregatedResult();
+
     resultsGatherer->FinalizeChecks();
     return true;
 }

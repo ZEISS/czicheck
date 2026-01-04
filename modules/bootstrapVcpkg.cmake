@@ -12,7 +12,7 @@ if(DEFINED CMAKE_GENERATOR_INSTANCE OR DEFINED CMAKE_VS_INSTANCE)
     set(BUILDING_IN_VISUAL_STUDIO ON)
 endif()
 
-set(VCPKG_DIR "${CMAKE_SOURCE_DIR}/external/vcpkg")
+set(VCPKG_DIR "${CMAKE_BINARY_DIR}/_deps/vcpkg")
 if(WIN32)
     set(VCPKG_EXECUTABLE "${VCPKG_DIR}/vcpkg.exe")
 else()
@@ -54,7 +54,7 @@ if(NOT EXISTS "${VCPKG_EXECUTABLE}")
 
         message(STATUS "Cloning vcpkg...")
         execute_process(
-            COMMAND git clone --depth 1 https://github.com/microsoft/vcpkg.git "${VCPKG_DIR}"
+            COMMAND git clone https://github.com/microsoft/vcpkg.git "${VCPKG_DIR}"
             RESULT_VARIABLE GIT_CLONE_RESULT
         )
         if(NOT GIT_CLONE_RESULT EQUAL 0)
@@ -62,14 +62,14 @@ if(NOT EXISTS "${VCPKG_EXECUTABLE}")
         endif()
         
         if(DEFINED VCPKG_BASELINE_COMMIT)
-          message(STATUS "Fetching vcpkg baseline commit: ${VCPKG_BASELINE_COMMIT}")
+            message(STATUS "Checking out vcpkg baseline commit: ${VCPKG_BASELINE_COMMIT}")
           execute_process(
-            COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" git fetch --depth 1 origin ${VCPKG_BASELINE_COMMIT}
-            RESULT_VARIABLE GIT_FETCH_RESULT
+                COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" git checkout ${VCPKG_BASELINE_COMMIT}
+                RESULT_VARIABLE GIT_CHECKOUT_RESULT
             )
-          if(NOT GIT_FETCH_RESULT EQUAL 0)
+            if(NOT GIT_CHECKOUT_RESULT EQUAL 0)
             message(FATAL_ERROR
-              "Failed to fetch vcpkg baseline commit ${VCPKG_BASELINE_COMMIT}. "
+                    "Failed to checkout vcpkg baseline commit ${VCPKG_BASELINE_COMMIT}. "
               "Check that your builtin-baseline is correct and exists in the vcpkg repo."
             )
           endif()

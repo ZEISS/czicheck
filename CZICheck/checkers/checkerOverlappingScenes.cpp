@@ -27,29 +27,32 @@ void CCheckOverlappingScenesOnLayer0::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckOverlappingScenesOnLayer0::kCheckType);
 
-    const auto subblock_statistics = this->reader_->GetStatistics();
-
-    // if there is no S-index, then we have nothing to do here
-    if (subblock_statistics.dimBounds.IsValid(DimensionIndex::S))
-    {
-        vector<ScenePair> overlapping_scenes;
-
-        // so, now we first check whether the "scene-minimal-bounding-rectangles" are overlapping,
-        // and in "overlappingScenes" we will store which scenes are overlapping (as determined by
-        // checking the bounding-rectangles)
-        if (CCheckOverlappingScenesOnLayer0::AreSceneBoundingRectanglesOverlapping(
-            subblock_statistics.sceneBoundingBoxes,
-            [&](int scene_index1, int scene_index2)->bool
-            {
-                overlapping_scenes.emplace_back(ScenePair{ scene_index1, scene_index2 });
-                return true;
-            }))
+    this->RunCheckDefaultExceptionHandling([this]() 
         {
-            // if there are overlaps found from checking the bounding-rectangles, we next check respective
-            // case more detailed - i.e. by checking the subblocks in question itself
-            this->CheckForOverlappingSubblocksInDifferentScenes(subblock_statistics, overlapping_scenes);
-        }
-    }
+            const auto subblock_statistics = this->reader_->GetStatistics();
+
+            // if there is no S-index, then we have nothing to do here
+            if (subblock_statistics.dimBounds.IsValid(DimensionIndex::S))
+            {
+                vector<ScenePair> overlapping_scenes;
+
+                // so, now we first check whether the "scene-minimal-bounding-rectangles" are overlapping,
+                // and in "overlappingScenes" we will store which scenes are overlapping (as determined by
+                // checking the bounding-rectangles)
+                if (CCheckOverlappingScenesOnLayer0::AreSceneBoundingRectanglesOverlapping(
+                    subblock_statistics.sceneBoundingBoxes,
+                    [&](int scene_index1, int scene_index2)->bool
+                    {
+                        overlapping_scenes.emplace_back(ScenePair{ scene_index1, scene_index2 });
+                        return true;
+                    }))
+                {
+                    // if there are overlaps found from checking the bounding-rectangles, we next check respective
+                    // case more detailed - i.e. by checking the subblocks in question itself
+                    this->CheckForOverlappingSubblocksInDifferentScenes(subblock_statistics, overlapping_scenes);
+                }
+            }
+        });
 
     this->result_gatherer_.FinishCheck(CCheckOverlappingScenesOnLayer0::kCheckType);
 }
@@ -170,7 +173,7 @@ void CCheckOverlappingScenesOnLayer0::CheckForOverlappingSubblocksInPlaneAndBetw
         }
 
         finding.details = ss.str();
-        this->result_gatherer_.ReportFinding(finding);
+        this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
     }
 }
 

@@ -25,25 +25,28 @@ void CCheckSubBlkSegmentsValid::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckSubBlkSegmentsValid::kCheckType);
 
-    this->reader_->EnumerateSubBlocks(
-        [this](int index, const SubBlockInfo& info)->bool
+    this->RunCheckDefaultExceptionHandling([this]()
         {
-            try
-            {
-                this->reader_->ReadSubBlock(index);
-            }
-            catch (exception& exception)
-            {
-                IResultGatherer::Finding finding(CCheckSubBlkSegmentsValid::kCheckType);
-                finding.severity = IResultGatherer::Severity::Fatal;
-                stringstream ss;
-                ss << "Error reading subblock #" << index;
-                finding.information = ss.str();
-                finding.details = exception.what();
-                this->result_gatherer_.ReportFinding(finding);
-            }
+            this->reader_->EnumerateSubBlocks(
+                [this](int index, const SubBlockInfo& info)->bool
+                {
+                        try
+                        {
+                            this->reader_->ReadSubBlock(index);
+                        }
+                        catch (exception& exception)
+                        {
+                            IResultGatherer::Finding finding(CCheckSubBlkSegmentsValid::kCheckType);
+                            finding.severity = IResultGatherer::Severity::Fatal;
+                            stringstream ss;
+                            ss << "Error reading subblock #" << index;
+                            finding.information = ss.str();
+                            finding.details = exception.what();
+                            this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
+                        }
 
-            return true;
+                        return true;
+                });
         });
 
     this->result_gatherer_.FinishCheck(CCheckSubBlkSegmentsValid::kCheckType);

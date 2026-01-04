@@ -37,3 +37,4 @@ build/
 CMakeSettings.json
 
 megalinter-reports/
+Testing/

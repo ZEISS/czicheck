@@ -21,12 +21,14 @@ CCheckConsecutivePlaneIndices::CCheckConsecutivePlaneIndices(
     CCheckerBase(reader, result_gatherer, additional_info)
 {}
 
-
 void CCheckConsecutivePlaneIndices::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckConsecutivePlaneIndices::kCheckType);
 
-    this->CheckForConsecutiveIndices();
+    this->RunCheckDefaultExceptionHandling([this]()
+        { 
+            this->CheckForConsecutiveIndices(); 
+        });
 
     this->result_gatherer_.FinishCheck(CCheckConsecutivePlaneIndices::kCheckType);
 }
@@ -87,7 +89,7 @@ void CCheckConsecutivePlaneIndices::CheckForConsecutiveIndices()
             //             is currently not being outputted, probably we'd want a commandline-options letting us choose whether we
             //             want to see "details" or not.
 
-            this->result_gatherer_.ReportFinding(finding);
+            this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
         }
     }
 }

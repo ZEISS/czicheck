@@ -15,7 +15,7 @@
 using namespace std;
 
 CResultGathererXml::CResultGathererXml(const CCmdLineOptions& options)
-    : options_(options)
+    : ResultGathererBase(options)
 {
     auto decl = this->xml_document_.append_child(pugi::node_declaration);
     decl.append_attribute(kXmlVersionId) = kXmlVersionNumber;
@@ -70,7 +70,7 @@ void CResultGathererXml::FinishCheck(CZIChecks check)
     }
 }
 
-void CResultGathererXml::ReportFinding(const Finding& finding)
+IResultGatherer::ReportFindingResult CResultGathererXml::ReportFinding(const Finding& finding)
 {
     const auto it = this->results_.find(finding.check);
     IncrementCounter(finding.severity, it->second);
@@ -97,6 +97,8 @@ void CResultGathererXml::ReportFinding(const Finding& finding)
             break;
         }
     }
+
+    return this->DetermineReportFindingResult(finding);
 }
 
 void CResultGathererXml::FinalizeChecks()
@@ -127,6 +129,6 @@ void CResultGathererXml::FinalizeChecks()
 
     ostringstream xml_document_stream;
     this->xml_document_.save(xml_document_stream, L"  ");
-    this->options_.GetLog()->WriteStdOut(xml_document_stream.str());
+    this->GetLog()->WriteStdOut(xml_document_stream.str());
 }
 

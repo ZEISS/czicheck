@@ -5,17 +5,16 @@
 #pragma once
 
 #include "IResultGatherer.h"
+#include "resultgathererbase.h"
 #include "cmdlineoptions.h"
 #include "checks.h"
 
 #include "pugixml.hpp"
-#include "pugiconfig.hpp"
 #include <string>
 
-class CResultGathererXml : public IResultGatherer
+class CResultGathererXml : public IResultGatherer, ResultGathererBase
 {
 private:
-    const CCmdLineOptions& options_;
     std::string current_checker_id_;
 
     pugi::xml_document xml_document_;
@@ -25,7 +24,7 @@ private:
 public:
     explicit CResultGathererXml(const CCmdLineOptions& options);
     void StartCheck(CZIChecks check) override;
-    void ReportFinding(const Finding& finding) override;
+    ReportFindingResult ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
     void FinalizeChecks() override;
 
