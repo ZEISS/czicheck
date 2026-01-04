@@ -53,6 +53,12 @@ jobs:
             VCPKG_EXE=$(command -v vcpkg)
             echo "Found vcpkg at: $VCPKG_EXE"
             
+            # Resolve symlinks to find the real installation root
+            if command -v readlink >/dev/null 2>&1; then
+                VCPKG_EXE=$(readlink -f "$VCPKG_EXE")
+                echo "Resolved path via readlink: $VCPKG_EXE"
+            fi
+            
             VCPKG_DIR=$(dirname "$VCPKG_EXE")
             
             if [[ "$RUNNER_OS" == "Windows" ]]; then
