@@ -24,13 +24,34 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      # GitHub-hosted runners (incl. ubuntu-latest) provide VCPKG_INSTALLATION_ROOT.
-      # Keep a fallback to VCPKG_ROOT for compatibility.
-      VCPKG_INSTALLATION_ROOT: ${{ env.VCPKG_INSTALLATION_ROOT || env.VCPKG_ROOT }}
+      # GitHub-hosted runners provide VCPKG_INSTALLATION_ROOT.
+      # If not present, it can be set at runtime (see diagnostic step below).
+      VCPKG_INSTALLATION_ROOT: ${{ vars.VCPKG_INSTALLATION_ROOT || '' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Diagnose vcpkg environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "RUNNER_OS=$RUNNER_OS"
+          echo "VCPKG_INSTALLATION_ROOT(initial)=${VCPKG_INSTALLATION_ROOT:-}"
+          echo "VCPKG_ROOT=${VCPKG_ROOT:-}"
+
+          if [ -z "${VCPKG_INSTALLATION_ROOT:-}" ] && [ -n "${VCPKG_ROOT:-}" ]; then
+            echo "VCPKG_INSTALLATION_ROOT=${VCPKG_ROOT}" >> "$GITHUB_ENV"
+            echo "Resolved VCPKG_INSTALLATION_ROOT from VCPKG_ROOT: ${VCPKG_ROOT}"
+          fi
+
+          echo "VCPKG_DEFAULT_BINARY_CACHE=${VCPKG_DEFAULT_BINARY_CACHE:-}"
+          echo "VCPKG_DEFAULT_HOST_TRIPLET=${VCPKG_DEFAULT_HOST_TRIPLET:-}"
+          echo "VCPKG_DEFAULT_TRIPLET=${VCPKG_DEFAULT_TRIPLET:-}"
+          if [ -n "${VCPKG_INSTALLATION_ROOT:-}" ]; then
+            ls -la "${VCPKG_INSTALLATION_ROOT}" || true
+            ls -la "${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems" || true
+          fi
 
       - name: Cache vcpkg downloads
         if: ${{ env.VCPKG_INSTALLATION_ROOT != '' }}
