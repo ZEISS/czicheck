@@ -35,23 +35,42 @@ jobs:
       - name: Diagnose vcpkg environment
         shell: bash
         run: |
-          vcpkg --version || echo "vcpkg not found"
           set -euo pipefail
-          echo "RUNNER_OS=$RUNNER_OS"
-          echo "VCPKG_INSTALLATION_ROOT(initial)=${VCPKG_INSTALLATION_ROOT:-}"
-          echo "VCPKG_ROOT=${VCPKG_ROOT:-}"
+          
+          echo "Diagnosing vcpkg environment..."
+          echo "Initial VCPKG_INSTALLATION_ROOT: '${VCPKG_INSTALLATION_ROOT:-}'"
 
-          if [ -z "${VCPKG_INSTALLATION_ROOT:-}" ] && [ -n "${VCPKG_ROOT:-}" ]; then
-            echo "VCPKG_INSTALLATION_ROOT=${VCPKG_ROOT}" >> "$GITHUB_ENV"
-            echo "Resolved VCPKG_INSTALLATION_ROOT from VCPKG_ROOT: ${VCPKG_ROOT}"
+          if [ -n "${VCPKG_INSTALLATION_ROOT:-}" ]; then
+            echo "Using existing VCPKG_INSTALLATION_ROOT."
+          else
+            echo "VCPKG_INSTALLATION_ROOT not set. Attempting to locate vcpkg..."
+            
+            if ! command -v vcpkg &> /dev/null; then
+               echo "::error::vcpkg executable not found in PATH."
+               exit 1
+            fi
+
+            VCPKG_EXE=$(command -v vcpkg)
+            echo "Found vcpkg at: $VCPKG_EXE"
+            
+            VCPKG_DIR=$(dirname "$VCPKG_EXE")
+            
+            if [[ "$RUNNER_OS" == "Windows" ]]; then
+               VCPKG_DIR=$(cygpath -w "$VCPKG_DIR")
+            fi
+            
+            echo "Resolved vcpkg root: $VCPKG_DIR"
+            echo "VCPKG_INSTALLATION_ROOT=$VCPKG_DIR" >> "$GITHUB_ENV"
+            VCPKG_INSTALLATION_ROOT="$VCPKG_DIR"
           fi
 
-          echo "VCPKG_DEFAULT_BINARY_CACHE=${VCPKG_DEFAULT_BINARY_CACHE:-}"
-          echo "VCPKG_DEFAULT_HOST_TRIPLET=${VCPKG_DEFAULT_HOST_TRIPLET:-}"
-          echo "VCPKG_DEFAULT_TRIPLET=${VCPKG_DEFAULT_TRIPLET:-}"
-          if [ -n "${VCPKG_INSTALLATION_ROOT:-}" ]; then
-            ls -la "${VCPKG_INSTALLATION_ROOT}" || true
-            ls -la "${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems" || true
+          echo "Final VCPKG_INSTALLATION_ROOT: $VCPKG_INSTALLATION_ROOT"
+          if [ -d "$VCPKG_INSTALLATION_ROOT" ]; then
+             echo "Directory contents:"
+             ls -F "$VCPKG_INSTALLATION_ROOT" | head -n 10
+          else
+             echo "::error::VCPKG_INSTALLATION_ROOT directory does not exist."
+             exit 1
           fi
 
       - name: Print ENV
