@@ -35,6 +35,7 @@ jobs:
       - name: Diagnose vcpkg environment
         shell: bash
         run: |
+          vcpkg --version || echo "vcpkg not found"
           set -euo pipefail
           echo "RUNNER_OS=$RUNNER_OS"
           echo "VCPKG_INSTALLATION_ROOT(initial)=${VCPKG_INSTALLATION_ROOT:-}"
