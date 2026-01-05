@@ -228,3 +228,77 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
     const std::string uri_utf8 = convertToUtf8(command_line_options.GetCZIFilename());
     return libCZI::StreamsFactory::CreateStream(stream_info, uri_utf8);
 }
+
+std::uint64_t TryGetStreamSize(libCZI::IStream* stream)
+{
+    // Try to determine the stream size by attempting to read at increasingly large offsets
+    // This is a heuristic approach for streams that don't expose their size directly
+    // We use binary search to find the actual end of the stream
+    
+    // First, try some common file sizes to quickly determine if it's small
+    const std::uint64_t probe_offsets[] = {
+        1024ULL,                    // 1 KB
+        1024ULL * 1024,             // 1 MB
+        100ULL * 1024 * 1024,       // 100 MB
+        1024ULL * 1024 * 1024,      // 1 GB
+        10ULL * 1024 * 1024 * 1024  // 10 GB
+    };
+    
+    char dummy_buffer;
+    std::uint64_t lower_bound = 0;
+    std::uint64_t upper_bound = 0;
+    
+    // Find an upper bound
+    for (auto offset : probe_offsets)
+    {
+        try
+        {
+            std::uint64_t bytes_read = 0;
+            stream->Read(offset, &dummy_buffer, 1, &bytes_read);
+            if (bytes_read == 0)
+            {
+                // We've read past the end
+                upper_bound = offset;
+                break;
+            }
+            lower_bound = offset;
+        }
+        catch (...)
+        {
+            // If reading fails, assume we're past the end
+            upper_bound = offset;
+            break;
+        }
+    }
+    
+    // If we didn't find an upper bound, the file is larger than our largest probe
+    if (upper_bound == 0)
+    {
+        return 0; // Size unknown
+    }
+    
+    // Binary search to find the exact size
+    while (upper_bound - lower_bound > 1)
+    {
+        std::uint64_t mid = lower_bound + (upper_bound - lower_bound) / 2;
+        try
+        {
+            std::uint64_t bytes_read = 0;
+            stream->Read(mid, &dummy_buffer, 1, &bytes_read);
+            if (bytes_read > 0)
+            {
+                lower_bound = mid;
+            }
+            else
+            {
+                upper_bound = mid;
+            }
+        }
+        catch (...)
+        {
+            upper_bound = mid;
+        }
+    }
+    
+    return upper_bound;
+}

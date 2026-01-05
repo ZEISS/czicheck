@@ -54,11 +54,18 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
     auto resultsGatherer = CreateResultGatherer(opts);
 
     CheckerCreateInfo checkerAdditionalInfo;
-    // Only determine the file size for local file inputs. For URL or other stream classes
-    // the total file size is unknown and should remain 0 to avoid incorrect assumptions.
+    // Determine the file size - straightforward for local files, requires probing for streams
     if (this->opts.GetSourceStreamClass().empty())
     {
+        // Local file - use filesystem API
         checkerAdditionalInfo.totalFileSize = GetFileSize(this->opts.GetCZIFilename().c_str());
+    }
+    else
+    {
+        // Non-file stream (e.g., HTTP/HTTPS) - attempt to determine size by probing
+        // Note: This uses binary search with reads, which may be expensive for network streams
+        // If performance is a concern, this can be made optional via command-line flag
+        checkerAdditionalInfo.totalFileSize = TryGetStreamSize(stream.get());
     }
 
     const auto& checksToRun = this->opts.GetChecksEnabled();

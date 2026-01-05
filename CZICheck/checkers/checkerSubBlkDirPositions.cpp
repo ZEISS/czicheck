@@ -43,6 +43,14 @@ void CCheckSubBlkDirPositions::RunCheck()
                 return true;
             });
     }
+    else
+    {
+        // When file size is unknown (e.g., when using HTTP/HTTPS streams), we cannot perform this check
+        IResultGatherer::Finding finding(CCheckSubBlkDirPositions::kCheckType);
+        finding.severity = IResultGatherer::Severity::Info;
+        finding.information = "File size is not available - skipping position validation. This check requires a local file with known size.";
+        this->result_gatherer_.ReportFinding(finding);
+    }
 
     this->result_gatherer_.FinishCheck(CCheckSubBlkDirPositions::kCheckType);
 }

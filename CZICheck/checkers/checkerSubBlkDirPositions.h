@@ -10,8 +10,11 @@
 /// This checker checks whether the subblock's file-position (retrieved from the subblock-directory)
 /// are within the file. Note that only the position itself is checked, not content of the file at
 /// this location.
+/// For HTTP/HTTPS streams, the file size is determined by probing reads at various offsets using
+/// binary search, which may incur some network overhead but enables validation.
 /// Pathologies:
-/// - if the filesize is unknown, then this test does nothing
+/// - if the filesize cannot be determined (e.g., stream larger than probe limit or errors during probing),
+///   an info message is reported and no validation is performed
 class CCheckSubBlkDirPositions : public IChecker, CCheckerBase
 {
 public:

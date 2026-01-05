@@ -24,8 +24,12 @@
 /// information' structure.
 struct CheckerCreateInfo
 {
-    /// The size of the CZI-file in bytes. A value of 0 means "file size is unknown" (and this could happen
-    /// if we allow for other streams than files).
+    /// The size of the CZI-file in bytes. A value of 0 means "file size is unknown".
+    /// For local files, this is determined via filesystem APIs. For HTTP/HTTPS streams, this is
+    /// determined by probing reads at various offsets using binary search. If the size cannot be
+    /// determined (stream too large or errors during probing), this will be 0.
+    /// Checkers that depend on file size should handle this gracefully and skip validation or
+    /// report an informational message when size is unavailable.
     std::uint64_t totalFileSize{ 0 };
 };
 

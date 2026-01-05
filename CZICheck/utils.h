@@ -29,6 +29,15 @@ std::string GetVersionNumber();
 /// \returns A shared pointer to the created stream.
 std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& command_line_options);
 
+/// Attempts to determine the size of a stream by probing reads at various offsets.
+/// This is useful for streams (like HTTP/HTTPS) that don't expose their size directly.
+/// Uses binary search to efficiently find the stream's end point.
+///
+/// \param stream  The stream to determine the size of.
+///
+/// \returns The size of the stream in bytes, or 0 if the size cannot be determined (e.g., stream is larger than the largest probe offset).
+std::uint64_t TryGetStreamSize(libCZI::IStream* stream);
+
 #if CZICHECK_WIN32_ENVIRONMENT
 /// A utility which is providing the command-line arguments (on Windows) as UTF8-encoded strings.
 class CommandlineArgsWindowsHelper
