@@ -32,92 +32,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Diagnose vcpkg environment
+      - name: Setup VCPKG_ROOT
         shell: bash
         run: |
-          set -euo pipefail
-          
-          echo "Diagnosing vcpkg environment..."
-          echo "Initial VCPKG_INSTALLATION_ROOT: '${VCPKG_INSTALLATION_ROOT:-}'"
+          echo "VCPKG_ROOT=${{ runner.workspace }}/vcpkg-root" >> $GITHUB_ENV
 
-          if [ -n "${VCPKG_INSTALLATION_ROOT:-}" ]; then
-            echo "Using existing VCPKG_INSTALLATION_ROOT."
-          else
-            echo "VCPKG_INSTALLATION_ROOT not set. Attempting to locate vcpkg..."
-            
-            if ! command -v vcpkg &> /dev/null; then
-               echo "::error::vcpkg executable not found in PATH."
-               exit 1
-            fi
-
-            VCPKG_EXE=$(command -v vcpkg)
-            echo "Found vcpkg at: $VCPKG_EXE"
-            
-            # Resolve symlinks to find the real installation root
-            if command -v readlink >/dev/null 2>&1; then
-                VCPKG_EXE=$(readlink -f "$VCPKG_EXE")
-                echo "Resolved path via readlink: $VCPKG_EXE"
-            fi
-            
-            VCPKG_DIR=$(dirname "$VCPKG_EXE")
-            
-            if [[ "$RUNNER_OS" == "Windows" ]]; then
-               VCPKG_DIR=$(cygpath -w "$VCPKG_DIR")
-            fi
-            
-            echo "Resolved vcpkg root: $VCPKG_DIR"
-            echo "VCPKG_INSTALLATION_ROOT=$VCPKG_DIR" >> "$GITHUB_ENV"
-            VCPKG_INSTALLATION_ROOT="$VCPKG_DIR"
-          fi
-
-          echo "Final VCPKG_INSTALLATION_ROOT: $VCPKG_INSTALLATION_ROOT"
-          
-          if [ -d "$VCPKG_INSTALLATION_ROOT/.git" ]; then
-             echo "Checking vcpkg git state..."
-             # Save current directory
-             PUSHD_DIR=$(pwd)
-             cd "$VCPKG_INSTALLATION_ROOT"
-             
-             if [[ "$RUNNER_OS" == "Linux" ]]; then
-                echo "Ensuring write permissions on Linux..."
-                sudo chown -R $(whoami) .
-             fi
-             
-             if [ -f "$GITHUB_WORKSPACE/vcpkg.json" ]; then
-                 BASELINE=$(jq -r '.["builtin-baseline"]' "$GITHUB_WORKSPACE/vcpkg.json")
-                 echo "Required baseline: $BASELINE"
-                 
-                 if [ -n "$BASELINE" ] && [ "$BASELINE" != "null" ]; then
-                     if ! git cat-file -e "${BASELINE}^{commit}" 2>/dev/null; then
-                         echo "Baseline commit not found locally. Fetching..."
-                         git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow || git fetch --all
-                     else
-                         echo "Baseline commit found."
-                     fi
-                 fi
-             fi
-             
-             cd "$PUSHD_DIR"
-          fi
-
-          if [ -d "$VCPKG_INSTALLATION_ROOT" ]; then
-             echo "Directory contents:"
-             ls -F "$VCPKG_INSTALLATION_ROOT" | head -n 10
-          else
-             echo "::error::VCPKG_INSTALLATION_ROOT directory does not exist."
-             exit 1
-          fi
-
-      - name: Print ENV
-        run: printenv
-
-      - name: Cache vcpkg downloads
-        if: ${{ env.VCPKG_INSTALLATION_ROOT != '' }}
+      - name: Cache vcpkg
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
-          key: vcpkg-downloads-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+            ${{ env.VCPKG_ROOT }}
+          key: vcpkg-bootstrapped-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
       - name: Install Ninja (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') }}
@@ -131,7 +56,6 @@ jobs:
           # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
           # on Windows, we need to point CMake to the vcpkg-toolchain-file
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
-                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DVCPKG_TARGET_TRIPLET=x64-windows-static \
                 -DCZICHECK_BUILD_TESTS=ON
 
@@ -140,7 +64,6 @@ jobs:
         shell: bash
         run: |
           cmake -B "${{github.workspace}}/build" -G Ninja -DCMAKE_BUILD_TYPE=${{matrix.build}} \
-                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON
       - name: Build
         # Build your program with the given configuration

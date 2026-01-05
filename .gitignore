@@ -38,3 +38,4 @@ CMakeSettings.json
 
 megalinter-reports/
 Testing/
+/build-win
