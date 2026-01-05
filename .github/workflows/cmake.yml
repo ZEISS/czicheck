@@ -44,9 +44,9 @@ jobs:
             ${{ env.VCPKG_ROOT }}
           key: vcpkg-bootstrapped-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
-      - name: Install Ninja (Linux)
+      - name: Install system dependencies (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') }}
-        run: sudo apt-get install -y ninja-build
+        run: sudo apt-get install -y ninja-build linux-libc-dev
 
       - name: Configure CMake (Windows)
         if: ${{ (matrix.os == 'windows-latest') }}
