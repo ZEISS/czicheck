@@ -32,17 +32,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup VCPKG_ROOT
+      - name: Setup vcpkg environment
         shell: bash
         run: |
           echo "VCPKG_ROOT=${{ runner.workspace }}/vcpkg-root" >> $GITHUB_ENV
+          # VCPKG_DEFAULT_BINARY_CACHE tells vcpkg where to store/retrieve compiled binary packages.
+          # By setting this to a persistent location and caching it, we avoid rebuilding dependencies
+          # from source on every run, significantly speeding up the workflow.
+          echo "VCPKG_DEFAULT_BINARY_CACHE=${{ runner.workspace }}/vcpkg-cache" >> $GITHUB_ENV
 
       - name: Cache vcpkg
         uses: actions/cache@v4
         with:
           path: |
             ${{ env.VCPKG_ROOT }}
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+            ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-env-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
       - name: Install system dependencies (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') }}
