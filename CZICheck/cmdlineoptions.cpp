@@ -197,10 +197,36 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         "The argument may be one of 'json', 'xml', 'text'. Default is 'text'.\n")
         ->option_text("ENCODING")
         ->check(encodings_validator);
+    
+    // Build the stream class help text dynamically based on what's actually available
+    ostringstream stream_help;
+    stream_help << "Specifies the stream class to use for opening the source file.\n"
+                << "If not specified, a default file-stream will be used.\n";
+    
+    // Query available stream classes from libCZI
+    libCZI::StreamsFactory::Initialize();
+    int stream_class_count = libCZI::StreamsFactory::GetStreamClassesCount();
+    if (stream_class_count > 0)
+    {
+        stream_help << "Available stream classes: ";
+        for (int i = 0; i < stream_class_count; ++i)
+        {
+            libCZI::StreamsFactory::StreamClassInfo stream_info;
+            if (libCZI::StreamsFactory::GetStreamInfoForClass(i, stream_info))
+            {
+                if (i > 0) stream_help << ", ";
+                stream_help << "'" << stream_info.class_name << "'";
+                if (!stream_info.short_description.empty())
+                {
+                    stream_help << " (" << stream_info.short_description << ")";
+                }
+            }
+        }
+        stream_help << "\n";
+    }
+    
     app.add_option("--source-stream-class", source_stream_class_option,
-        "Specifies the stream class to use for opening the source file.\n"
-        "If not specified, a default file-stream will be used.\n"
-        "Available stream classes: 'curl' (for HTTP/HTTPS URLs)\n")
+        stream_help.str())
         ->option_text("STREAM-CLASS");
     bool fail_fast_flag = false;
     app.add_flag("--fail-fast", fail_fast_flag,

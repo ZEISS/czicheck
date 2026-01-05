@@ -10,6 +10,7 @@
 #include <memory>
 #include <sstream>
 #include <iostream>
+#include <stdexcept>
 
 #if CZICHECK_WIN32_ENVIRONMENT
 #include <Windows.h>
@@ -156,8 +157,43 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
     // Otherwise, use the StreamsFactory with the specified stream class and property bag
     libCZI::StreamsFactory::Initialize();
     
+    // Validate that the requested stream class is available
+    const std::string& requested_class = command_line_options.GetSourceStreamClass();
+    bool class_found = false;
+    int stream_class_count = libCZI::StreamsFactory::GetStreamClassesCount();
+    for (int i = 0; i < stream_class_count; ++i)
+    {
+        libCZI::StreamsFactory::StreamClassInfo stream_info;
+        if (libCZI::StreamsFactory::GetStreamInfoForClass(i, stream_info))
+        {
+            if (stream_info.class_name == requested_class)
+            {
+                class_found = true;
+                break;
+            }
+        }
+    }
+    
+    if (!class_found)
+    {
+        std::ostringstream error_msg;
+        error_msg << "Stream class '" << requested_class << "' is not available. ";
+        error_msg << "This may be because libCZI was not built with support for this stream class. ";
+        error_msg << "Available stream classes: ";
+        for (int i = 0; i < stream_class_count; ++i)
+        {
+            libCZI::StreamsFactory::StreamClassInfo stream_info;
+            if (libCZI::StreamsFactory::GetStreamInfoForClass(i, stream_info))
+            {
+                if (i > 0) error_msg << ", ";
+                error_msg << "'" << stream_info.class_name << "'";
+            }
+        }
+        throw std::runtime_error(error_msg.str());
+    }
+    
     libCZI::StreamsFactory::CreateStreamInfo stream_info;
-    stream_info.class_name = command_line_options.GetSourceStreamClass();
+    stream_info.class_name = requested_class;
     
     // Get property information to convert property names to IDs
     int property_info_count;
