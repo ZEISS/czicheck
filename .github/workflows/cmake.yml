@@ -230,100 +230,23 @@ jobs:
                 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
-        run: |
-          set -x  # Enable command tracing
-          cmake --build ${GITHUB_WORKSPACE}/build --config Release --verbose
-          BUILD_EXIT=$?
-          echo "=== Build exit code: $BUILD_EXIT ==="
-
-          echo "=== Checking build directory structure ==="
-          ls -laR ${GITHUB_WORKSPACE}/build/CZICheck/ || echo "CZICheck directory missing"
-
-          echo "=== Searching for ALL executables in build directory ==="
-          find ${GITHUB_WORKSPACE}/build -type f -executable -exec ls -lh {} \; || echo "No executables found"
-
-          echo "=== Checking specific binary location ==="
-          BINARY_PATH="${GITHUB_WORKSPACE}/build/CZICheck/CZICheck"
-          if [ -f "$BINARY_PATH" ]; then
-            echo "✓ Binary found at: $BINARY_PATH"
-            ls -lh "$BINARY_PATH"
-            file "$BINARY_PATH"
-            echo "Binary size: $(stat -c%s "$BINARY_PATH" 2>/dev/null || stat -f%z "$BINARY_PATH" 2>/dev/null) bytes"
-          else
-            echo "✗ ERROR: Binary NOT found at expected location: $BINARY_PATH"
-            echo "=== Checking if it was built but moved ==="
-            find ${GITHUB_WORKSPACE} -name "CZICheck" -type f -executable 2>/dev/null || echo "Binary not found anywhere in workspace"
-            exit 1
-          fi
+        run: cmake --build ${GITHUB_WORKSPACE}/build --config Release
 
       - name: CTest
         run: |
           cd "${GITHUB_WORKSPACE}/build"
-          ctest -C Release --verbose
-
-      - name: Debug - Show complete file tree
-        run: |
-          set +e  # Don't exit on error for debugging commands
-          echo "=== Environment ==="
-          echo "PWD: $(pwd)"
-          echo "GITHUB_WORKSPACE: ${GITHUB_WORKSPACE}"
-          echo "HOME: ${HOME}"
-          df -h
-          echo ""
-          echo "=== Git status ==="
-          git status || echo "Not a git repo or git failed"
-          echo ""
-          echo "=== Looking for CZICheck binary specifically ==="
-          ls -la "${GITHUB_WORKSPACE}/build/CZICheck/" || echo "CZICheck directory not found"
-          echo ""
-          echo "=== All executable files in build directory ==="
-          find "${GITHUB_WORKSPACE}/build" -type f -executable -ls || echo "No executables found"
-          echo ""
-          echo "=== All files named CZICheck (any type) ==="
-          find "${GITHUB_WORKSPACE}" -name "CZICheck" || echo "No CZICheck files found"
-          echo ""
-          echo "=== First 50 files in workspace ==="
-          find "${GITHUB_WORKSPACE}" -type f | head -50
-          echo ""
-          echo "=== License file location ==="
-          ls -la "${GITHUB_WORKSPACE}/THIRD_PARTY_LICENSES.txt" || echo "License not found in root"
+          ctest -C Release
 
       - name: Package
         run: |
-          set -x
           cd "${GITHUB_WORKSPACE}"
-
-          # Show environment
-          echo "Current directory: $(pwd)"
-          ls -la build/CZICheck/ || echo "ERROR: build/CZICheck not found"
-
-          # Create release directory
           mkdir -p release
           name="CZICheck-alpine-x64-$(git describe --always)"
           mkdir -p "release/${name}"
 
-          # Copy binary
-          if [ -f "build/CZICheck/CZICheck" ]; then
-            cp "build/CZICheck/CZICheck" "release/${name}/"
-            echo "Binary copied successfully"
-          else
-            echo "::error::CZICheck binary not found at build/CZICheck/CZICheck"
-            exit 1
-          fi
+          cp "build/CZICheck/CZICheck" "release/${name}/"
+          cp "THIRD_PARTY_LICENSES.txt" "release/${name}/"
 
-          # Copy license
-          if [ -f "THIRD_PARTY_LICENSES.txt" ]; then
-            cp "THIRD_PARTY_LICENSES.txt" "release/${name}/"
-            echo "License copied successfully"
-          else
-            echo "::warning::THIRD_PARTY_LICENSES.txt not found"
-          fi
-
-          # Verify contents
-          echo "=== Artifact contents ==="
-          ls -lh "release/${name}/"
-
-          # Set outputs
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=${GITHUB_WORKSPACE}/release/${name}" >> "$GITHUB_ENV"
 
