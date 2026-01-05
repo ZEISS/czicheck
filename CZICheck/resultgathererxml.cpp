@@ -70,7 +70,7 @@ void CResultGathererXml::FinishCheck(CZIChecks check)
     }
 }
 
-void CResultGathererXml::ReportFinding(const Finding& finding)
+bool CResultGathererXml::ReportFinding(const Finding& finding)
 {
     const auto it = this->results_.find(finding.check);
     IncrementCounter(finding.severity, it->second);
@@ -97,6 +97,15 @@ void CResultGathererXml::ReportFinding(const Finding& finding)
             break;
         }
     }
+
+    // Check if we should fail-fast after reporting this finding
+    if (this->IsFailFastEnabled() && finding.severity == IResultGatherer::Severity::Fatal)
+    {
+        this->NotifyFailFastStop(finding.check);
+        return false; // Signal to stop
+    }
+
+    return true; // Continue
 }
 
 void CResultGathererXml::FinalizeChecks()

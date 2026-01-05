@@ -27,7 +27,7 @@ private:
 public:
     explicit CResultGathererJson(const CCmdLineOptions& options);
     void StartCheck(CZIChecks check) override;
-    void ReportFinding(const Finding& finding) override;
+    bool ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
     void FinalizeChecks() override;
     bool HasFatal(CZIChecks check) const override;

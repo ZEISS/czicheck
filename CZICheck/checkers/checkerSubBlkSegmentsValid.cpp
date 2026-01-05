@@ -40,11 +40,10 @@ void CCheckSubBlkSegmentsValid::RunCheck()
                 ss << "Error reading subblock #" << index;
                 finding.information = ss.str();
                 finding.details = exception.what();
-                this->result_gatherer_.ReportFinding(finding);
-
-                if (this->result_gatherer_.IsFailFastEnabled() && this->result_gatherer_.HasFatal(CCheckSubBlkSegmentsValid::kCheckType))
+                
+                // Report the finding and check if we should stop
+                if (!this->result_gatherer_.ReportFinding(finding))
                 {
-                    this->result_gatherer_.NotifyFailFastStop(CCheckSubBlkSegmentsValid::kCheckType);
                     return false; // stop enumeration for this check
                 }
             }

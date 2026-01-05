@@ -49,11 +49,10 @@ void CCheckSubBlkBitmapValid::RunCheck()
                             ss << "Error decoding subblock #" << index << " with compression \"" << Utils::CompressionModeToInformalString(compression_mode) << "\"";
                             finding.information = ss.str();
                             finding.details = exception.what();
-                            this->result_gatherer_.ReportFinding(finding);
-
-                            if (this->result_gatherer_.IsFailFastEnabled() && this->result_gatherer_.HasFatal(CCheckSubBlkBitmapValid::kCheckType))
+                            
+                            // Report the finding and check if we should stop
+                            if (!this->result_gatherer_.ReportFinding(finding))
                             {
-                                this->result_gatherer_.NotifyFailFastStop(CCheckSubBlkBitmapValid::kCheckType);
                                 return false; // stop enumeration
                             }
                         }
@@ -76,12 +75,11 @@ void CCheckSubBlkBitmapValid::RunCheck()
                 ss << "Error reading subblock #" << index;
                 finding.information = ss.str();
                 finding.details = exception.what();
-                this->result_gatherer_.ReportFinding(finding);
-
-                if (this->result_gatherer_.IsFailFastEnabled() && this->result_gatherer_.HasFatal(CCheckSubBlkBitmapValid::kCheckType))
+                
+                // Report the finding and check if we should stop
+                if (!this->result_gatherer_.ReportFinding(finding))
                 {
-                    this->result_gatherer_.NotifyFailFastStop(CCheckSubBlkBitmapValid::kCheckType);
-                    return false;
+                    return false; // stop enumeration
                 }
             }
 

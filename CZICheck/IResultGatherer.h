@@ -60,7 +60,9 @@ protected:
 
 public:
     virtual void StartCheck(CZIChecks check) = 0;
-    virtual void ReportFinding(const Finding& finding) = 0;
+    /// Reports a finding to the result gatherer.
+    /// \returns true if the checker should continue, false if it should stop (fail-fast triggered).
+    virtual bool ReportFinding(const Finding& finding) = 0;
     virtual void FinishCheck(CZIChecks check) = 0;
     virtual void FinalizeChecks() = 0;
     virtual bool HasFatal(CZIChecks check) const = 0;
