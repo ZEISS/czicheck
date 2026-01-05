@@ -56,6 +56,9 @@ jobs:
       - name: Setup vcpkg
         shell: bash
         run: |
+          # Ensure the binary cache directory exists (if not restored by cache)
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+
           if [ ! -d "$VCPKG_ROOT/.git" ]; then
             echo "Cloning vcpkg to $VCPKG_ROOT"
             git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
