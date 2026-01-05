@@ -48,6 +48,24 @@ jobs:
         if: ${{ (matrix.os == 'ubuntu-latest') }}
         run: sudo apt-get install -y ninja-build linux-libc-dev
 
+      - name: Setup vcpkg
+        shell: bash
+        run: |
+          if [ ! -d "$VCPKG_ROOT/.git" ]; then
+            echo "Cloning vcpkg to $VCPKG_ROOT"
+            git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+          fi
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            if [ ! -f "$VCPKG_ROOT/vcpkg.exe" ]; then
+              "$VCPKG_ROOT/bootstrap-vcpkg.bat"
+            fi
+          else
+            if [ ! -f "$VCPKG_ROOT/vcpkg" ]; then
+              "$VCPKG_ROOT/bootstrap-vcpkg.sh"
+            fi
+          fi
+
       - name: Configure CMake (Windows)
         if: ${{ (matrix.os == 'windows-latest') }}
         shell: bash
@@ -56,6 +74,7 @@ jobs:
           # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
           # on Windows, we need to point CMake to the vcpkg-toolchain-file
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DVCPKG_TARGET_TRIPLET=x64-windows-static \
                 -DCZICHECK_BUILD_TESTS=ON
 
@@ -64,6 +83,7 @@ jobs:
         shell: bash
         run: |
           cmake -B "${{github.workspace}}/build" -G Ninja -DCMAKE_BUILD_TYPE=${{matrix.build}} \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON
       - name: Build
         # Build your program with the given configuration
