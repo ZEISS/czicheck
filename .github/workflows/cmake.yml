@@ -230,7 +230,7 @@ jobs:
                 -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
       - name: Build
-        run: cmake --build ${GITHUB_WORKSPACE}/build --config Release
+        run: cmake --build "${GITHUB_WORKSPACE}/build" --config Release
 
       - name: CTest
         run: |
