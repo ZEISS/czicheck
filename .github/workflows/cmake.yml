@@ -119,41 +119,9 @@ jobs:
             ${{ env.VCPKG_INSTALLATION_ROOT }}/downloads
           key: vcpkg-downloads-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
-      # - name: Prep existing vcpkg installation
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-      #     BASELINE=$(jq -r '.["builtin-baseline"]' vcpkg.json)
-      #     echo "Detected vcpkg baseline: $BASELINE"
-
-      #     if [ -n "${VCPKG_ROOT:-}" ] && [ -d "$VCPKG_ROOT/.git" ]; then
-      #         echo "Using preinstalled vcpkg at $VCPKG_ROOT"
-      #         VCPKG_DIR="$VCPKG_ROOT"
-      #     else
-      #         echo "Performing minimal vcpkg clone..."
-      #         git clone --filter=blob:none --no-checkout https://github.com/microsoft/vcpkg.git external/vcpkg
-      #         VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
-      #     fi
-
-      #     cd "$VCPKG_DIR"
-
-      #     if ! git cat-file -e "${BASELINE}^{commit}" 2>/dev/null; then
-      #         echo "Fetching baseline commit $BASELINE..."
-      #         git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow
-      #     fi
-
-      #     git checkout "$BASELINE"
-
-      #     if [ ! -f ./vcpkg ] && [ ! -f ./vcpkg.exe ]; then
-      #         if [[ "$RUNNER_OS" == "Windows" ]]; then
-      #             ./bootstrap-vcpkg.bat
-      #         else
-      #             ./bootstrap-vcpkg.sh
-      #         fi
-      #     fi
-
-      #     echo "vcpkg is now at commit: $(git rev-parse HEAD)"
-      #     echo "VCPKG_DIR=$VCPKG_DIR" >> "$GITHUB_ENV"
+      - name: Install Ninja (Linux)
+        if: ${{ (matrix.os == 'ubuntu-latest') }}
+        run: sudo apt-get install -y ninja-build
 
       - name: Configure CMake (Windows)
         if: ${{ (matrix.os == 'windows-latest') }}
