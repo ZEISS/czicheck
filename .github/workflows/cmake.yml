@@ -71,6 +71,35 @@ jobs:
           fi
 
           echo "Final VCPKG_INSTALLATION_ROOT: $VCPKG_INSTALLATION_ROOT"
+          
+          if [ -d "$VCPKG_INSTALLATION_ROOT/.git" ]; then
+             echo "Checking vcpkg git state..."
+             # Save current directory
+             PUSHD_DIR=$(pwd)
+             cd "$VCPKG_INSTALLATION_ROOT"
+             
+             if [[ "$RUNNER_OS" == "Linux" ]]; then
+                echo "Ensuring write permissions on Linux..."
+                sudo chown -R $(whoami) .
+             fi
+             
+             if [ -f "$GITHUB_WORKSPACE/vcpkg.json" ]; then
+                 BASELINE=$(jq -r '.["builtin-baseline"]' "$GITHUB_WORKSPACE/vcpkg.json")
+                 echo "Required baseline: $BASELINE"
+                 
+                 if [ -n "$BASELINE" ] && [ "$BASELINE" != "null" ]; then
+                     if ! git cat-file -e "${BASELINE}^{commit}" 2>/dev/null; then
+                         echo "Baseline commit not found locally. Fetching..."
+                         git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow || git fetch --all
+                     else
+                         echo "Baseline commit found."
+                     fi
+                 fi
+             fi
+             
+             cd "$PUSHD_DIR"
+          fi
+
           if [ -d "$VCPKG_INSTALLATION_ROOT" ]; then
              echo "Directory contents:"
              ls -F "$VCPKG_INSTALLATION_ROOT" | head -n 10
@@ -142,7 +171,7 @@ jobs:
         if: ${{ (matrix.os == 'ubuntu-latest') }}
         shell: bash
         run: |
-          cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
+          cmake -B "${{github.workspace}}/build" -G Ninja -DCMAKE_BUILD_TYPE=${{matrix.build}} \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_INSTALLATION_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON
       - name: Build
