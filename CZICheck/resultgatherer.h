@@ -24,6 +24,9 @@ public:
     void StartCheck(CZIChecks check) override;
     ReportFindingResult ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
+
     void FinalizeChecks() override;
-    AggregatedResult GetAggregatedResult() const override;
+    CheckResult GetAggregatedCounts() const  override;
+    //CheckResult GetAggregatedResult() const override;
+    //AggregatedResult GetAggregatedResult() const override;
 };

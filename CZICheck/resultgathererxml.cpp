@@ -137,7 +137,7 @@ void CResultGathererXml::FinalizeChecks()
     this->GetLog()->WriteStdOut(xml_document_stream.str());
 }
 
-IResultGatherer::AggregatedResult CResultGathererXml::GetAggregatedResult() const
+IResultGatherer::CheckResult CResultGathererXml::GetAggregatedCounts() const
 {
-    return this->CoreGetAggregatedResult();
+    return this->CoreGetAggregatedCounts();
 }

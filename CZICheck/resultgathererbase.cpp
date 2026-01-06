@@ -22,8 +22,18 @@ IResultGatherer::ReportFindingResult ResultGathererBase::DetermineReportFindingR
 
 void ResultGathererBase::CoreStartCheck(CZIChecks check)
 {
+    if (this->current_checker_.has_value())
+    {
+        throw std::runtime_error("A checker is already active; cannot start a new check.");
+    }
+
+    auto insert_result = this->results_.insert(std::pair(check, IResultGatherer::CheckResult()));
+    if (!insert_result.second)
+    {
+        throw std::runtime_error("Attempting to run a check multiple times.");
+    }
+
     this->current_checker_ = check;
-    this->results_.insert(std::pair<CZIChecks, IResultGatherer::CheckResult>(check, IResultGatherer::CheckResult()));
 }
 
 void ResultGathererBase::CoreReportFinding(const IResultGatherer::Finding& finding)
@@ -79,7 +89,7 @@ IResultGatherer::CheckResult ResultGathererBase::GetCheckResultForCurrentlyActiv
     return it->second;
 }
 
-IResultGatherer::AggregatedResult ResultGathererBase::CoreGetAggregatedResult() const
+/*IResultGatherer::AggregatedResult ResultGathererBase::CoreGetAggregatedResult() const
 {
     std::uint32_t total_fatal_messages_count = 0;
     std::uint32_t total_warning_messages_count = 0;
@@ -102,4 +112,17 @@ IResultGatherer::AggregatedResult ResultGathererBase::CoreGetAggregatedResult() 
     }
 
     return IResultGatherer::AggregatedResult::OK;
+}*/
+
+IResultGatherer::CheckResult ResultGathererBase::CoreGetAggregatedCounts() const
+{
+    IResultGatherer::CheckResult aggregated_result;
+    for (auto const& i : this->results_)
+    {
+        aggregated_result.fatalMessagesCount += i.second.fatalMessagesCount;
+        aggregated_result.warningMessagesCount += i.second.warningMessagesCount;
+        aggregated_result.infoMessagesCount += i.second.infoMessagesCount;
+    }
+
+    return aggregated_result;
 }

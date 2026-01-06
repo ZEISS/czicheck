@@ -131,7 +131,7 @@ void CResultGathererJson::FinalizeChecks()
     this->GetLog()->WriteStdOut(str_buf.GetString());
 }
 
-IResultGatherer::AggregatedResult CResultGathererJson::GetAggregatedResult() const
+IResultGatherer::CheckResult CResultGathererJson::GetAggregatedCounts() const
 {
-    return this->CoreGetAggregatedResult();
+    return this->CoreGetAggregatedCounts();
 }

@@ -12,7 +12,6 @@ class ResultGathererBase
 {
 private:
     const CCmdLineOptions& options_;
-
     std::optional<CZIChecks> current_checker_;
     std::map<CZIChecks, IResultGatherer::CheckResult> results_;
 
@@ -24,7 +23,8 @@ public:
     void CoreFinishCheck(CZIChecks check) ;
 
 protected:
-    IResultGatherer::AggregatedResult CoreGetAggregatedResult() const;
+    //IResultGatherer::AggregatedResult CoreGetAggregatedResult() const;
+    IResultGatherer::CheckResult CoreGetAggregatedCounts() const;
     IResultGatherer::CheckResult GetCheckResultForCurrentlyActiveChecker() const;
     const std::shared_ptr<ILog>& GetLog() const { return this->options_.GetLog(); }
     int GetMaxNumberOfMessagesToPrint() const { return this->options_.GetMaxNumberOfMessagesToPrint(); }

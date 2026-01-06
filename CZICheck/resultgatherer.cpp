@@ -9,7 +9,6 @@
 #include "cmdlineoptions.h"
 #include <ostream>
 #include <sstream>
-#include <utility>
 
 using namespace std;
 
@@ -32,7 +31,7 @@ void CResultGatherer::StartCheck(CZIChecks check)
 
 void CResultGatherer::FinishCheck(CZIChecks check)
 {
-    const IResultGatherer::CheckResult current_checker_result = this->GetCheckResultForCurrentlyActiveChecker();
+    const CheckResult current_checker_result = this->GetCheckResultForCurrentlyActiveChecker();
 
     this->CoreFinishCheck(check);
     //const auto& it = this->results_.find(check);
@@ -124,7 +123,7 @@ void CResultGatherer::FinalizeChecks()
     }
 }
 
-IResultGatherer::AggregatedResult CResultGatherer::GetAggregatedResult() const
+IResultGatherer::CheckResult CResultGatherer::GetAggregatedCounts() const
 {
-    return this->CoreGetAggregatedResult();
+    return this->CoreGetAggregatedCounts();
 }

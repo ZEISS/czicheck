@@ -93,6 +93,7 @@ set(CZICHECKSRCFILES
 "IChecker.h"
 "checkerexception.h"
 "IResultGatherer.h"
+"IResultGatherer.cpp"
 "resultgatherer.cpp"
 "resultgatherer.h"
 "resultgathererbase.h"
