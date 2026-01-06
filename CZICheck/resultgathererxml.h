@@ -27,6 +27,7 @@ public:
     ReportFindingResult ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
     void FinalizeChecks() override;
+    AggregatedResult GetAggregatedResult() const override;
 
 private:
     static constexpr const wchar_t* kXmlVersionId = L"version";

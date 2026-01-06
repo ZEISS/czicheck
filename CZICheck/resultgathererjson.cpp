@@ -26,6 +26,8 @@ CResultGathererJson::CResultGathererJson(const CCmdLineOptions& options)
 
 void CResultGathererJson::StartCheck(CZIChecks check)
 {
+    this->CoreStartCheck(check);
+
     const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check).c_str();
 
     auto allocator = this->json_document_.GetAllocator();
@@ -38,13 +40,15 @@ void CResultGathererJson::StartCheck(CZIChecks check)
 
     this->test_results_.PushBack(test_run, allocator);
     this->current_checker_id = std::string(CZIChecksToString(check));
-    this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
+    //this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
 }
 
 void CResultGathererJson::FinishCheck(CZIChecks check)
 {
-    const auto& it = this->results_.find(check);
-    const auto& result = it->second;
+    /*const auto& it = this->results_.find(check);
+    const auto& result = it->second;*/
+    const IResultGatherer::CheckResult current_checker_result = this->GetCheckResultForCurrentlyActiveChecker();
+    this->CoreFinishCheck(check);
 
     auto allocator = this->json_document_.GetAllocator();
     for (int res { 0 }; res < this->test_results_.Size(); ++res)
@@ -52,11 +56,11 @@ void CResultGathererJson::FinishCheck(CZIChecks check)
         if (this->test_results_[res][kTestNameId].GetString() == this->current_checker_id)
         {
             ostringstream ss;
-            if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
+            if (current_checker_result.fatalMessagesCount == 0 && current_checker_result.warningMessagesCount == 0)
             {
                 ss << "OK";
             }
-            else if (result.fatalMessagesCount == 0)
+            else if (current_checker_result.fatalMessagesCount == 0)
             {
                 ss << "WARN";
             }
@@ -72,9 +76,10 @@ void CResultGathererJson::FinishCheck(CZIChecks check)
 
 IResultGatherer::ReportFindingResult CResultGathererJson::ReportFinding(const Finding& finding)
 {
-    const auto it = this->results_.find(finding.check);
+    /*const auto it = this->results_.find(finding.check);
     const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
-    IncrementCounter(finding.severity, it->second);
+    IncrementCounter(finding.severity, it->second);*/
+    this->CoreReportFinding(finding);
 
     auto allocator = this->json_document_.GetAllocator();
     for (int res { 0 }; res < this->test_results_.Size(); ++res)
@@ -124,4 +129,9 @@ void CResultGathererJson::FinalizeChecks()
 
     this->json_document_.Accept(writer);
     this->GetLog()->WriteStdOut(str_buf.GetString());
+}
+
+IResultGatherer::AggregatedResult CResultGathererJson::GetAggregatedResult() const
+{
+    return this->CoreGetAggregatedResult();
 }

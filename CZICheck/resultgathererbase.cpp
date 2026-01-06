@@ -19,3 +19,87 @@ IResultGatherer::ReportFindingResult ResultGathererBase::DetermineReportFindingR
 
     return IResultGatherer::ReportFindingResult::Continue;
 }
+
+void ResultGathererBase::CoreStartCheck(CZIChecks check)
+{
+    this->current_checker_ = check;
+    this->results_.insert(std::pair<CZIChecks, IResultGatherer::CheckResult>(check, IResultGatherer::CheckResult()));
+}
+
+void ResultGathererBase::CoreReportFinding(const IResultGatherer::Finding& finding)
+{
+    if (!this->current_checker_.has_value())
+    {
+        throw std::runtime_error("No currently active checker.");
+    }
+
+    if (finding.check != this->current_checker_.value())
+    {
+        throw std::runtime_error("The finding's check does not match the currently active checker.");
+    }
+
+    const auto it = this->results_.find(this->current_checker_.value());
+    if (it == this->results_.end())
+    {
+        throw std::runtime_error("No results found for the currently active checker.");
+    }
+
+    switch (finding.severity)
+    {
+    case IResultGatherer::Severity::Fatal:
+        ++(it->second.fatalMessagesCount);
+        break;
+    case IResultGatherer::Severity::Warning:
+        ++(it->second.warningMessagesCount);
+        break;
+    case IResultGatherer::Severity::Info:
+        ++(it->second.infoMessagesCount);
+        break;
+    }
+}
+
+void ResultGathererBase::CoreFinishCheck(CZIChecks check)
+{
+    this->current_checker_ = std::nullopt;
+}
+
+IResultGatherer::CheckResult ResultGathererBase::GetCheckResultForCurrentlyActiveChecker() const
+{
+    if (!this->current_checker_.has_value())
+    {
+        throw std::runtime_error("No currently active checker.");
+    }
+
+    const auto& it = this->results_.find(this->current_checker_.value());
+    if (it == this->results_.end())
+    {
+        throw std::runtime_error("No results found for the currently active checker.");
+    }
+
+    return it->second;
+}
+
+IResultGatherer::AggregatedResult ResultGathererBase::CoreGetAggregatedResult() const
+{
+    std::uint32_t total_fatal_messages_count = 0;
+    std::uint32_t total_warning_messages_count = 0;
+    std::uint32_t total_info_messages_count = 0;
+    for (auto const& i : this->results_)
+    {
+        total_fatal_messages_count += i.second.fatalMessagesCount;
+        total_warning_messages_count += i.second.warningMessagesCount;
+        total_info_messages_count += i.second.infoMessagesCount;
+    }
+
+    if (total_fatal_messages_count > 0)
+    {
+        return IResultGatherer::AggregatedResult::ErrorsDetected;
+    }
+
+    if (total_warning_messages_count > 0)
+    {
+        return IResultGatherer::AggregatedResult::WithWarnings;
+    }
+
+    return IResultGatherer::AggregatedResult::OK;
+}

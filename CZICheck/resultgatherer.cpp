@@ -20,23 +20,28 @@ CResultGatherer::CResultGatherer(const CCmdLineOptions& options)
 
 void CResultGatherer::StartCheck(CZIChecks check)
 {
+    this->CoreStartCheck(check);
+
     const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check);
     ostringstream ss;
     ss << "Test \"" << checker_display_name << "\" :";
     this->GetLog()->WriteStdOut(ss.str());
 
-    this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
+    //this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
 }
 
 void CResultGatherer::FinishCheck(CZIChecks check)
 {
-    const auto& it = this->results_.find(check);
+    const IResultGatherer::CheckResult current_checker_result = this->GetCheckResultForCurrentlyActiveChecker();
 
-    const auto& result = it->second;
+    this->CoreFinishCheck(check);
+    //const auto& it = this->results_.find(check);
+
+    //const auto& result = it->second;
 
     if (this->GetMaxNumberOfMessagesToPrint() > 0)
     {
-        const auto no_of_total_findings = result.GetTotalMessagesCount();
+        const auto no_of_total_findings = current_checker_result.GetTotalMessagesCount();
         if (no_of_total_findings > this->GetMaxNumberOfMessagesToPrint())
         {
             const auto findings_omitted = no_of_total_findings - max(this->GetMaxNumberOfMessagesToPrint(), 0);
@@ -46,13 +51,13 @@ void CResultGatherer::FinishCheck(CZIChecks check)
         }
     }
 
-    if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
+    if (current_checker_result.fatalMessagesCount == 0 && current_checker_result.warningMessagesCount == 0)
     {
         this->GetLog()->SetColor(ConsoleColor::DARK_GREEN, ConsoleColor::DEFAULT);
         this->GetLog()->WriteStdOut(" OK\n");
         this->GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
     }
-    else if (result.fatalMessagesCount == 0)
+    else if (current_checker_result.fatalMessagesCount == 0)
     {
         this->GetLog()->SetColor(ConsoleColor::LIGHT_RED, ConsoleColor::DEFAULT);
         this->GetLog()->WriteStdOut(" WARN\n");
@@ -68,9 +73,13 @@ void CResultGatherer::FinishCheck(CZIChecks check)
 
 CResultGatherer::ReportFindingResult CResultGatherer::ReportFinding(const Finding& finding)
 {
-    const auto it = this->results_.find(finding.check);
-    const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
-    IncrementCounter(finding.severity, it->second);
+    const uint32_t no_of_findings_so_far = this->GetCheckResultForCurrentlyActiveChecker().GetTotalMessagesCount();
+
+    this->CoreReportFinding(finding);
+
+    //const auto it = this->results_.find(finding.check);
+    //const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
+    //IncrementCounter(finding.severity, it->second);
 
     if (this->GetMaxNumberOfMessagesToPrint() < 0 ||
         no_of_findings_so_far < this->GetMaxNumberOfMessagesToPrint())
@@ -115,3 +124,7 @@ void CResultGatherer::FinalizeChecks()
     }
 }
 
+IResultGatherer::AggregatedResult CResultGatherer::GetAggregatedResult() const
+{
+    return this->CoreGetAggregatedResult();
+}

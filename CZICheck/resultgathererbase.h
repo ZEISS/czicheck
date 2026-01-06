@@ -6,16 +6,26 @@
 
 #include "cmdlineoptions.h"
 #include "IResultGatherer.h"
+#include <optional>
 
 class ResultGathererBase
 {
 private:
     const CCmdLineOptions& options_;
 
+    std::optional<CZIChecks> current_checker_;
+    std::map<CZIChecks, IResultGatherer::CheckResult> results_;
+
 public:
     explicit ResultGathererBase(const CCmdLineOptions& options);
 
+    void CoreStartCheck(CZIChecks check);
+    void CoreReportFinding(const IResultGatherer::Finding& finding);
+    void CoreFinishCheck(CZIChecks check) ;
+
 protected:
+    IResultGatherer::AggregatedResult CoreGetAggregatedResult() const;
+    IResultGatherer::CheckResult GetCheckResultForCurrentlyActiveChecker() const;
     const std::shared_ptr<ILog>& GetLog() const { return this->options_.GetLog(); }
     int GetMaxNumberOfMessagesToPrint() const { return this->options_.GetMaxNumberOfMessagesToPrint(); }
     bool GetPrintDetailsOfMessages() const { return this->options_.GetPrintDetailsOfMessages(); }

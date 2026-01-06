@@ -5,10 +5,21 @@
 #pragma once
 
 #include <cstdint>
-#include <map>
 #include <string>
 #include "checks.h"
 
+/// This interface defines methods for gathering results from various checks performed on a CZI document.
+/// The semantics of the methods are as follows:
+/// - StartCheck(CZIChecks check): Called when a specific check is started.  
+/// - ReportFinding(const Finding& finding): Called to report a finding from a check. This may be called zero or more times per check.  
+///    It is important that the `finding.check` member matches the check passed to StartCheck. It is an error if it does not. The method 
+///    returns a ReportFindingResult enum, which indicates whether processing (in this current checker) should continue or stop.
+/// - FinishCheck(CZIChecks check): Called when a specific check is finished.  
+///
+/// This sequence of calls (StartCheck -> ReportFinding* -> FinishCheck) is repeated for each check performed. It is illegal to call
+/// into result gatherer from the same checker multiple times.
+/// Operation is strictly serial; no concurrent calls into the result gatherer must be made.
+/// 
 class IResultGatherer
 {
 public:
@@ -23,8 +34,8 @@ public:
     };
     enum class Severity
     {
-        Fatal,          ///< The finding is a fatal issue, i. e. the CZI-document is considered invalid and adverse behavior is expected.
-        Warning,        ///< The finding is a warning, i. e. a problem has been detected which may result in adverse behavior.
+        Fatal,          ///< The finding is a fatal issue, i.e. the CZI-document is considered invalid and adverse behavior is expected.
+        Warning,        ///< The finding is a warning, i.e.  a problem has been detected which may result in adverse behavior.
         Info            ///< The finding is informational.
     };
 
@@ -64,21 +75,22 @@ public:
         }
     };
 
-protected:
-    std::map<CZIChecks, CheckResult> results_;
+//protected:
+//    std::map<CZIChecks, CheckResult> results_;
 
-public:
+//public:
     virtual void StartCheck(CZIChecks check) = 0;
     [[nodiscard]] virtual ReportFindingResult ReportFinding(const Finding& finding) = 0;
     virtual void FinishCheck(CZIChecks check) = 0;
     virtual void FinalizeChecks() = 0;
+    virtual AggregatedResult GetAggregatedResult() const = 0;
     virtual ~IResultGatherer() = default;
     IResultGatherer() = default;
     IResultGatherer(const IResultGatherer&) = delete;             // copy constructor
     IResultGatherer& operator=(const IResultGatherer&) = delete;  // copy assignment
     IResultGatherer(IResultGatherer&&) = delete;                  // move constructor
     IResultGatherer& operator=(IResultGatherer&&) = delete;       // move assignment
-
+    /*
 public:
     const AggregatedResult GetAggregatedResult() const
     {
@@ -119,6 +131,6 @@ public:
                 ++result.infoMessagesCount;
                 break;
         }
-    }
+    }*/
 };
 
