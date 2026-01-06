@@ -17,6 +17,16 @@
 
 using namespace std;
 
+const char* CResultGathererJson::kTestNameId = "name";
+const char* CResultGathererJson::kTestContainerId = "tests";
+const char* CResultGathererJson::kTestDescriptionId = "description";
+const char* CResultGathererJson::kTestResultId = "result";
+const char* CResultGathererJson::kTestFindingsId = "findings";
+const char* CResultGathererJson::kTestSeverityId = "severity";
+const char* CResultGathererJson::kTestDetailsId = "details";
+const char* CResultGathererJson::kTestAggregationId = "aggregatedresult";
+const char* CResultGathererJson::kTestFailFastId = "fail_fast_stopped";
+
 CResultGathererJson::CResultGathererJson(const CCmdLineOptions& options)
     : ResultGathererBase(options)
 {
@@ -40,13 +50,10 @@ void CResultGathererJson::StartCheck(CZIChecks check)
 
     this->test_results_.PushBack(test_run, allocator);
     this->current_checker_id = std::string(CZIChecksToString(check));
-    //this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
 }
 
 void CResultGathererJson::FinishCheck(CZIChecks check)
 {
-    /*const auto& it = this->results_.find(check);
-    const auto& result = it->second;*/
     const IResultGatherer::CheckResult current_checker_result = this->GetCheckResultForCurrentlyActiveChecker();
     this->CoreFinishCheck(check);
 
@@ -76,9 +83,6 @@ void CResultGathererJson::FinishCheck(CZIChecks check)
 
 IResultGatherer::ReportFindingResult CResultGathererJson::ReportFinding(const Finding& finding)
 {
-    /*const auto it = this->results_.find(finding.check);
-    const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
-    IncrementCounter(finding.severity, it->second);*/
     this->CoreReportFinding(finding);
 
     auto allocator = this->json_document_.GetAllocator();
@@ -88,7 +92,7 @@ IResultGatherer::ReportFindingResult CResultGathererJson::ReportFinding(const Fi
         {
             rapidjson::Value current_finding(rapidjson::kObjectType);
             current_finding.SetObject()
-                .AddMember(rapidjson::Value(kTestSeverityId, allocator), rapidjson::Value().SetString(finding.FindingSeverityToString(), allocator), allocator)
+                .AddMember(rapidjson::Value(kTestSeverityId, allocator), rapidjson::Value().SetString(ResultGathererBase::FindingSeverityToString(finding), allocator), allocator)
                 .AddMember(rapidjson::Value(kTestDescriptionId, allocator), rapidjson::Value().SetString(finding.information.c_str(), allocator), allocator)
                 .AddMember(rapidjson::Value(kTestDetailsId, allocator), rapidjson::Value().SetString(finding.details.c_str(), allocator), allocator);
             this->test_results_[res][kTestFindingsId].PushBack(current_finding, allocator);

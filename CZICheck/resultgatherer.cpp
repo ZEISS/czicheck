@@ -25,8 +25,6 @@ void CResultGatherer::StartCheck(CZIChecks check)
     ostringstream ss;
     ss << "Test \"" << checker_display_name << "\" :";
     this->GetLog()->WriteStdOut(ss.str());
-
-    //this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
 }
 
 void CResultGatherer::FinishCheck(CZIChecks check)
@@ -34,9 +32,6 @@ void CResultGatherer::FinishCheck(CZIChecks check)
     const CheckResult current_checker_result = this->GetCheckResultForCurrentlyActiveChecker();
 
     this->CoreFinishCheck(check);
-    //const auto& it = this->results_.find(check);
-
-    //const auto& result = it->second;
 
     if (this->GetMaxNumberOfMessagesToPrint() > 0)
     {
@@ -75,10 +70,6 @@ CResultGatherer::ReportFindingResult CResultGatherer::ReportFinding(const Findin
     const uint32_t no_of_findings_so_far = this->GetCheckResultForCurrentlyActiveChecker().GetTotalMessagesCount();
 
     this->CoreReportFinding(finding);
-
-    //const auto it = this->results_.find(finding.check);
-    //const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
-    //IncrementCounter(finding.severity, it->second);
 
     if (this->GetMaxNumberOfMessagesToPrint() < 0 ||
         no_of_findings_so_far < this->GetMaxNumberOfMessagesToPrint())

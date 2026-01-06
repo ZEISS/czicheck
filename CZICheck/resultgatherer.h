@@ -27,6 +27,4 @@ public:
 
     void FinalizeChecks() override;
     CheckResult GetAggregatedCounts() const  override;
-    //CheckResult GetAggregatedResult() const override;
-    //AggregatedResult GetAggregatedResult() const override;
 };

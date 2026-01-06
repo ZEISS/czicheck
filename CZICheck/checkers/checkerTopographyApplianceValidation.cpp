@@ -19,7 +19,7 @@ using namespace libCZI;
 
 CCheckTopographyApplianceMetadata::CCheckTopographyApplianceMetadata(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    IResultGatherer& result_gatherer,
+    IResultGathererReport& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {

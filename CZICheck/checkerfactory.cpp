@@ -43,14 +43,14 @@ struct classEntry
     /// A function pointer which creates a new instance of the respective checker class.
     std::unique_ptr<IChecker>(*factory)(
         const std::shared_ptr<libCZI::ICZIReader>&,
-        IResultGatherer&,
+        IResultGathererReport&,
         const CheckerCreateInfo&);
 };
 
 template <typename T>
 static std::unique_ptr<IChecker> createCheckerInstance(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    IResultGatherer& resultGatherer,
+    IResultGathererReport& resultGatherer,
     const CheckerCreateInfo& additionalInfo)
 {
     return unique_ptr<T>{new T(reader, resultGatherer, additionalInfo)};
@@ -106,7 +106,7 @@ static const classEntry classesList[] =
 /*static*/std::unique_ptr<IChecker> CCheckerFactory::CreateChecker(
     CZIChecks check,
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    IResultGatherer& result_gatherer,
+    IResultGathererReport& result_gatherer,
     const CheckerCreateInfo& additional_info)
 {
     for (const auto& c : classesList)

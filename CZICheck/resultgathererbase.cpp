@@ -89,31 +89,6 @@ IResultGatherer::CheckResult ResultGathererBase::GetCheckResultForCurrentlyActiv
     return it->second;
 }
 
-/*IResultGatherer::AggregatedResult ResultGathererBase::CoreGetAggregatedResult() const
-{
-    std::uint32_t total_fatal_messages_count = 0;
-    std::uint32_t total_warning_messages_count = 0;
-    std::uint32_t total_info_messages_count = 0;
-    for (auto const& i : this->results_)
-    {
-        total_fatal_messages_count += i.second.fatalMessagesCount;
-        total_warning_messages_count += i.second.warningMessagesCount;
-        total_info_messages_count += i.second.infoMessagesCount;
-    }
-
-    if (total_fatal_messages_count > 0)
-    {
-        return IResultGatherer::AggregatedResult::ErrorsDetected;
-    }
-
-    if (total_warning_messages_count > 0)
-    {
-        return IResultGatherer::AggregatedResult::WithWarnings;
-    }
-
-    return IResultGatherer::AggregatedResult::OK;
-}*/
-
 IResultGatherer::CheckResult ResultGathererBase::CoreGetAggregatedCounts() const
 {
     IResultGatherer::CheckResult aggregated_result;
@@ -125,4 +100,15 @@ IResultGatherer::CheckResult ResultGathererBase::CoreGetAggregatedCounts() const
     }
 
     return aggregated_result;
+}
+
+/*static*/const char* ResultGathererBase::FindingSeverityToString(const IResultGathererReport::Finding& finding)
+{
+    switch (finding.severity)
+    {
+    case IResultGatherer::Severity::Info: return "INFO";
+    case IResultGatherer::Severity::Warning: return "WARNING";
+    case IResultGatherer::Severity::Fatal: return "FATAL";
+    default: return "UNKNOWN";
+    }
 }

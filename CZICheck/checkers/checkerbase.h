@@ -16,12 +16,12 @@ class CCheckerBase
 {
 protected:
     std::shared_ptr<libCZI::ICZIReader> reader_;
-    IResultGatherer& result_gatherer_;
+    IResultGathererReport& result_gatherer_;
     const CheckerCreateInfo& additional_info_;
 public:
     CCheckerBase(
         std::shared_ptr<libCZI::ICZIReader> reader,
-        IResultGatherer& result_gatherer,
+        IResultGathererReport& result_gatherer,
         const CheckerCreateInfo& additional_info) :
         reader_(std::move(reader)),
         result_gatherer_(result_gatherer),

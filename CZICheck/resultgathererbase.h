@@ -18,12 +18,11 @@ private:
 public:
     explicit ResultGathererBase(const CCmdLineOptions& options);
 
+protected:
     void CoreStartCheck(CZIChecks check);
     void CoreReportFinding(const IResultGatherer::Finding& finding);
     void CoreFinishCheck(CZIChecks check) ;
 
-protected:
-    //IResultGatherer::AggregatedResult CoreGetAggregatedResult() const;
     IResultGatherer::CheckResult CoreGetAggregatedCounts() const;
     IResultGatherer::CheckResult GetCheckResultForCurrentlyActiveChecker() const;
     const std::shared_ptr<ILog>& GetLog() const { return this->options_.GetLog(); }
@@ -40,4 +39,12 @@ protected:
     /// \return ReportFindingResult::Stop if the finding is fatal and fail-fast mode is enabled
     ///         for fatal errors (either overall or per-checker); ReportFindingResult::Continue otherwise.
     IResultGatherer::ReportFindingResult DetermineReportFindingResult(const IResultGatherer::Finding& finding) const;
+
+    /// \brief Converts a finding's severity into a short string representation for logs and reports.
+    ///
+    /// \param finding The finding whose severity should be converted to text.
+    ///
+    /// \return A null-terminated string identifying the severity (e.g., "INFO", "WARNING", "FATAL");
+    ///         the string has static storage duration and must not be freed.
+    static const char* FindingSeverityToString(const IResultGathererReport::Finding& finding);
 };

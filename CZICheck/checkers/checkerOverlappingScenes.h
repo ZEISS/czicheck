@@ -19,7 +19,7 @@ public:
 
     CCheckOverlappingScenesOnLayer0(
         const std::shared_ptr<libCZI::ICZIReader>& reader,
-        IResultGatherer& result_gatherer,
+        IResultGathererReport& result_gatherer,
         const CheckerCreateInfo& additional_info);
     void RunCheck() override;
 private:

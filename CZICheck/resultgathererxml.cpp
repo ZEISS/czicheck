@@ -10,9 +10,24 @@
 
 #include <sstream>
 #include <string>
-#include <utility>
 
 using namespace std;
+
+const wchar_t* CResultGathererXml::kXmlVersionId = L"version";
+const wchar_t* CResultGathererXml::kXmlVersionNumber = L"1.0";
+const wchar_t* CResultGathererXml::kXmlEncodingId = L"encoding";
+const wchar_t* CResultGathererXml::kXmlEncodingType = L"utf-8";
+const wchar_t* CResultGathererXml::kTestResultsName = L"TestResults";
+const wchar_t* CResultGathererXml::kTestContainerId = L"Tests";
+const wchar_t* CResultGathererXml::kTestSingleContainerId = L"Test";
+const wchar_t* CResultGathererXml::kTestNameId = L"Name";
+const wchar_t* CResultGathererXml::kTestDescriptionId = L"Description";
+const wchar_t* CResultGathererXml::kTestResultId = L"Result";
+const wchar_t* CResultGathererXml::kTestAggregatedResultId = L"AggregatedResult";
+const wchar_t* CResultGathererXml::kTestFindingContainerId = L"Findings";
+const wchar_t* CResultGathererXml::kTestFindingId = L"Finding";
+const wchar_t* CResultGathererXml::kTestSeverityId = L"Severity";
+const wchar_t* CResultGathererXml::kTestDetailsId = L"Details";
 
 CResultGathererXml::CResultGathererXml(const CCmdLineOptions& options)
     : ResultGathererBase(options)
@@ -26,7 +41,6 @@ CResultGathererXml::CResultGathererXml(const CCmdLineOptions& options)
 
 void CResultGathererXml::StartCheck(CZIChecks check)
 {
-    //this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
     this->CoreStartCheck(check);
 
     pugi::xml_node finding_node = this->test_node_.append_child(kTestSingleContainerId);
@@ -38,16 +52,12 @@ void CResultGathererXml::StartCheck(CZIChecks check)
     finding_node.append_child(kTestFindingContainerId);
 
     this->current_checker_id_ = test_name;
-
-    //this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
 }
 
 void CResultGathererXml::FinishCheck(CZIChecks check)
 {
     const IResultGatherer::CheckResult current_checker_result = this->GetCheckResultForCurrentlyActiveChecker();
     this->CoreFinishCheck(check);
-    /*const auto& it = this->results_.find(check);
-    const auto& result = it->second;*/
     const wstring current_checker = convertUtf8ToUCS2(this->current_checker_id_);
     for (auto current_test_node : this->test_node_.children())
     {
@@ -76,8 +86,6 @@ void CResultGathererXml::FinishCheck(CZIChecks check)
 
 IResultGatherer::ReportFindingResult CResultGathererXml::ReportFinding(const Finding& finding)
 {
-   /* const auto it = this->results_.find(finding.check);
-    IncrementCounter(finding.severity, it->second);*/
     this->CoreReportFinding(finding);
 
     const wstring current_checker = convertUtf8ToUCS2(this->current_checker_id_);
@@ -91,7 +99,7 @@ IResultGatherer::ReportFindingResult CResultGathererXml::ReportFinding(const Fin
             auto current_finding = findings_container.append_child(kTestFindingId);
             current_finding.append_child(kTestSeverityId)
                 .text()
-                .set(convertUtf8ToUCS2(finding.FindingSeverityToString()).c_str());
+                .set(convertUtf8ToUCS2(ResultGathererBase::FindingSeverityToString(finding)).c_str());
             current_finding.append_child(kTestDescriptionId)
                 .text()
                 .set(convertUtf8ToUCS2(finding.information).c_str());
