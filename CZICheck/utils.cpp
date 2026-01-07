@@ -202,4 +202,6 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
         string_stream << "The input-stream-class \"" << stream_info.class_name << "\" is not valid.";
         throw std::runtime_error(string_stream.str());
     }
+
+    return source_stream;
 }
