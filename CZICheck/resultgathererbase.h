@@ -7,6 +7,8 @@
 #include "cmdlineoptions.h"
 #include "IResultGatherer.h"
 #include <optional>
+#include <map>
+#include <memory>
 
 class ResultGathererBase
 {
@@ -21,7 +23,7 @@ public:
 protected:
     void CoreStartCheck(CZIChecks check);
     void CoreReportFinding(const IResultGatherer::Finding& finding);
-    void CoreFinishCheck(CZIChecks check) ;
+    void CoreFinishCheck(CZIChecks check);
 
     IResultGatherer::CheckResult CoreGetAggregatedCounts() const;
     IResultGatherer::CheckResult GetCheckResultForCurrentlyActiveChecker() const;

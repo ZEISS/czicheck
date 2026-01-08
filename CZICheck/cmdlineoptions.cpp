@@ -447,7 +447,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 
     ostringstream ss;
     ss << "The fail-fast mode \"" << str << "\" is invalid.";
-    error_message= ss.str();
+    error_message = ss.str();
     return false;
 }
 
