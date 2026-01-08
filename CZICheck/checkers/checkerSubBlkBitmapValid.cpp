@@ -78,6 +78,6 @@ void CCheckSubBlkBitmapValid::RunCheck()
                     return true;
                 });
             });
-  
+
     this->result_gatherer_.FinishCheck(CCheckSubBlkBitmapValid::kCheckType);
 }

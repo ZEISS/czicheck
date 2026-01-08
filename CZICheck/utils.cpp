@@ -160,7 +160,7 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
     
     libCZI::StreamsFactory::CreateStreamInfo stream_info;
     stream_info.class_name = command_line_options.GetSourceStreamClass();
-   
+
     if (!command_line_options.GetPropertyBagForStreamClass().empty())
     {
         stream_info.property_bag = command_line_options.GetPropertyBagForStreamClass();
