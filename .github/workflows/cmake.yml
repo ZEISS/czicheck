@@ -141,3 +141,21 @@ jobs:
         with:
           path: ${{ env.artifactPath }}/
           name: ${{ env.artifactName }}
+
+  build-alpine:
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    env:
+      VCPKG_FORCE_SYSTEM_BINARIES: 1
+    steps:
+      - name: Install dependencies
+        run: |
+          uname -a
+          cat /etc/os-release
+          cat /etc/alpine-release
+          apk update
+          apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat
+          git config --global --add safe.directory '*'
+
+      - name: Checkout
+        uses: actions/checkout@v4
