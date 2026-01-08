@@ -157,7 +157,6 @@ jobs:
           cat /etc/alpine-release
           apk update
           apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat python3
-          git config --global --add safe.directory '*'
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -178,7 +177,7 @@ jobs:
           path: |
             ${{ github.workspace }}/vcpkg-root
             ${{ github.workspace }}/vcpkg-cache
-          key: vcpkg-env-alpine-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-env-alpine-x64-${{ hashFiles('vcpkg.json') }}
 
       - name: Setup vcpkg
         shell: bash
