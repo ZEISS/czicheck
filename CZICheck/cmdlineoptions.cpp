@@ -9,6 +9,7 @@
 #include <utility>
 #include <algorithm>
 #include <string>
+#include <limits>
 #include "cmdlineoptions.h"
 #include "utils.h"
 #include "checkerfactory.h"
@@ -16,6 +17,7 @@
 #include "CLI/App.hpp"
 #include "CLI/Formatter.hpp"
 #include "CLI/Config.hpp"
+#include "rapidjson/document.h"
 
 using namespace std;
 
@@ -158,7 +160,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     string ignore_sizem_for_pyramid_subblocks_enabled;
     string result_encoding_option;
     string source_stream_class_option;
-    vector<string> property_bag_options;
+    string property_bag_options;
     string fail_fast_option;
     bool argument_version_flag = false;
     app.add_option("-s,--source", source_filename_options, "Specify the CZI-file to be checked.")
@@ -169,7 +171,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         ->option_text("STREAM-CLASS");
     app.add_option("--propbag-source-stream-creation", property_bag_options,
         "Specifies the property-bag used for creating the stream used for reading the source CZI-file. The data is given in JSON-notation.")
-        ->option_text("KEY=VALUE");
+        ->option_text("PROPBAG");
     app.add_option("-c,--checks", checks_enable_options,
         "Specifies a comma-separated list of short-names of checkers\n"
         "to run. In addition to the short-names, the following\n"
@@ -345,6 +347,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         this->source_stream_class_ = source_stream_class_option;
     }
 
+    /*
     // Parse property bag options (key=value pairs)
     for (const auto& prop : property_bag_options)
     {
@@ -360,6 +363,17 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         string key = prop.substr(0, equals_pos);
         string value = prop.substr(equals_pos + 1);
         this->property_bag_[key] = value;
+    }*/
+    if (!property_bag_options.empty())
+    {
+        const bool b = CCmdLineOptions::TryParseInputStreamCreationPropertyBag(property_bag_options, &this->property_bag_for_stream_class_);
+        if (!b)
+        {
+            ostringstream string_stream;
+            string_stream << "Error parsing argument for '--propbag-source-stream-creation' -> \"" << property_bag_options << "\".";
+            this->log_->WriteLineStdErr(string_stream.str());
+            return ParseResult::Error;
+        }
     }
 
     return  ParseResult::OK;
@@ -689,4 +703,89 @@ void CCmdLineOptions::PrintVersionInfo()
             }
         }
     }
+}
+
+/*static*/bool CCmdLineOptions::TryParseInputStreamCreationPropertyBag(const std::string& s, std::map<int, libCZI::StreamsFactory::Property>* property_bag)
+{
+    // Here we parse the JSON-formatted string that contains the property bag for the input stream and
+    //  construct a map<int, libCZI::StreamsFactory::Property> from it.
+
+    int property_info_count;
+    const libCZI::StreamsFactory::StreamPropertyBagPropertyInfo* property_infos = libCZI::StreamsFactory::GetStreamPropertyBagPropertyInfo(&property_info_count);
+
+    rapidjson::Document document;
+    document.Parse(s.c_str());
+    if (document.HasParseError() || !document.IsObject())
+    {
+        return false;
+    }
+
+    for (rapidjson::Value::ConstMemberIterator itr = document.MemberBegin(); itr != document.MemberEnd(); ++itr)
+    {
+        if (!itr->name.IsString())
+        {
+            return false;
+        }
+
+        string name = itr->name.GetString();
+        size_t index_of_key = (numeric_limits<size_t>::max)();
+        for (size_t i = 0; i < static_cast<size_t>(property_info_count); ++i)
+        {
+            if (name == property_infos[i].property_name)
+            {
+                index_of_key = i;
+                break;
+            }
+        }
+
+        if (index_of_key == (numeric_limits<size_t>::max)())
+        {
+            return false;
+        }
+
+        switch (property_infos[index_of_key].property_type)
+        {
+        case libCZI::StreamsFactory::Property::Type::String:
+            if (!itr->value.IsString())
+            {
+                return false;
+            }
+
+            if (property_bag != nullptr)
+            {
+                property_bag->insert(std::make_pair(property_infos[index_of_key].property_id, libCZI::StreamsFactory::Property(itr->value.GetString())));
+            }
+
+            break;
+        case libCZI::StreamsFactory::Property::Type::Boolean:
+            if (!itr->value.IsBool())
+            {
+                return false;
+            }
+
+            if (property_bag != nullptr)
+            {
+                property_bag->insert(std::make_pair(property_infos[index_of_key].property_id, libCZI::StreamsFactory::Property(itr->value.GetBool())));
+            }
+
+            break;
+        case libCZI::StreamsFactory::Property::Type::Int32:
+            if (!itr->value.IsInt())
+            {
+                return false;
+            }
+
+            if (property_bag != nullptr)
+            {
+                property_bag->insert(std::make_pair(property_infos[index_of_key].property_id, libCZI::StreamsFactory::Property(itr->value.GetInt())));
+            }
+
+            break;
+        default:
+            // this actually indicates an internal error - the table property_infos contains a not yet implemented property type
+            return false;
+        }
+    }
+
+    return true;
 }

@@ -160,7 +160,12 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
     
     libCZI::StreamsFactory::CreateStreamInfo stream_info;
     stream_info.class_name = command_line_options.GetSourceStreamClass();
-    
+   
+    if (!command_line_options.GetPropertyBagForStreamClass().empty())
+    {
+        stream_info.property_bag = command_line_options.GetPropertyBagForStreamClass();
+    }
+    /*
     // Get property information to convert property names to IDs
     int property_info_count;
     const libCZI::StreamsFactory::StreamPropertyBagPropertyInfo* property_infos = 
@@ -187,7 +192,7 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
             // libCZI will handle the conversion if needed
             stream_info.property_bag[property_id] = libCZI::StreamsFactory::Property(value);
         }
-    }
+    }*/
     
     // For HTTP/HTTPS streams (curl), we need to convert the wstring URL to UTF-8 string
     // The curl stream class only accepts std::string URIs
@@ -195,7 +200,7 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
     auto source_stream = libCZI::StreamsFactory::CreateStream(stream_info, uri_utf8);
 
     // CreateStream does return null if the class-name is not known. If the class is valid,
-    // then an exception is thrown (if somethinge goes wrong).
+    // then an exception is thrown (if something goes wrong).
     if (!source_stream)
     {
         stringstream string_stream;

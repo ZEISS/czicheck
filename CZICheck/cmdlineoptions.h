@@ -5,6 +5,9 @@
 #pragma once
 
 #include <CZICheck_Config.h>
+
+#include "libCZI_StreamsLib.h"
+
 #include <vector>
 #include <memory>
 #include <string>
@@ -62,6 +65,7 @@ private:
     OutputEncodingFormat result_encoding_type_ { OutputEncodingFormat::TEXT };
     std::string source_stream_class_;
     std::map<std::string, std::string> property_bag_;
+    std::map<int, libCZI::StreamsFactory::Property> property_bag_for_stream_class_;
     FailFastMode fail_fast_mode_{ FailFastMode::Disabled };
 public:
     /// Values that represent the result of the "Parse"-operation.
@@ -91,7 +95,8 @@ public:
     [[nodiscard]] const std::shared_ptr<ILog>& GetLog() const { return this->log_; }
     [[nodiscard]] const OutputEncodingFormat GetOutputEncodingFormat() const { return this->result_encoding_type_; }
     [[nodiscard]] const std::string& GetSourceStreamClass() const { return this->source_stream_class_; }
-    [[nodiscard]] const std::map<std::string, std::string>& GetPropertyBag() const { return this->property_bag_; }
+    //[[nodiscard]] const std::map<std::string, std::string>& GetPropertyBag() const { return this->property_bag_; }
+    [[nodiscard]] const std::map<int, libCZI::StreamsFactory::Property>& GetPropertyBagForStreamClass() const { return this->property_bag_for_stream_class_; }
     [[nodiscard]] FailFastMode GetFailFastMode() const { return this->fail_fast_mode_; }
 private:
     static bool ParseBooleanArgument(const std::string& argument_key, const std::string& argument_value, bool* boolean_value, std::string* error_message);
@@ -107,6 +112,7 @@ private:
     };
 
     static bool TryParseCheckerAddOrRemove(const std::string& str, CheckerToRunInfo* info);
+    static bool TryParseInputStreamCreationPropertyBag(const std::string& s, std::map<int, libCZI::StreamsFactory::Property>* property_bag);
 
     static std::string GetCheckerListHelpText();
     static std::string GetAppDescription();
