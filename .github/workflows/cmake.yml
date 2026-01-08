@@ -35,18 +35,18 @@ jobs:
       - name: Setup vcpkg environment
         shell: bash
         run: |
-          echo "VCPKG_ROOT=${{ github.workspace }}/vcpkg-root" >> "$GITHUB_ENV"
+          echo "VCPKG_ROOT=${GITHUB_WORKSPACE}/vcpkg-root" >> "$GITHUB_ENV"
           # VCPKG_DEFAULT_BINARY_CACHE tells vcpkg where to store/retrieve compiled binary packages.
           # By setting this to a persistent location and caching it, we avoid rebuilding dependencies
           # from source on every run, significantly speeding up the workflow.
-          echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg-cache" >> "$GITHUB_ENV"
+          echo "VCPKG_DEFAULT_BINARY_CACHE=${GITHUB_WORKSPACE}/vcpkg-cache" >> "$GITHUB_ENV"
 
       - name: Cache vcpkg
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.VCPKG_ROOT }}
-            ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+            ${{ github.workspace }}/vcpkg-root
+            ${{ github.workspace }}/vcpkg-cache
           key: vcpkg-env-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
       - name: Install system dependencies (Linux)
@@ -150,33 +150,34 @@ jobs:
       VCPKG_FORCE_SYSTEM_BINARIES: 1
     steps:
 
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Install dependencies
         run: |
           uname -a
           cat /etc/os-release
           cat /etc/alpine-release
           apk update
-          apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat
+          apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat python3
           git config --global --add safe.directory '*'
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup vcpkg environment
         shell: bash
         run: |
-          echo "VCPKG_ROOT=${{ github.workspace }}/vcpkg-root" >> "$GITHUB_ENV"
+          # Use $GITHUB_WORKSPACE inside the container (it is where actions/checkout mounts the repo).
+          echo "VCPKG_ROOT=${GITHUB_WORKSPACE}/vcpkg-root" >> "$GITHUB_ENV"
           # VCPKG_DEFAULT_BINARY_CACHE tells vcpkg where to store/retrieve compiled binary packages.
           # By setting this to a persistent location and caching it, we avoid rebuilding dependencies
           # from source on every run, significantly speeding up the workflow.
-          echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg-cache" >> "$GITHUB_ENV"
+          echo "VCPKG_DEFAULT_BINARY_CACHE=${GITHUB_WORKSPACE}/vcpkg-cache" >> "$GITHUB_ENV"
 
       - name: Cache vcpkg
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.VCPKG_ROOT }}
-            ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+            ${{ github.workspace }}/vcpkg-root
+            ${{ github.workspace }}/vcpkg-cache
           key: vcpkg-env-alpine-${{ hashFiles('vcpkg.json') }}
 
       - name: Setup vcpkg
@@ -203,23 +204,23 @@ jobs:
       - name: Configure CMake (Alpine Linux)
         shell: bash
         run: |
-          cmake -B "${{github.workspace}}/build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+          cmake -B "${GITHUB_WORKSPACE}/build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Build
         # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build --config Release
+        run: cmake --build "${GITHUB_WORKSPACE}/build" --config Release
 
       - name: CTest
         # Run tests
         run: |
-          cd "${{github.workspace}}/build"
+          cd "${GITHUB_WORKSPACE}/build"
           ctest -C Release --verbose
 
       - name: Package
         run: |
-          cd "${{github.workspace}}"
+          cd "$GITHUB_WORKSPACE"
           mkdir -p release
           name="CZICheck-alpine-x64-$(git describe --always)"
           mkdir -p "release/${name}"
