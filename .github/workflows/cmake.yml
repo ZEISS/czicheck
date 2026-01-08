@@ -149,6 +149,16 @@ jobs:
     env:
       VCPKG_FORCE_SYSTEM_BINARIES: 1
     steps:
+
+      - name: Install dependencies
+        run: |
+          uname -a
+          cat /etc/os-release
+          cat /etc/alpine-release
+          apk update
+          apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat
+          git config --global --add safe.directory '*'
+
       - name: Setup vcpkg environment
         shell: bash
         run: |
@@ -165,15 +175,6 @@ jobs:
             ${{ env.VCPKG_ROOT }}
             ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           key: vcpkg-env-alpine-${{ hashFiles('vcpkg.json') }}
-
-      - name: Install dependencies
-        run: |
-          uname -a
-          cat /etc/os-release
-          cat /etc/alpine-release
-          apk update
-          apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat
-          git config --global --add safe.directory '*'
 
       - name: Checkout
         uses: actions/checkout@v4
