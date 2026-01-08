@@ -347,23 +347,6 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         this->source_stream_class_ = source_stream_class_option;
     }
 
-    /*
-    // Parse property bag options (key=value pairs)
-    for (const auto& prop : property_bag_options)
-    {
-        size_t equals_pos = prop.find('=');
-        if (equals_pos == string::npos || equals_pos == 0 || equals_pos == prop.length() - 1)
-        {
-            ostringstream error_stream;
-            error_stream << "Invalid property format: '" << prop << "'. Expected format: key=value";
-            this->log_->WriteLineStdErr(error_stream.str());
-            return ParseResult::Error;
-        }
-
-        string key = prop.substr(0, equals_pos);
-        string value = prop.substr(equals_pos + 1);
-        this->property_bag_[key] = value;
-    }*/
     if (!property_bag_options.empty())
     {
         const bool b = CCmdLineOptions::TryParseInputStreamCreationPropertyBag(property_bag_options, &this->property_bag_for_stream_class_);
