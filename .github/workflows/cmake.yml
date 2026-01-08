@@ -219,7 +219,7 @@ jobs:
 
       - name: Package
         run: |
-          cd "${GITHUB_WORKSPACE}"
+          cd "${{github.workspace}}"
           mkdir -p release
           name="CZICheck-alpine-x64-$(git describe --always)"
           mkdir -p "release/${name}"
