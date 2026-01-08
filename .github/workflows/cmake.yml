@@ -216,3 +216,22 @@ jobs:
         run: |
           cd "${{github.workspace}}/build"
           ctest -C Release --verbose
+
+      - name: Package
+        run: |
+          cd "${GITHUB_WORKSPACE}"
+          mkdir -p release
+          name="CZICheck-alpine-x64-$(git describe --always)"
+          mkdir -p "release/${name}"
+
+          cp "build/CZICheck/CZICheck" "release/${name}/"
+          cp "THIRD_PARTY_LICENSES.txt" "release/${name}/"
+
+          echo "artifactName=${name}" >> "$GITHUB_ENV"
+          echo "artifactPath=${GITHUB_WORKSPACE}/release/${name}" >> "$GITHUB_ENV"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.artifactPath }}/
+          name: ${{ env.artifactName }}
