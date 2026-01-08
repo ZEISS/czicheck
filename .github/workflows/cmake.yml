@@ -93,6 +93,7 @@ jobs:
           cmake -B "${{github.workspace}}/build" -G Ninja -DCMAKE_BUILD_TYPE=${{matrix.build}} \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON
+
       - name: Build
         # Build your program with the given configuration
         run: cmake --build ${{github.workspace}}/build --config ${{matrix.build}}
@@ -148,6 +149,23 @@ jobs:
     env:
       VCPKG_FORCE_SYSTEM_BINARIES: 1
     steps:
+      - name: Setup vcpkg environment
+        shell: bash
+        run: |
+          echo "VCPKG_ROOT=${{ github.workspace }}/vcpkg-root" >> "$GITHUB_ENV"
+          # VCPKG_DEFAULT_BINARY_CACHE tells vcpkg where to store/retrieve compiled binary packages.
+          # By setting this to a persistent location and caching it, we avoid rebuilding dependencies
+          # from source on every run, significantly speeding up the workflow.
+          echo "VCPKG_DEFAULT_BINARY_CACHE=${{ github.workspace }}/vcpkg-cache" >> "$GITHUB_ENV"
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ env.VCPKG_ROOT }}
+            ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
+          key: vcpkg-env-alpine-${{ hashFiles('vcpkg.json') }}
+
       - name: Install dependencies
         run: |
           uname -a
@@ -159,3 +177,41 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup vcpkg
+        shell: bash
+        run: |
+          # Ensure the binary cache directory exists (if not restored by cache)
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+
+          if [ ! -d "$VCPKG_ROOT/.git" ]; then
+            echo "Cloning vcpkg to $VCPKG_ROOT"
+            git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+          fi
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            if [ ! -f "$VCPKG_ROOT/vcpkg.exe" ]; then
+              "$VCPKG_ROOT/bootstrap-vcpkg.bat"
+            fi
+          else
+            if [ ! -f "$VCPKG_ROOT/vcpkg" ]; then
+              "$VCPKG_ROOT/bootstrap-vcpkg.sh"
+            fi
+          fi
+
+      - name: Configure CMake (Alpine Linux)
+        shell: bash
+        run: |
+          cmake -B "${{github.workspace}}/build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
+                -DCZICHECK_BUILD_TESTS=ON
+
+      - name: Build
+        # Build your program with the given configuration
+        run: cmake --build ${{github.workspace}}/build --config Release
+
+      - name: CTest
+        # Run tests
+        run: |
+          cd "${{github.workspace}}/build"
+          ctest -C Release --verbose
