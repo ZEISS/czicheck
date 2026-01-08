@@ -115,7 +115,7 @@ jobs:
         shell: bash
         run: |
           mkdir release
-          name="CZICheck-linux-x64-$(git describe --always)"
+          name="CZICheck-ubuntu-x64-$(git describe --always)"
           mkdir "release/${name}"
           cd ./build/CZICheck
           cp "CZICheck" "./../../release/${name}/"
