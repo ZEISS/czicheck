@@ -95,7 +95,7 @@ jobs:
           # on Windows, we need to point CMake to the vcpkg-toolchain-file
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
-                -DVCPKG_TARGET_TRIPLET=arm-windows-static \
+                -DVCPKG_TARGET_TRIPLET=arm64-windows-static \
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Configure CMake (Linux)
