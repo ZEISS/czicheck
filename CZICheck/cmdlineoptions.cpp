@@ -681,7 +681,7 @@ void CCmdLineOptions::PrintVersionInfo()
             string build_info = stream_class_info.get_build_info();
             if (!build_info.empty())
             {
-                this->log_->WriteStdOut("    ""Build: ");
+                this->log_->WriteStdOut("    Build: ");
                 this->log_->WriteLineStdOut(build_info);
             }
         }
