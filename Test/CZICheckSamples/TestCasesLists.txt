@@ -42,6 +42,10 @@ edf-superfluous-missing-channel-subblock.czi,2,edf-superfluous-missing-channel-s
 
 ###############################################################################
 # Those tests operate on http(s) accessed files (with CurlHttpInputStream).
+#
+# Note: The input-stream-parameters are specified to allow redirections, and is
+#       required for GitHub URLs. The escape characters (\) are required to make this
+#       a valid CSV file.
 ###############################################################################
 
 # differentpixeltypeinchannel.czi
