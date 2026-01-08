@@ -150,6 +150,9 @@ jobs:
       VCPKG_FORCE_SYSTEM_BINARIES: 1
     steps:
 
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Install dependencies
         run: |
           uname -a
@@ -175,9 +178,6 @@ jobs:
             ${{ env.VCPKG_ROOT }}
             ${{ env.VCPKG_DEFAULT_BINARY_CACHE }}
           key: vcpkg-env-alpine-${{ hashFiles('vcpkg.json') }}
-
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Setup vcpkg
         shell: bash
