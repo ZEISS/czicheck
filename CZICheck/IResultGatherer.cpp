@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 Carl Zeiss Microscopy GmbH
+//
+// SPDX-License-Identifier: MIT
+
 #include "IResultGatherer.h"
 
 /*static*/IResultGathererControl::AggregatedResult IResultGathererControl::GetAggregatedResult(const CheckResult& check_result)
