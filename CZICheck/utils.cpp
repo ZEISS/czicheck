@@ -175,7 +175,7 @@ std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& comma
     // then an exception is thrown (if something goes wrong).
     if (!source_stream)
     {
-        stringstream string_stream;
+        std::stringstream string_stream;
         string_stream << "The input-stream-class \"" << stream_info.class_name << "\" is not valid.";
         throw std::runtime_error(string_stream.str());
     }
