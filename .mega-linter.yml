@@ -23,3 +23,4 @@ UPDATED_SOURCES_REPORTER: false
 TEXT_REPORTER: true
 EMAIL_REPORTER: false
 VALIDATE_ALL_CODEBASE: true
+ACTION_ACTIONLINT_ARGUMENTS: "--ignore runner-label" # actionlint does not yet recognize the GitHub-hosted runner label "windows-11-arm", so we ignore the runner-label check until upstream support is added.
