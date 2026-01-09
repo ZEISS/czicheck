@@ -13,6 +13,7 @@ The following external packages are required for building.
 
 
 ## building
+
 Building CZICheck is done by running those commands. Assume that the current working directory is the root of the CZICheck-project.
 
 ```bash
