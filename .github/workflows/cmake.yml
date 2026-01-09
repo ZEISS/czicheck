@@ -16,7 +16,16 @@ jobs:
       matrix:
         # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
         build: [Release]
-        os: [ubuntu-latest, windows-latest, windows-11-arm]
+        include:
+          - os: ubuntu-latest
+            triplet: x64-linux
+            arch_tag: ubuntu-x64
+          - os: windows-latest
+            triplet: x64-windows-static
+            arch_tag: windows-x64
+          - os: windows-11-arm
+            triplet: arm64-windows-static
+            arch_tag: windows-arm64
 
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
@@ -74,8 +83,8 @@ jobs:
             fi
           fi
 
-      - name: Configure CMake (Windows x64)
-        if: ${{ (matrix.os == 'windows-latest') }}
+      - name: Configure CMake (Windows)
+        if: ${{ startsWith(matrix.os, 'windows') }}
         shell: bash
         run: |
           # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -83,19 +92,7 @@ jobs:
           # on Windows, we need to point CMake to the vcpkg-toolchain-file
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
-                -DVCPKG_TARGET_TRIPLET=x64-windows-static \
-                -DCZICHECK_BUILD_TESTS=ON
-
-      - name: Configure CMake (Windows arm64)
-        if: ${{ (matrix.os == 'windows-11-arm') }}
-        shell: bash
-        run: |
-          # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-          # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-          # on Windows, we need to point CMake to the vcpkg-toolchain-file
-          cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
-                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
-                -DVCPKG_TARGET_TRIPLET=arm64-windows-static \
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} \
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Configure CMake (Linux)
@@ -122,6 +119,18 @@ jobs:
         run: |
           cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/
 
+      - name: Package (Windows)
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        shell: bash
+        run: |
+          mkdir release
+          name="CZICheck-windows-${{ matrix.arch_tag }}-$(git describe --always)"
+          mkdir "release/${name}"
+          cp ./build/CZICheck/${{ matrix.build }}/*.exe "release/${name}/"
+          cp ./build/CZICheck/THIRD_PARTY_LICENSES.txt "release/${name}/"
+          echo "artifactName=${name}" >> "$GITHUB_ENV"
+          echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
+
       - name: Package
         if: ${{ (matrix.os == 'ubuntu-latest') }}
         shell: bash
@@ -133,30 +142,6 @@ jobs:
           cp "CZICheck" "./../../release/${name}/"
           cp "THIRD_PARTY_LICENSES.txt" "./../../release/${name}/"
           cd ../..
-          echo "artifactName=${name}" >> "$GITHUB_ENV"
-          echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
-
-      - name: Package
-        if: ${{ (matrix.os == 'windows-latest') }}
-        shell: bash
-        run: |
-          mkdir release
-          name="CZICheck-windows-x64-$(git describe --always)"
-          mkdir "release/${name}"
-          cp ./build/CZICheck/${{ matrix.build }}/*.exe "release/${name}/"
-          cp ./build/CZICheck/THIRD_PARTY_LICENSES.txt "release/${name}/"
-          echo "artifactName=${name}" >> "$GITHUB_ENV"
-          echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
-
-      - name: Package
-        if: ${{ (matrix.os == 'windows-11-arm') }}
-        shell: bash
-        run: |
-          mkdir release
-          name="CZICheck-windows-arm64-$(git describe --always)"
-          mkdir "release/${name}"
-          cp ./build/CZICheck/${{ matrix.build }}/*.exe "release/${name}/"
-          cp ./build/CZICheck/THIRD_PARTY_LICENSES.txt "release/${name}/"
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
 
