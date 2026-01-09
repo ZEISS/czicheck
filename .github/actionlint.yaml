@@ -1,0 +1,18 @@
+# actionlint configuration
+#
+# This file is used by `actionlint` (via MegaLinter's ACTION_ACTIONLINT) to lint
+# GitHub Actions workflows under `.github/workflows/`.
+#
+# Why this file exists:
+# - `actionlint` keeps an internal allow-list of runner labels for `runs-on`.
+# - When GitHub introduces new runner labels, `actionlint` may lag behind and
+#   report them as "unknown".
+# - `runner-label` lets you whitelist additional labels so linting remains
+#   accurate and CI does not fail due to an outdated allow-list.
+#
+# Notes:
+# - This configuration affects linting only; it does not change how GitHub Actions
+#   schedules runners.
+
+runner-label:
+  - windows-11-arm

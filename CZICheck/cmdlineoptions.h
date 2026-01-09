@@ -95,7 +95,6 @@ public:
     [[nodiscard]] const std::shared_ptr<ILog>& GetLog() const { return this->log_; }
     [[nodiscard]] const OutputEncodingFormat GetOutputEncodingFormat() const { return this->result_encoding_type_; }
     [[nodiscard]] const std::string& GetSourceStreamClass() const { return this->source_stream_class_; }
-    //[[nodiscard]] const std::map<std::string, std::string>& GetPropertyBag() const { return this->property_bag_; }
     [[nodiscard]] const std::map<int, libCZI::StreamsFactory::Property>& GetPropertyBagForStreamClass() const { return this->property_bag_for_stream_class_; }
     [[nodiscard]] FailFastMode GetFailFastMode() const { return this->fail_fast_mode_; }
 private:
