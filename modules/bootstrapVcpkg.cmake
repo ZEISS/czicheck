@@ -7,11 +7,6 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
     return()
 endif()
 
-set(BUILDING_IN_VISUAL_STUDIO OFF)
-if(DEFINED CMAKE_GENERATOR_INSTANCE OR DEFINED CMAKE_VS_INSTANCE)
-    set(BUILDING_IN_VISUAL_STUDIO ON)
-endif()
-
 if(DEFINED ENV{VCPKG_ROOT} AND NOT "$ENV{VCPKG_ROOT}" STREQUAL "")
     set(VCPKG_DIR "$ENV{VCPKG_ROOT}")
 else()
@@ -35,11 +30,6 @@ if(DEFINED ENV{VCPKG_ROOT} AND EXISTS "$ENV{VCPKG_ROOT}/vcpkg" AND NOT DEFINED V
 endif()
 
 if(NOT EXISTS "${VCPKG_EXECUTABLE}")
-    # if(BUILDING_IN_VISUAL_STUDIO AND DEFINED ENV{VCPKG_ROOT})
-    #     message(STATUS "Visual Studio detected with VCPKG_ROOT, skipping local bootstrap.")
-    #     return()
-    # endif()
-
     if(NOT EXISTS "${VCPKG_DIR}/.git")
         message(STATUS "vcpkg not found")
         

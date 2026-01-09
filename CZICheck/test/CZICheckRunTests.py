@@ -195,7 +195,7 @@ parameters.parse_commandline()
 numberOfTests = 0
 numberOfFailedTests = 0
 with open(parameters.get_fully_qualified_testlist_filename()) as csv_file:
-    csv_reader = csv.DictReader(csv_file, delimiter=',',quotechar='"', escapechar='\\')
+    csv_reader = csv.DictReader(csv_file, delimiter=',', escapechar='\\')
     for row in csv_reader:
         if row['czifilename'] and not row['czifilename'].isspace() and not row['czifilename'].startswith('#'):
             numberOfTests = numberOfTests + 1
