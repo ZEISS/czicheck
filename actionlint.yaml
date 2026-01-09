@@ -12,4 +12,5 @@
 # unknown. The `runner-label` list below extends that allow-list.
 
 runner-label:
-  - windows-11-arm
+  allowed:
+    - windows-11-arm
