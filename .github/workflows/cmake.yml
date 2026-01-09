@@ -56,7 +56,7 @@ jobs:
           path: |
             ${{ github.workspace }}/vcpkg-root
             ${{ github.workspace }}/vcpkg-cache
-          key: vcpkg-env-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+          key: vcpkg-env-${{ matrix.arch_tag }}-${{ hashFiles('vcpkg.json') }}
 
       - name: Install system dependencies (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') }}
