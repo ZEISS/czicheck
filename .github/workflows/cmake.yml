@@ -16,6 +16,7 @@ jobs:
       matrix:
         # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
         build: [Release]
+        os: [ubuntu-latest, windows-latest, windows-11-arm]
         include:
           - os: ubuntu-latest
             triplet: x64-linux
