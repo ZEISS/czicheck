@@ -10,12 +10,27 @@
 
 #include <sstream>
 #include <string>
-#include <utility>
 
 using namespace std;
 
+const wchar_t* CResultGathererXml::kXmlVersionId = L"version";
+const wchar_t* CResultGathererXml::kXmlVersionNumber = L"1.0";
+const wchar_t* CResultGathererXml::kXmlEncodingId = L"encoding";
+const wchar_t* CResultGathererXml::kXmlEncodingType = L"utf-8";
+const wchar_t* CResultGathererXml::kTestResultsName = L"TestResults";
+const wchar_t* CResultGathererXml::kTestContainerId = L"Tests";
+const wchar_t* CResultGathererXml::kTestSingleContainerId = L"Test";
+const wchar_t* CResultGathererXml::kTestNameId = L"Name";
+const wchar_t* CResultGathererXml::kTestDescriptionId = L"Description";
+const wchar_t* CResultGathererXml::kTestResultId = L"Result";
+const wchar_t* CResultGathererXml::kTestAggregatedResultId = L"AggregatedResult";
+const wchar_t* CResultGathererXml::kTestFindingContainerId = L"Findings";
+const wchar_t* CResultGathererXml::kTestFindingId = L"Finding";
+const wchar_t* CResultGathererXml::kTestSeverityId = L"Severity";
+const wchar_t* CResultGathererXml::kTestDetailsId = L"Details";
+
 CResultGathererXml::CResultGathererXml(const CCmdLineOptions& options)
-    : options_(options)
+    : ResultGathererBase(options)
 {
     auto decl = this->xml_document_.append_child(pugi::node_declaration);
     decl.append_attribute(kXmlVersionId) = kXmlVersionNumber;
@@ -26,7 +41,8 @@ CResultGathererXml::CResultGathererXml(const CCmdLineOptions& options)
 
 void CResultGathererXml::StartCheck(CZIChecks check)
 {
-    this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
+    this->CoreStartCheck(check);
+
     pugi::xml_node finding_node = this->test_node_.append_child(kTestSingleContainerId);
     string test_name { CZIChecksToString(check) };
     finding_node.append_attribute(kTestNameId) = convertUtf8ToUCS2(test_name).c_str();
@@ -36,14 +52,12 @@ void CResultGathererXml::StartCheck(CZIChecks check)
     finding_node.append_child(kTestFindingContainerId);
 
     this->current_checker_id_ = test_name;
-
-    this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
 }
 
 void CResultGathererXml::FinishCheck(CZIChecks check)
 {
-    const auto& it = this->results_.find(check);
-    const auto& result = it->second;
+    const IResultGatherer::CheckResult current_checker_result = this->GetCheckResultForCurrentlyActiveChecker();
+    this->CoreFinishCheck(check);
     const wstring current_checker = convertUtf8ToUCS2(this->current_checker_id_);
     for (auto current_test_node : this->test_node_.children())
     {
@@ -52,11 +66,11 @@ void CResultGathererXml::FinishCheck(CZIChecks check)
         {
             auto result_node = current_test_node.child(kTestResultId);
             ostringstream ss;
-            if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
+            if (current_checker_result.fatalMessagesCount == 0 && current_checker_result.warningMessagesCount == 0)
             {
                 ss << "OK";
             }
-            else if (result.fatalMessagesCount == 0)
+            else if (current_checker_result.fatalMessagesCount == 0)
             {
                 ss << "WARN";
             }
@@ -70,10 +84,9 @@ void CResultGathererXml::FinishCheck(CZIChecks check)
     }
 }
 
-void CResultGathererXml::ReportFinding(const Finding& finding)
+IResultGatherer::ReportFindingResult CResultGathererXml::ReportFinding(const Finding& finding)
 {
-    const auto it = this->results_.find(finding.check);
-    IncrementCounter(finding.severity, it->second);
+    this->CoreReportFinding(finding);
 
     const wstring current_checker = convertUtf8ToUCS2(this->current_checker_id_);
     for (auto current_test_node : this->test_node_.children())
@@ -86,7 +99,7 @@ void CResultGathererXml::ReportFinding(const Finding& finding)
             auto current_finding = findings_container.append_child(kTestFindingId);
             current_finding.append_child(kTestSeverityId)
                 .text()
-                .set(convertUtf8ToUCS2(finding.FindingSeverityToString()).c_str());
+                .set(convertUtf8ToUCS2(ResultGathererBase::FindingSeverityToString(finding)).c_str());
             current_finding.append_child(kTestDescriptionId)
                 .text()
                 .set(convertUtf8ToUCS2(finding.information).c_str());
@@ -97,6 +110,8 @@ void CResultGathererXml::ReportFinding(const Finding& finding)
             break;
         }
     }
+
+    return this->DetermineReportFindingResult(finding);
 }
 
 void CResultGathererXml::FinalizeChecks()
@@ -127,6 +142,10 @@ void CResultGathererXml::FinalizeChecks()
 
     ostringstream xml_document_stream;
     this->xml_document_.save(xml_document_stream, L"  ");
-    this->options_.GetLog()->WriteStdOut(xml_document_stream.str());
+    this->GetLog()->WriteStdOut(xml_document_stream.str());
 }
 
+IResultGatherer::CheckResult CResultGathererXml::GetAggregatedCounts() const
+{
+    return this->CoreGetAggregatedCounts();
+}

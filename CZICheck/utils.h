@@ -7,6 +7,11 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <memory>
+#include <map>
+
+namespace libCZI { class IStream; }
+class CCmdLineOptions;
 
 std::uint64_t GetFileSize(const wchar_t* filename);
 std::string convertToUtf8(const std::wstring& str);
@@ -14,6 +19,15 @@ std::wstring convertUtf8ToUCS2(const std::string& str);
 bool icasecmp(const std::string& l, const std::string& r);
 std::string trim(const std::string& str, const std::string& whitespace = " \t");
 std::string GetVersionNumber();
+
+/// Create a stream based on the command line options. If no source-stream-class is specified,
+/// a standard file stream is created. Otherwise, the StreamsFactory is used with the specified
+/// stream class and property bag.
+///
+/// \param command_line_options  The command line options containing stream class and properties.
+///
+/// \returns A shared pointer to the created stream.
+std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& command_line_options);
 
 #if CZICHECK_WIN32_ENVIRONMENT
 /// A utility which is providing the command-line arguments (on Windows) as UTF8-encoded strings.

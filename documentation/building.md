@@ -13,6 +13,7 @@ The following external packages are required for building.
 
 
 ## building
+
 Building CZICheck is done by running those commands. Assume that the current working directory is the root of the CZICheck-project.
 
 ```bash
@@ -96,4 +97,22 @@ ctest -C Release
           -r myfile.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/myfile.czi}
           }
         )
+
+## vcpkg bootstrapping
+
+A helper CMake module (`modules/bootstrapVcpkg.cmake`) automatically bootstraps vcpkg if no `CMAKE_TOOLCHAIN_FILE` is set. When you configure the project normally (`cmake ..`), it will:
+
+- use an existing vcpkg if `VCPKG_ROOT` is defined (preferred); otherwise clone vcpkg into the build tree (`<build>/_deps/vcpkg`).
+- bootstrap the vcpkg tool and set `CMAKE_TOOLCHAIN_FILE` to `vcpkg/scripts/buildsystems/vcpkg.cmake`.
+- enable manifest mode (`VCPKG_FEATURE_FLAGS=manifests`).
+
+To reuse a preinstalled vcpkg or a binary cache, set `VCPKG_ROOT` (and optionally `VCPKG_DEFAULT_BINARY_CACHE`) before running CMake, e.g.:
+
+```bash
+export VCPKG_ROOT=~/vcpkg
+export VCPKG_DEFAULT_BINARY_CACHE=~/.cache/vcpkg
+cmake .. -DCMAKE_BUILD_TYPE=Release
+```
+
+If you already pass a toolchain file explicitly (e.g., `-DCMAKE_TOOLCHAIN_FILE=/path/to/vcpkg.cmake`), the bootstrap is skipped.
 

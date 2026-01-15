@@ -1,19 +1,30 @@
-### usage
+# usage
 
 
-# synopsis
+## synopsis
 
 Running CZICheck with the `--help` option will print a brief summary of the available options and their usage:
 
 ```
-CZICheck version 0.6.1, using libCZI version 0.62.6
+CZICheck version 0.7.0, using libCZI version 0.67.2
 
-Usage: CZICheck [OPTIONS]
 
-Options:
-  -h,--help                   Print this help message and exit
-  -s,--source FILENAME        Specify the CZI-file to be checked.
-  -c,--checks CHECKS-TO-BE-RUN
+
+CZICheck [OPTIONS]
+
+
+OPTIONS:
+  -h,     --help              Print this help message and exit
+  -s,     --source FILENAME   Specify the CZI-file to be checked.
+          --source-stream-class STREAM-CLASS
+                              Specifies the stream-class used for reading the source CZI-file.
+                              If not specified, the default file-reader stream-class is used.
+                              Run with argument '--version' to get a list of available
+                              stream-classes.
+          --propbag-source-stream-creation PROPBAG
+                              Specifies the property-bag used for creating the stream used for
+                              reading the source CZI-file. The data is given in JSON-notation.
+  -c,     --checks CHECKS-TO-BE-RUN
                               Specifies a comma-separated list of short-names of checkers
                               to run. In addition to the short-names, the following
                               "set-names" are possible : 'default' and 'all'. 'default'
@@ -26,55 +37,79 @@ Options:
                               the default if no plus or minus is prepended.
                               Examples:
                               "default, -benabled" : run all checkers in the "default set"
-                                                     without the checker 'benabled'
+                              without the checker 'benabled'
                               "+benabled, +planesstartindex" : run only the checkers
-                                                               'benabled' and
-                                                               'planesstartindex'
+                              'benabled' and
+                              'planesstartindex'
                               Default is 'default'.
 
-  -m,--maxfindings INTEGER    Specifies how many findings are to be reported and printed
+  -m,     --maxfindings INTEGER
+                              Specifies how many findings are to be reported and printed
                               (for every check).
                               A negative number means 'no limit'. Default is 3.
 
-  -d,--printdetails BOOLEAN   Specifies whether to print details (if available) with a
+  -d,     --printdetails BOOLEAN
+                              Specifies whether to print details (if available) with a
                               finding. The argument may be one of 'true', 'false', 'yes'
                               or 'no'.
 
-  -l,--laxparsing BOOLEAN     Specifies whether lax parsing for file opening is enabled.
+  -l,     --laxparsing BOOLEAN
+                              Specifies whether lax parsing for file opening is enabled.
+                              This option allows operation on some malformed CZIs which would
+                              otherwise not be analyzable at all.
                               The argument may be one of 'true', 'false', 'yes'
                               or 'no'. Default is 'no'.
 
-  -e,--encoding ENCODING      Specifies which encoding should be used for result reporting.
-                              The argument may be one of 'json', 'xml', 'text'. Default is 'text'.
+  -i,     --ignoresizem BOOLEAN
+                              Specifies whether to ignore the 'SizeM' field for pyramid
+                              subblocks.
+                              This option allows operation on some malformed CZIs which would
+                              otherwise not be analyzable at all.
+                              The argument may be one of 'true', 'false', 'yes'
+                              or 'no'. Default is 'false'.
 
+  -e,     --encoding ENCODING Specifies which encoding should be used for result reporting.
+                              The argument may be one of 'json', 'xml', 'text'. Default is
+                              'text'.
+
+          --fail-fast FAIL-FAST-MODE
+                              Controls behavior when a fatal finding is encountered.
+                              'none' - continue processing all findings (default)
+                              'checker' - stop current checker, continue with next
+                              'all' - abort entire operation immediately
+          --version           Print extended version-info and supported operations, then exit.
 
 The exit code of CZICheck is
- 0  - all checks completed without an error or a warning
- 1  - the checks found some warnings, but no errors
- 2  - the checks gave one or more errors
- 5  - the CZI-file could not be read or opened
- 10 - the command line arguments are invalid
+0 - all checks completed without an error or a warning
+1 - the checks found some warnings, but no errors
+2 - the checks gave one or more errors
+5 - the CZI-file could not be read or opened
+10 - the command line arguments are invalid
 
 Available checkers (checkers enabled with the default set are marked with '*'):
-* "subblkdimconsistent" -> check subblock's coordinates for 'consistent dimensions'
-* "subblksegmentsinfile" -> SubBlock-Segment in SubBlockDirectory within file
-  "subblksegmentsvalid" -> SubBlock-Segments in SubBlockDirectory are valid
-* "subblkcoordsunique" -> check subblock's coordinates being unique
-* "benabled" -> check whether the document uses the deprecated 'B-index'
-* "samepixeltypeperchannel" -> check that the subblocks of a channel have the same pixeltype
-* "planesstartindex" -> Check that planes indices start at 0
-* "consecutiveplaneindices" -> Check that planes have consecutive indices
-* "minallsubblks" -> check if all subblocks have the M index
-* "basicxmlmetadata" -> Basic semantic checks of the XML-metadata
-* "topographymetadata" -> Basic semantic checks for TopographyDataItems
-  "xmlmetadataschema" -> validate the XML-metadata against XSD-schema
-* "overlappingscenes" -> check if subblocks at pyramid-layer 0 of different scenes are overlapping
-* "subblkbitmapvalid" -> SubBlock-Segments in SubBlockDirectory are valid and valid content
+[*] "subblkdimconsistent" -> check subblock's coordinates for 'consistent
+dimensions'
+[*] "subblksegmentsinfile" -> SubBlock-Segment in SubBlockDirectory within file
+[ ] "subblksegmentsvalid" -> SubBlock-Segments in SubBlockDirectory are valid
+[*] "subblkcoordsunique" -> check subblock's coordinates being unique
+[*] "benabled" -> check whether the document uses the deprecated 'B-index'
+[*] "samepixeltypeperchannel" -> check that the subblocks of a channel have the
+same pixeltype
+[*] "planesstartindex" -> Check that planes indices start at 0
+[*] "consecutiveplaneindices" -> Check that planes have consecutive indices
+[*] "minallsubblks" -> check if all subblocks have the M index
+[*] "basicxmlmetadata" -> Basic semantic checks of the XML-metadata
+[*] "topographymetadata" -> Basic semantic checks for TopographyDataItems
+[ ] "xmlmetadataschema" -> validate the XML-metadata against XSD-schema
+[*] "overlappingscenes" -> check if subblocks at pyramid-layer 0 of different
+scenes are overlapping
+[*] "subblkbitmapvalid" -> SubBlock-Segments in SubBlockDirectory are valid and
+valid content
 ```
 
-All checkers listed at the bottom are available for use. The ones marked with `[opt-in]` are not run by default, but can be enabled by adding them to the list of checkers to be run (or by using 'all' as argument for the '--checks' argument).
+All checkers listed at the bottom are available for use. The ones marked with `[ ]` are not run by default, but can be enabled by adding them to the list of checkers to be run (or by using 'all' as argument for the '--checks' argument).
 
-# example
+## example
 
 Here is the output of a sample run:
 
@@ -86,7 +121,7 @@ according to above table).
 
 ## output encoding
 
-You can chose between 3 different encoding output encoding styles at the moment:
+You can chose between 3 different output encoding styles at the moment:
 
 ### Simple text
 

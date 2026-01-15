@@ -38,7 +38,7 @@ include(FetchContent)
 FetchContent_Declare(
   cli11
   GIT_REPOSITORY https://github.com/CLIUtils/CLI11
-  GIT_TAG        v2.3.2
+  GIT_TAG        v2.6.1
 )
 
 FetchContent_MakeAvailable(cli11)
@@ -91,9 +91,13 @@ set(CZICHECKSRCFILES
 "consoleio.h"
 "CZICheck.cpp"
 "IChecker.h"
+"checkerexception.h"
 "IResultGatherer.h"
+"IResultGatherer.cpp"
 "resultgatherer.cpp"
 "resultgatherer.h"
+"resultgathererbase.h"
+"resultgathererbase.cpp"
 "resultgathererjson.h"
 "resultgathererjson.cpp"
 "resultgathererxml.h"

@@ -7,12 +7,12 @@ if(DEFINED CMAKE_TOOLCHAIN_FILE)
     return()
 endif()
 
-set(BUILDING_IN_VISUAL_STUDIO OFF)
-if(DEFINED CMAKE_GENERATOR_INSTANCE OR DEFINED CMAKE_VS_INSTANCE)
-    set(BUILDING_IN_VISUAL_STUDIO ON)
+if(DEFINED ENV{VCPKG_ROOT} AND NOT "$ENV{VCPKG_ROOT}" STREQUAL "")
+    set(VCPKG_DIR "$ENV{VCPKG_ROOT}")
+else()
+    set(VCPKG_DIR "${CMAKE_BINARY_DIR}/_deps/vcpkg")
 endif()
 
-set(VCPKG_DIR "${CMAKE_SOURCE_DIR}/external/vcpkg")
 if(WIN32)
     set(VCPKG_EXECUTABLE "${VCPKG_DIR}/vcpkg.exe")
 else()
@@ -30,49 +30,23 @@ if(DEFINED ENV{VCPKG_ROOT} AND EXISTS "$ENV{VCPKG_ROOT}/vcpkg" AND NOT DEFINED V
 endif()
 
 if(NOT EXISTS "${VCPKG_EXECUTABLE}")
-    # if(BUILDING_IN_VISUAL_STUDIO AND DEFINED ENV{VCPKG_ROOT})
-    #     message(STATUS "Visual Studio detected with VCPKG_ROOT, skipping local bootstrap.")
-    #     return()
-    # endif()
-
     if(NOT EXISTS "${VCPKG_DIR}/.git")
         message(STATUS "vcpkg not found")
-        message(STATUS "Attempting to find baseline from vcpkg.json...")
-        file(READ "${CMAKE_SOURCE_DIR}/vcpkg.json" _vcpkg_manifest)
-        string(REGEX MATCH "\"builtin-baseline\"[ \t]*:[ \t]*\"([0-9a-f]+)\"" _ ${_vcpkg_manifest})
-        set(VCPKG_BASELINE_COMMIT "${CMAKE_MATCH_1}")
-
-        if(NOT VCPKG_BASELINE_COMMIT OR NOT VCPKG_BASELINE_COMMIT MATCHES "^[0-9a-f]+$")
-            message(WARNING
-                "Failed to extract builtin-baseline from vcpkg.json. "
-                "Ensure that your manifest defines a valid baseline like:\n"
-                "  \"builtin-baseline\": \"<commit sha>\""
-            )
-        else()
-            message(STATUS "Determined baseline commit: ${VCPKG_BASELINE_COMMIT}")
-        endif()
-
+        
+        # We clone the latest vcpkg (master) instead of checking out the specific builtin-baseline commit.
+        # Motivation:
+        # 1. vcpkg is designed to handle versioning via the vcpkg.json manifest file. The 'builtin-baseline'
+        #    field in vcpkg.json tells vcpkg which versions of ports to use, regardless of the vcpkg tool version.
+        # 2. Using the latest vcpkg tool ensures we have the newest features, bug fixes, and performance improvements.
+        # 3. Checking out the vcpkg repo to the baseline commit is considered an anti-pattern because it downgrades
+        #    the tool itself, potentially missing critical fixes or binary caching capabilities.
         message(STATUS "Cloning vcpkg...")
         execute_process(
-            COMMAND git clone --depth 1 https://github.com/microsoft/vcpkg.git "${VCPKG_DIR}"
+            COMMAND git clone https://github.com/microsoft/vcpkg.git "${VCPKG_DIR}"
             RESULT_VARIABLE GIT_CLONE_RESULT
         )
         if(NOT GIT_CLONE_RESULT EQUAL 0)
             message(FATAL_ERROR "Failed to clone vcpkg from GitHub.")
-        endif()
-        
-        if(DEFINED VCPKG_BASELINE_COMMIT)
-          message(STATUS "Fetching vcpkg baseline commit: ${VCPKG_BASELINE_COMMIT}")
-          execute_process(
-            COMMAND ${CMAKE_COMMAND} -E chdir "${VCPKG_DIR}" git fetch --depth 1 origin ${VCPKG_BASELINE_COMMIT}
-            RESULT_VARIABLE GIT_FETCH_RESULT
-            )
-          if(NOT GIT_FETCH_RESULT EQUAL 0)
-            message(FATAL_ERROR
-              "Failed to fetch vcpkg baseline commit ${VCPKG_BASELINE_COMMIT}. "
-              "Check that your builtin-baseline is correct and exists in the vcpkg repo."
-            )
-          endif()
         endif()
     else()
         message(STATUS "Found vcpkg directory at ${VCPKG_DIR}, skipping clone.")

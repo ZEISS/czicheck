@@ -9,6 +9,7 @@
 #include <utility>
 #include <algorithm>
 #include <string>
+#include <limits>
 #include "cmdlineoptions.h"
 #include "utils.h"
 #include "checkerfactory.h"
@@ -16,6 +17,7 @@
 #include "CLI/App.hpp"
 #include "CLI/Formatter.hpp"
 #include "CLI/Config.hpp"
+#include "rapidjson/document.h"
 
 using namespace std;
 
@@ -110,6 +112,26 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         }
     };
 
+    // CLI11-validator for the option "--fail-fast".
+    struct FailFastValidator : public CLI::Validator
+    {
+        FailFastValidator()
+        {
+            this->func_ = [](const std::string& str) -> string
+                {
+                    string error_message;
+                    FailFastMode fail_fast_mode;
+                    const bool parsed_ok = CCmdLineOptions::ParseFailFastArgument(str, fail_fast_mode, error_message);
+                    if (!parsed_ok)
+                    {
+                        throw CLI::ValidationError(error_message);
+                    }
+
+                    return {};
+                };
+        }
+    };
+
     // CLI11-validator for the option "--printdetails".
     struct PrintDetailsValidator : public BooleanArgumentValidator
     {
@@ -128,6 +150,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     static const EncodingValidator encodings_validator;
     static const PrintDetailsValidator print_details_validator;
     static const LaxParsingValidator lax_parsing_validator;
+    static const FailFastValidator fail_fast_validator;
 
     string source_filename_options;
     string checks_enable_options;
@@ -136,9 +159,19 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     string lax_parsing_enabled;
     string ignore_sizem_for_pyramid_subblocks_enabled;
     string result_encoding_option;
+    string source_stream_class_option;
+    string property_bag_options;
+    string fail_fast_option;
+    bool argument_version_flag = false;
     app.add_option("-s,--source", source_filename_options, "Specify the CZI-file to be checked.")
-        ->option_text("FILENAME")
-        ->required();
+        ->option_text("FILENAME");
+    app.add_option("--source-stream-class", source_stream_class_option,
+        "Specifies the stream-class used for reading the source CZI-file. If not specified, the default file-reader stream-class is used."
+        " Run with argument '--version' to get a list of available stream-classes.")
+        ->option_text("STREAM-CLASS");
+    app.add_option("--propbag-source-stream-creation", property_bag_options,
+        "Specifies the property-bag used for creating the stream used for reading the source CZI-file. The data is given in JSON-notation.")
+        ->option_text("PROPBAG");
     app.add_option("-c,--checks", checks_enable_options,
         "Specifies a comma-separated list of short-names of checkers\n"
         "to run. In addition to the short-names, the following\n"
@@ -191,6 +224,15 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         "The argument may be one of 'json', 'xml', 'text'. Default is 'text'.\n")
         ->option_text("ENCODING")
         ->check(encodings_validator);
+    app.add_option("--fail-fast", fail_fast_option,
+        "Controls behavior when a fatal finding is encountered.\n"
+        "  'none'    - continue processing all findings (default)\n"
+        "  'checker' - stop current checker, continue with next\n"
+        "  'all'     - abort entire operation immediately")
+        ->option_text("FAIL-FAST-MODE")
+        ->check(fail_fast_validator);
+    app.add_flag("--version", argument_version_flag,
+        "Print extended version-info and supported operations, then exit.");
 
     // Parse the command line arguments
     try
@@ -202,15 +244,28 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         app.exit(e);
         return ParseResult::Exit;
     }
+    catch (const CLI::Success& e)
+    {
+        // CLI11 throws CLI::Success for --version flag
+        // This is expected and should result in exit code 0
+        app.exit(e);
+        return ParseResult::Exit;
+    }
     catch (const CLI::ParseError& e)
     {
         app.exit(e);
         return ParseResult::Error;
     }
 
+    if (argument_version_flag)
+    {
+        this->PrintVersionInfo();
+        return ParseResult::Exit;
+    }
+
     if (source_filename_options.empty())
     {
-        this->log_->WriteLineStdErr("No CZI-file specified.");
+        this->log_->WriteLineStdErr("No CZI-file specified, use -s (or --source) to give the filename.");
         return ParseResult::Error;
     }
 
@@ -271,6 +326,39 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         }
     }
 
+    if (!fail_fast_option.empty())
+    {
+        // Set fail-fast flag from the parsed flag value
+        string error_message;
+        FailFastMode fail_fast_mode;
+        const bool parsed_ok = CCmdLineOptions::ParseFailFastArgument(fail_fast_option, fail_fast_mode, error_message);
+        if (!parsed_ok)
+        {
+            this->log_->WriteLineStdErr(error_message);
+            return ParseResult::Error;
+        }
+
+        this->fail_fast_mode_ = fail_fast_mode;
+    }
+
+    // Parse source stream class option
+    if (!source_stream_class_option.empty())
+    {
+        this->source_stream_class_ = source_stream_class_option;
+    }
+
+    if (!property_bag_options.empty())
+    {
+        const bool b = CCmdLineOptions::TryParseInputStreamCreationPropertyBag(property_bag_options, &this->property_bag_for_stream_class_);
+        if (!b)
+        {
+            ostringstream string_stream;
+            string_stream << "Error parsing argument for '--propbag-source-stream-creation' -> \"" << property_bag_options << "\".";
+            this->log_->WriteLineStdErr(string_stream.str());
+            return ParseResult::Error;
+        }
+    }
+
     return  ParseResult::OK;
 }
 
@@ -283,11 +371,11 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         {
             if (checkerInfo.isOptIn)
             {
-                string_stream << "  ";
+                string_stream << "[ ] ";
             }
             else
             {
-                string_stream << "* ";
+                string_stream << "[*] ";
             }
 
             string_stream << "\"" << checkerInfo.shortName << "\" -> " << checkerInfo.displayName;
@@ -332,6 +420,34 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     }
 
     error_message = "The output encoding option you passed is unknown.";
+    return false;
+}
+
+/*static*/bool CCmdLineOptions::ParseFailFastArgument(const std::string& str, FailFastMode& fail_fast_mode, std::string& error_message)
+{
+    error_message.clear();
+
+    if (icasecmp("checker", str))
+    {
+        fail_fast_mode = FailFastMode::FailFastForFatalErrorsPerChecker;
+        return true;
+    }
+
+    if (icasecmp("all", str))
+    {
+        fail_fast_mode = FailFastMode::FailFastForFatalErrorsOverall;
+        return true;
+    }
+
+    if (icasecmp("none", str))
+    {
+        fail_fast_mode = FailFastMode::Disabled;
+        return true;
+    }
+
+    ostringstream ss;
+    ss << "The fail-fast mode \"" << str << "\" is invalid.";
+    error_message = ss.str();
     return false;
 }
 
@@ -532,4 +648,127 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     }
 
     return false;
+}
+
+void CCmdLineOptions::PrintVersionInfo()
+{
+    int libCZI_version_major, libCZI_version_minor, libCZI_version_patch;
+    libCZI::GetLibCZIVersion(&libCZI_version_major, &libCZI_version_minor, &libCZI_version_patch);
+    ostringstream string_stream;
+    string_stream << "CZICheck version " << GetVersionNumber();
+    string_stream << ", using libCZI version " << libCZI_version_major << '.' << libCZI_version_minor << '.' << libCZI_version_patch << '.' << endl;
+    this->log_->WriteLineStdOut(string_stream.str());
+
+    this->log_->WriteLineStdOut("");
+    this->log_->WriteLineStdOut("Available Input-Stream objects");
+    this->log_->WriteLineStdOut("------------------------------");
+    this->log_->WriteLineStdOut("");
+
+    const int stream_object_count = libCZI::StreamsFactory::GetStreamClassesCount();
+
+    for (int i = 0; i < stream_object_count; ++i)
+    {
+        libCZI::StreamsFactory::StreamClassInfo stream_class_info;
+        libCZI::StreamsFactory::GetStreamInfoForClass(i, stream_class_info);
+
+        this->log_->WriteStdOut(to_string(i + 1) + ": ");
+        this->log_->WriteLineStdOut(stream_class_info.class_name);
+        this->log_->WriteStdOut("    ");
+        this->log_->WriteLineStdOut(stream_class_info.short_description);
+
+        if (stream_class_info.get_build_info)
+        {
+            string build_info = stream_class_info.get_build_info();
+            if (!build_info.empty())
+            {
+                this->log_->WriteStdOut("    Build: ");
+                this->log_->WriteLineStdOut(build_info);
+            }
+        }
+    }
+}
+
+/*static*/bool CCmdLineOptions::TryParseInputStreamCreationPropertyBag(const std::string& s, std::map<int, libCZI::StreamsFactory::Property>* property_bag)
+{
+    // Here we parse the JSON-formatted string that contains the property bag for the input stream and
+    //  construct a map<int, libCZI::StreamsFactory::Property> from it.
+
+    int property_info_count;
+    const libCZI::StreamsFactory::StreamPropertyBagPropertyInfo* property_infos = libCZI::StreamsFactory::GetStreamPropertyBagPropertyInfo(&property_info_count);
+
+    rapidjson::Document document;
+    document.Parse(s.c_str());
+    if (document.HasParseError() || !document.IsObject())
+    {
+        return false;
+    }
+
+    for (rapidjson::Value::ConstMemberIterator itr = document.MemberBegin(); itr != document.MemberEnd(); ++itr)
+    {
+        if (!itr->name.IsString())
+        {
+            return false;
+        }
+
+        string name = itr->name.GetString();
+        size_t index_of_key = (numeric_limits<size_t>::max)();
+        for (size_t i = 0; i < static_cast<size_t>(property_info_count); ++i)
+        {
+            if (name == property_infos[i].property_name)
+            {
+                index_of_key = i;
+                break;
+            }
+        }
+
+        if (index_of_key == (numeric_limits<size_t>::max)())
+        {
+            return false;
+        }
+
+        switch (property_infos[index_of_key].property_type)
+        {
+        case libCZI::StreamsFactory::Property::Type::String:
+            if (!itr->value.IsString())
+            {
+                return false;
+            }
+
+            if (property_bag != nullptr)
+            {
+                property_bag->insert(std::make_pair(property_infos[index_of_key].property_id, libCZI::StreamsFactory::Property(itr->value.GetString())));
+            }
+
+            break;
+        case libCZI::StreamsFactory::Property::Type::Boolean:
+            if (!itr->value.IsBool())
+            {
+                return false;
+            }
+
+            if (property_bag != nullptr)
+            {
+                property_bag->insert(std::make_pair(property_infos[index_of_key].property_id, libCZI::StreamsFactory::Property(itr->value.GetBool())));
+            }
+
+            break;
+        case libCZI::StreamsFactory::Property::Type::Int32:
+            if (!itr->value.IsInt())
+            {
+                return false;
+            }
+
+            if (property_bag != nullptr)
+            {
+                property_bag->insert(std::make_pair(property_infos[index_of_key].property_id, libCZI::StreamsFactory::Property(itr->value.GetInt())));
+            }
+
+            break;
+        default:
+            // this actually indicates an internal error - the table property_infos contains a not yet implemented property type
+            return false;
+        }
+    }
+
+    return true;
 }

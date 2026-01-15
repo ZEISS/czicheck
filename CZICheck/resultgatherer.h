@@ -4,12 +4,10 @@
 
 #pragma once
 
-#include <string>
-#include <cstdint>
-#include <map>
 #include "cmdlineoptions.h"
 #include "checks.h"
 #include "IResultGatherer.h"
+#include "resultgathererbase.h"
 
 /// This class is intended to receive the findings from the individual checks. It is 
 /// responsible for outputting them, and aggregating an overall result.
@@ -19,15 +17,14 @@
 ///    many times as necessary)
 /// - when a checker is done, it calls into 'FinishCheck'.  
 /// Deviating from this semantic results in undefined behavior.
-class CResultGatherer : public IResultGatherer
+class CResultGatherer : public IResultGatherer, ResultGathererBase
 {
-private:
-    const CCmdLineOptions& options_;
-
 public:
     explicit CResultGatherer(const CCmdLineOptions& options);
     void StartCheck(CZIChecks check) override;
-    void ReportFinding(const Finding& finding) override;
+    ReportFindingResult ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;
+
     void FinalizeChecks() override;
+    CheckResult GetAggregatedCounts() const  override;
 };

@@ -16,83 +16,92 @@ jobs:
       matrix:
         # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
         build: [Release]
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, windows-11-arm]
+        include:
+          - os: ubuntu-latest
+            triplet: x64-linux
+            arch_tag: ubuntu-x64
+          - os: windows-latest
+            triplet: x64-windows-static
+            arch_tag: windows-x64
+          - os: windows-11-arm
+            triplet: arm64-windows-static
+            arch_tag: windows-arm64
 
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ${{ matrix.os }}
 
+    env:
+      # GitHub-hosted runners provide VCPKG_INSTALLATION_ROOT.
+      # If not present, it can be set at runtime (see diagnostic step below).
+      VCPKG_INSTALLATION_ROOT: ${{ vars.VCPKG_INSTALLATION_ROOT || '' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Cache vcpkg and packages
+      - name: Setup vcpkg environment
+        shell: bash
+        run: |
+          echo "VCPKG_ROOT=${GITHUB_WORKSPACE}/vcpkg-root" >> "$GITHUB_ENV"
+          # VCPKG_DEFAULT_BINARY_CACHE tells vcpkg where to store/retrieve compiled binary packages.
+          # By setting this to a persistent location and caching it, we avoid rebuilding dependencies
+          # from source on every run, significantly speeding up the workflow.
+          echo "VCPKG_DEFAULT_BINARY_CACHE=${GITHUB_WORKSPACE}/vcpkg-cache" >> "$GITHUB_ENV"
+
+      - name: Cache vcpkg
         uses: actions/cache@v4
         with:
           path: |
-            external/vcpkg
-            build/vcpkg_installed
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
+            ${{ github.workspace }}/vcpkg-root
+            ${{ github.workspace }}/vcpkg-cache
+          key: vcpkg-env-${{ matrix.arch_tag }}-${{ hashFiles('vcpkg.json') }}
 
-      - name: Prep existing vcpkg installation
+      - name: Install system dependencies (Linux)
+        if: ${{ (matrix.os == 'ubuntu-latest') }}
+        run: sudo apt-get install -y ninja-build linux-libc-dev pkg-config
+
+      - name: Setup vcpkg
         shell: bash
         run: |
-          set -euo pipefail
-          BASELINE=$(jq -r '.["builtin-baseline"]' vcpkg.json)
-          echo "Detected vcpkg baseline: $BASELINE"
+          # Ensure the binary cache directory exists (if not restored by cache)
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
 
-          if [ -d "$GITHUB_WORKSPACE/external/vcpkg/.git" ]; then
-              echo "Using cached vcpkg at external/vcpkg"
-              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
-          elif [ -n "${VCPKG_ROOT:-}" ] && [ -d "$VCPKG_ROOT/.git" ]; then
-              echo "Using preinstalled vcpkg at $VCPKG_ROOT"
-              VCPKG_DIR="$VCPKG_ROOT"
+          if [ ! -d "$VCPKG_ROOT/.git" ]; then
+            echo "Cloning vcpkg to $VCPKG_ROOT"
+            git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+          fi
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            if [ ! -f "$VCPKG_ROOT/vcpkg.exe" ]; then
+              "$VCPKG_ROOT/bootstrap-vcpkg.bat"
+            fi
           else
-              echo "Performing minimal vcpkg clone..."
-              git clone --filter=blob:none --no-checkout https://github.com/microsoft/vcpkg.git external/vcpkg
-              VCPKG_DIR="$GITHUB_WORKSPACE/external/vcpkg"
+            if [ ! -f "$VCPKG_ROOT/vcpkg" ]; then
+              "$VCPKG_ROOT/bootstrap-vcpkg.sh"
+            fi
           fi
-
-          cd "$VCPKG_DIR"
-
-          if ! git cat-file -e "${BASELINE}^{commit}" 2>/dev/null; then
-              echo "Fetching baseline commit $BASELINE..."
-              git fetch origin "$BASELINE" --depth=1 || git fetch --unshallow
-          fi
-
-          git checkout "$BASELINE"
-
-          if [ ! -f ./vcpkg ] && [ ! -f ./vcpkg.exe ]; then
-              if [[ "$RUNNER_OS" == "Windows" ]]; then
-                  ./bootstrap-vcpkg.bat
-              else
-                  ./bootstrap-vcpkg.sh
-              fi
-          fi
-
-          echo "vcpkg is now at commit: $(git rev-parse HEAD)"
-          echo "VCPKG_DIR=$VCPKG_DIR" >> "$GITHUB_ENV"
-
 
       - name: Configure CMake (Windows)
-        if: ${{ (matrix.os == 'windows-latest') }}
+        if: ${{ startsWith(matrix.os, 'windows') }}
         shell: bash
         run: |
           # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
           # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
           # on Windows, we need to point CMake to the vcpkg-toolchain-file
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
-                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
-                -DVCPKG_TARGET_TRIPLET=x64-windows-static \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
+                -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} \
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Configure CMake (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') }}
         shell: bash
         run: |
-          cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
-                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_DIR}/scripts/buildsystems/vcpkg.cmake" \
+          cmake -B "${{github.workspace}}/build" -G Ninja -DCMAKE_BUILD_TYPE=${{matrix.build}} \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON
 
       - name: Build
@@ -111,12 +120,24 @@ jobs:
         run: |
           cp -R ./THIRD_PARTY_LICENSES.txt ./build/CZICheck/
 
+      - name: Package (Windows)
+        if: ${{ startsWith(matrix.os, 'windows') }}
+        shell: bash
+        run: |
+          mkdir release
+          name="CZICheck-windows-${{ matrix.arch_tag }}-$(git describe --always)"
+          mkdir "release/${name}"
+          cp ./build/CZICheck/${{ matrix.build }}/*.exe "release/${name}/"
+          cp ./build/CZICheck/THIRD_PARTY_LICENSES.txt "release/${name}/"
+          echo "artifactName=${name}" >> "$GITHUB_ENV"
+          echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
+
       - name: Package
         if: ${{ (matrix.os == 'ubuntu-latest') }}
         shell: bash
         run: |
           mkdir release
-          name="CZICheck-linux-x64-$(git describe --always)"
+          name="CZICheck-ubuntu-x64-$(git describe --always)"
           mkdir "release/${name}"
           cd ./build/CZICheck
           cp "CZICheck" "./../../release/${name}/"
@@ -125,20 +146,105 @@ jobs:
           echo "artifactName=${name}" >> "$GITHUB_ENV"
           echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
 
-      - name: Package
-        if: ${{ (matrix.os == 'windows-latest') }}
-        shell: bash
-        run: |
-          mkdir release
-          name="CZICheck-windows-x64-$(git describe --always)"
-          mkdir "release/${name}"
-          cp ./build/CZICheck/${{ matrix.build }}/*.exe "release/${name}/"
-          cp ./build/CZICheck/THIRD_PARTY_LICENSES.txt "release/${name}/"
-          echo "artifactName=${name}" >> "$GITHUB_ENV"
-          echo "artifactPath=release/${name}" >> "$GITHUB_ENV"
-
       - name: Upload artifacts
         if: matrix.build == 'Release'
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.artifactPath }}/
+          name: ${{ env.artifactName }}
+
+  build-alpine:
+    runs-on: ubuntu-latest
+    container: alpine:latest
+    env:
+      VCPKG_FORCE_SYSTEM_BINARIES: 1
+    steps:
+
+      - name: Install dependencies
+        run: |
+          uname -a
+          cat /etc/os-release
+          cat /etc/alpine-release
+          apk update
+          apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat python3
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Trust workspace for git
+        shell: bash
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Setup vcpkg environment
+        shell: bash
+        run: |
+          # Use $GITHUB_WORKSPACE inside the container (it is where actions/checkout mounts the repo).
+          echo "VCPKG_ROOT=${GITHUB_WORKSPACE}/vcpkg-root" >> "$GITHUB_ENV"
+          # VCPKG_DEFAULT_BINARY_CACHE tells vcpkg where to store/retrieve compiled binary packages.
+          # By setting this to a persistent location and caching it, we avoid rebuilding dependencies
+          # from source on every run, significantly speeding up the workflow.
+          echo "VCPKG_DEFAULT_BINARY_CACHE=${GITHUB_WORKSPACE}/vcpkg-cache" >> "$GITHUB_ENV"
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: |
+            ${{ github.workspace }}/vcpkg-root
+            ${{ github.workspace }}/vcpkg-cache
+          key: vcpkg-env-alpine-x64-${{ hashFiles('vcpkg.json') }}
+
+      - name: Setup vcpkg
+        shell: bash
+        run: |
+          # Ensure the binary cache directory exists (if not restored by cache)
+          mkdir -p "$VCPKG_DEFAULT_BINARY_CACHE"
+
+          if [ ! -d "$VCPKG_ROOT/.git" ]; then
+            echo "Cloning vcpkg to $VCPKG_ROOT"
+            git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
+          fi
+
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            if [ ! -f "$VCPKG_ROOT/vcpkg.exe" ]; then
+              "$VCPKG_ROOT/bootstrap-vcpkg.bat"
+            fi
+          else
+            if [ ! -f "$VCPKG_ROOT/vcpkg" ]; then
+              "$VCPKG_ROOT/bootstrap-vcpkg.sh"
+            fi
+          fi
+
+      - name: Configure CMake (Alpine Linux)
+        shell: bash
+        run: |
+          cmake -B "${GITHUB_WORKSPACE}/build" -G Ninja -DCMAKE_BUILD_TYPE=Release \
+                -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
+                -DCZICHECK_BUILD_TESTS=ON
+
+      - name: Build
+        # Build your program with the given configuration
+        run: cmake --build "${GITHUB_WORKSPACE}/build" --config Release
+
+      - name: CTest
+        # Run tests
+        run: |
+          cd "${GITHUB_WORKSPACE}/build"
+          ctest -C Release --verbose
+
+      - name: Package
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p release
+          name="CZICheck-alpine-x64-$(git describe --always)"
+          mkdir -p "release/${name}"
+
+          cp "build/CZICheck/CZICheck" "release/${name}/"
+          cp "THIRD_PARTY_LICENSES.txt" "release/${name}/"
+
+          echo "artifactName=${name}" >> "$GITHUB_ENV"
+          echo "artifactPath=${GITHUB_WORKSPACE}/release/${name}" >> "$GITHUB_ENV"
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           path: ${{ env.artifactPath }}/

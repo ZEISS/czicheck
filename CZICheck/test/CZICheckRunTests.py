@@ -20,6 +20,7 @@ import csv
 import os
 import subprocess
 import sys
+from typing import Optional
 
 
 class Parameters:
@@ -33,6 +34,7 @@ class Parameters:
     _test_cases_list_filename: str
     _czi_file_redirects: dict
     _czicheck_output_save_path: str
+    _verbose: bool = False
 
     def parse_commandline(self):
         """
@@ -53,6 +55,10 @@ class Parameters:
                             help='Add a redirection, i.e. a string in the form <CZIName>=<redirected_filename>.')
         parser.add_argument('-o', '--outputsavepath', dest='czicheck_output_save_path',
                             help='Path where the output of CZICheck are saved (useful for re-creating the known-good results)')
+        parser.add_argument('-v', '--verbose', action='store_true', help='Print verbose output')
+        parser.set_defaults(
+            verbose=False
+        )
         args = parser.parse_args()
         if args.czicheck_executable:
             self._czicheck_executable = args.czicheck_executable
@@ -74,6 +80,9 @@ class Parameters:
                 czi_filename = redirect[:position_of_equal]
                 redirected_filename = redirect[1 + position_of_equal:]
                 self._czi_file_redirects[czi_filename] = redirected_filename
+
+        # store verbose flag
+        self._verbose = args.verbose
 
         if not args.test_list_file or args.test_list_file.isspace():
             print('No argument given for test_list_file -> exiting')
@@ -115,6 +124,8 @@ class Parameters:
         except AttributeError:
             pass  # return 'None' in case we are not given a path for saving the output
 
+    def get_is_verbose(self):
+        return self._verbose
 
 def compare_result_of_test_to_knowngood(result: str, knowngood: str):
     testrun_lines = result.splitlines()
@@ -129,11 +140,16 @@ def compare_result_of_test_to_knowngood(result: str, knowngood: str):
     return True
 
 
-def check_file(cmdline_parameters: Parameters, czi_filename: str, expected_result_file: str, expected_returncode: int):
+def check_file(cmdline_parameters: Parameters, input_stream_classname: Optional[str], input_stream_parameters: Optional[str], czi_filename: str, expected_result_file: str, expected_returncode: int):
     cmdlineargs = [cmdline_parameters.get_fully_qualified_czicheck_executable(), '-s',
                    cmdline_parameters.build_fully_qualified_czi_filename(czi_filename),
                    '-c','all', '--laxparsing', 'true']
-    print(f"test {czi_filename}")
+
+    # add source stream class argument when provided
+    if input_stream_classname and not input_stream_classname.isspace():
+        cmdlineargs.extend(['--source-stream-class', input_stream_classname])
+        if input_stream_parameters and not input_stream_parameters.isspace():
+            cmdlineargs.extend(['--propbag-source-stream-creation', input_stream_parameters])
 
     testouput_encoding_list = ["text", "json", "xml"]
     testoutput_results = [False, False, False]
@@ -142,6 +158,10 @@ def check_file(cmdline_parameters: Parameters, czi_filename: str, expected_resul
         current_cmd_args = cmdlineargs[:]
         current_cmd_args.append("-e")
         current_cmd_args.append(encoding)
+
+        if cmdline_parameters.get_is_verbose():
+            # print the command and arguments to stdout
+            print("Running command:", ' '.join(repr(arg) for arg in current_cmd_args), flush=True)
 
         output = subprocess.run(current_cmd_args, capture_output=True, check=False, universal_newlines=True)
         current_expected_result_file = expected_result_file
@@ -175,11 +195,11 @@ parameters.parse_commandline()
 numberOfTests = 0
 numberOfFailedTests = 0
 with open(parameters.get_fully_qualified_testlist_filename()) as csv_file:
-    csv_reader = csv.DictReader(csv_file, delimiter=',')
+    csv_reader = csv.DictReader(csv_file, delimiter=',', escapechar='\\')
     for row in csv_reader:
         if row['czifilename'] and not row['czifilename'].isspace() and not row['czifilename'].startswith('#'):
             numberOfTests = numberOfTests + 1
-            testOk = check_file(parameters, row['czifilename'], row['known_good_output'],
+            testOk = check_file(parameters, row['optional_inputstreamclassname'], row['optional_inputstreamparameters'], row['czifilename'], row['known_good_output'],
                                 int(row['expected_return_code']))
             if not testOk:
                 numberOfFailedTests = numberOfFailedTests + 1

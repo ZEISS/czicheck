@@ -22,7 +22,7 @@ std::shared_ptr<libCZI::ICziMetadata> CCheckerBase::GetCziMetadataAndReportError
         finding.severity = IResultGatherer::Severity::Warning;
         finding.information = "Could not read metadata-segment";
         finding.details = ex.what();
-        this->result_gatherer_.ReportFinding(finding);
+        this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
     }
 
     if (metadata_segment)
@@ -38,7 +38,7 @@ std::shared_ptr<libCZI::ICziMetadata> CCheckerBase::GetCziMetadataAndReportError
             finding.severity = IResultGatherer::Severity::Fatal;
             finding.information = "Invalid metadata-segment";
             finding.details = ex.what();
-            this->result_gatherer_.ReportFinding(finding);
+            this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
         }
 
         if (czi_metadata)
@@ -48,7 +48,7 @@ std::shared_ptr<libCZI::ICziMetadata> CCheckerBase::GetCziMetadataAndReportError
                 IResultGatherer::Finding finding(check);
                 finding.severity = IResultGatherer::Severity::Fatal;
                 finding.information = "The metadata is not well-formed XML";
-                this->result_gatherer_.ReportFinding(finding);
+                this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
             }
             else
             {
@@ -59,3 +59,12 @@ std::shared_ptr<libCZI::ICziMetadata> CCheckerBase::GetCziMetadataAndReportError
 
     return nullptr;
 }
+
+void CCheckerBase::ThrowIfFindingResultIsStop(IResultGatherer::ReportFindingResult result) const
+{
+    if (result == IResultGatherer::ReportFindingResult::Stop)
+    {
+        throw CheckerException(CheckerException::Reason::StopFurtherProcessing, "Checker stopped due to fail-fast setting.");
+    }
+}
+

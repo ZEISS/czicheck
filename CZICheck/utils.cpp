@@ -4,9 +4,12 @@
 
 #include <CZICheck_Config.h>
 #include "utils.h"
+#include "cmdlineoptions.h"
+#include "inc_libCZI.h"
 #include <cwctype>
 #include <memory>
 #include <sstream>
+#include <iostream>
 
 #if CZICHECK_WIN32_ENVIRONMENT
 #include <Windows.h>
@@ -87,7 +90,9 @@ std::string trim(const std::string& str, const std::string& whitespace /*= " \t"
 {
     const auto strBegin = str.find_first_not_of(whitespace);
     if (strBegin == std::string::npos)
+    {
         return ""; // no content
+    }
 
     const auto strEnd = str.find_last_not_of(whitespace);
     const auto strRange = strEnd - strBegin + 1;
@@ -141,3 +146,39 @@ int CommandlineArgsWindowsHelper::GetArgc()
     return static_cast<int>(this->pointers_to_arguments_.size());
 }
 #endif
+
+std::shared_ptr<libCZI::IStream> CreateSourceStream(const CCmdLineOptions& command_line_options)
+{
+    // If no stream class is specified, use the default file stream
+    if (command_line_options.GetSourceStreamClass().empty())
+    {
+        return libCZI::CreateStreamFromFile(command_line_options.GetCZIFilename().c_str());
+    }
+
+    // Otherwise, use the StreamsFactory with the specified stream class and property bag
+    libCZI::StreamsFactory::Initialize();
+    
+    libCZI::StreamsFactory::CreateStreamInfo stream_info;
+    stream_info.class_name = command_line_options.GetSourceStreamClass();
+
+    if (!command_line_options.GetPropertyBagForStreamClass().empty())
+    {
+        stream_info.property_bag = command_line_options.GetPropertyBagForStreamClass();
+    }
+
+    // For HTTP/HTTPS streams (curl), we need to convert the wstring URL to UTF-8 string
+    // The curl stream class only accepts std::string URIs
+    const std::string uri_utf8 = convertToUtf8(command_line_options.GetCZIFilename());
+    auto source_stream = libCZI::StreamsFactory::CreateStream(stream_info, uri_utf8);
+
+    // CreateStream does return null if the class-name is not known. If the class is valid,
+    // then an exception is thrown (if something goes wrong).
+    if (!source_stream)
+    {
+        std::stringstream string_stream;
+        string_stream << "The input-stream-class \"" << stream_info.class_name << "\" is not valid.";
+        throw std::runtime_error(string_stream.str());
+    }
+
+    return source_stream;
+}

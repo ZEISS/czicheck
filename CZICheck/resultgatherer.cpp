@@ -3,95 +3,97 @@
 // SPDX-License-Identifier: MIT
 
 #include "resultgatherer.h"
+#include "resultgathererbase.h"
 #include "checkerfactory.h"
 #include "checks.h"
 #include "cmdlineoptions.h"
-#include <algorithm>
 #include <ostream>
 #include <sstream>
-#include <utility>
+#include <algorithm>
 
 using namespace std;
 
 CResultGatherer::CResultGatherer(const CCmdLineOptions& options)
-    : options_(options)
+    : ResultGathererBase(options)
 {
 }
 
 void CResultGatherer::StartCheck(CZIChecks check)
 {
+    this->CoreStartCheck(check);
+
     const auto checker_display_name = CCheckerFactory::GetCheckerDisplayName(check);
     ostringstream ss;
     ss << "Test \"" << checker_display_name << "\" :";
-    this->options_.GetLog()->WriteStdOut(ss.str());
-
-    this->results_.insert(pair<CZIChecks, CheckResult>(check, CheckResult()));
+    this->GetLog()->WriteStdOut(ss.str());
 }
 
 void CResultGatherer::FinishCheck(CZIChecks check)
 {
-    const auto& it = this->results_.find(check);
+    const CheckResult current_checker_result = this->GetCheckResultForCurrentlyActiveChecker();
 
-    const auto& result = it->second;
+    this->CoreFinishCheck(check);
 
-    if (this->options_.GetMaxNumberOfMessagesToPrint() > 0)
+    if (this->GetMaxNumberOfMessagesToPrint() > 0)
     {
-        const auto no_of_total_findings = result.GetTotalMessagesCount();
-        if (no_of_total_findings > this->options_.GetMaxNumberOfMessagesToPrint())
+        const auto no_of_total_findings = current_checker_result.GetTotalMessagesCount();
+        if (no_of_total_findings > this->GetMaxNumberOfMessagesToPrint())
         {
-            const auto findings_omitted = no_of_total_findings - max(this->options_.GetMaxNumberOfMessagesToPrint(), 0);
+            const auto findings_omitted = no_of_total_findings - max(this->GetMaxNumberOfMessagesToPrint(), 0);
             ostringstream ss;
             ss << "  <" << findings_omitted << " more finding" << (findings_omitted > 1 ? "s" : "") << " omitted> \n";
-            this->options_.GetLog()->WriteStdOut(ss.str());
+            this->GetLog()->WriteStdOut(ss.str());
         }
     }
 
-    if (result.fatalMessagesCount == 0 && result.warningMessagesCount == 0)
+    if (current_checker_result.fatalMessagesCount == 0 && current_checker_result.warningMessagesCount == 0)
     {
-        this->options_.GetLog()->SetColor(ConsoleColor::DARK_GREEN, ConsoleColor::DEFAULT);
-        this->options_.GetLog()->WriteStdOut(" OK\n");
-        this->options_.GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
+        this->GetLog()->SetColor(ConsoleColor::DARK_GREEN, ConsoleColor::DEFAULT);
+        this->GetLog()->WriteStdOut(" OK\n");
+        this->GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
     }
-    else if (result.fatalMessagesCount == 0)
+    else if (current_checker_result.fatalMessagesCount == 0)
     {
-        this->options_.GetLog()->SetColor(ConsoleColor::LIGHT_RED, ConsoleColor::DEFAULT);
-        this->options_.GetLog()->WriteStdOut(" WARN\n");
-        this->options_.GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
+        this->GetLog()->SetColor(ConsoleColor::LIGHT_RED, ConsoleColor::DEFAULT);
+        this->GetLog()->WriteStdOut(" WARN\n");
+        this->GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
     }
     else
     {
-        this->options_.GetLog()->SetColor(ConsoleColor::DARK_RED, ConsoleColor::DEFAULT);
-        this->options_.GetLog()->WriteStdOut(" FAIL\n");
-        this->options_.GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
+        this->GetLog()->SetColor(ConsoleColor::DARK_RED, ConsoleColor::DEFAULT);
+        this->GetLog()->WriteStdOut(" FAIL\n");
+        this->GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
     }
 }
 
-void CResultGatherer::ReportFinding(const Finding& finding)
+CResultGatherer::ReportFindingResult CResultGatherer::ReportFinding(const Finding& finding)
 {
-    const auto it = this->results_.find(finding.check);
-    const auto no_of_findings_so_far = it->second.GetTotalMessagesCount();
-    IncrementCounter(finding.severity, it->second);
+    const uint32_t no_of_findings_so_far = this->GetCheckResultForCurrentlyActiveChecker().GetTotalMessagesCount();
 
-    if (this->options_.GetMaxNumberOfMessagesToPrint() < 0 ||
-        no_of_findings_so_far < this->options_.GetMaxNumberOfMessagesToPrint())
+    this->CoreReportFinding(finding);
+
+    if (this->GetMaxNumberOfMessagesToPrint() < 0 ||
+        no_of_findings_so_far < this->GetMaxNumberOfMessagesToPrint())
     {
         if (no_of_findings_so_far == 0)
         {
-            this->options_.GetLog()->WriteStdOut("\n");
+            this->GetLog()->WriteStdOut("\n");
         }
 
-        this->options_.GetLog()->WriteStdOut("  ");
-        this->options_.GetLog()->WriteStdOut(finding.information);
-        this->options_.GetLog()->WriteStdOut("\n");
-        if (this->options_.GetPrintDetailsOfMessages() && !finding.details.empty())
+        this->GetLog()->WriteStdOut("  ");
+        this->GetLog()->WriteStdOut(finding.information);
+        this->GetLog()->WriteStdOut("\n");
+        if (this->GetPrintDetailsOfMessages() && !finding.details.empty())
         {
-            this->options_.GetLog()->WriteStdOut("  details: ");
-            this->options_.GetLog()->SetColor(ConsoleColor::LIGHT_YELLOW, ConsoleColor::DEFAULT);
-            this->options_.GetLog()->WriteStdOut(finding.details);
-            this->options_.GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
-            this->options_.GetLog()->WriteStdOut("\n");
+            this->GetLog()->WriteStdOut("  details: ");
+            this->GetLog()->SetColor(ConsoleColor::LIGHT_YELLOW, ConsoleColor::DEFAULT);
+            this->GetLog()->WriteStdOut(finding.details);
+            this->GetLog()->SetColor(ConsoleColor::DEFAULT, ConsoleColor::DEFAULT);
+            this->GetLog()->WriteStdOut("\n");
         }
     }
+
+    return this->DetermineReportFindingResult(finding);
 }
 
 void CResultGatherer::FinalizeChecks()
@@ -99,17 +101,21 @@ void CResultGatherer::FinalizeChecks()
     switch (this->GetAggregatedResult())
     {
         case IResultGatherer::AggregatedResult::OK:
-            this->options_.GetLog()->WriteStdOut("\n\nResult: OK\n");
+            this->GetLog()->WriteStdOut("\n\nResult: OK\n");
             break;
         case IResultGatherer::AggregatedResult::WithWarnings:
-            this->options_.GetLog()->WriteStdOut("\n\nResult: With Warnings\n");
+            this->GetLog()->WriteStdOut("\n\nResult: With Warnings\n");
             break;
         case IResultGatherer::AggregatedResult::ErrorsDetected:
-            this->options_.GetLog()->WriteStdOut("\n\nResult: Errors Detected\n");
+            this->GetLog()->WriteStdOut("\n\nResult: Errors Detected\n");
             break;
         default:
-            this->options_.GetLog()->WriteStdOut("\n\nResult: something unexpected happened\n");
+            this->GetLog()->WriteStdOut("\n\nResult: something unexpected happened\n");
             break;
     }
 }
 
+IResultGatherer::CheckResult CResultGatherer::GetAggregatedCounts() const
+{
+    return this->CoreGetAggregatedCounts();
+}

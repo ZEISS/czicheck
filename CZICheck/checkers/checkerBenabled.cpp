@@ -16,9 +16,9 @@ using namespace std;
 
 CCheckBenabled::CCheckBenabled(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    IResultGatherer& result_gatherer,
+    IResultGathererReport& result_gatherer,
     const CheckerCreateInfo& additional_info) :
-        CCheckerBase(reader, result_gatherer, additional_info)
+    CCheckerBase(reader, result_gatherer, additional_info)
 {
 }
 
@@ -26,29 +26,32 @@ void CCheckBenabled::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckBenabled::kCheckType);
 
-    auto statistics = this->reader_->GetStatistics();
-    int start_b, size_b;
-    if (statistics.dimBounds.TryGetInterval(DimensionIndex::B, &start_b, &size_b))
-    {
-        if (size_b > 1)
+    this->RunCheckDefaultExceptionHandling([this]()
         {
-            IResultGatherer::Finding finding(CCheckBenabled::kCheckType);
-            finding.severity = IResultGatherer::Severity::Warning;
-            stringstream ss;
-            ss << "document contains deprecated B-dimension (sizeB=" << size_b << ")";
-            finding.information = ss.str();
-            this->result_gatherer_.ReportFinding(finding);
-        }
-        else
-        {
-            IResultGatherer::Finding finding(CCheckBenabled::kCheckType);
-            finding.severity = IResultGatherer::Severity::Info;
-            stringstream ss;
-            ss << "coordinates contain deprecated B-dimension (sizeB=" << size_b << ")";
-            finding.information = ss.str();
-            this->result_gatherer_.ReportFinding(finding);
-        }
-    }
+            auto statistics = this->reader_->GetStatistics();
+            int start_b, size_b;
+            if (statistics.dimBounds.TryGetInterval(DimensionIndex::B, &start_b, &size_b))
+            {
+                if (size_b > 1)
+                {
+                    IResultGatherer::Finding finding(CCheckBenabled::kCheckType);
+                    finding.severity = IResultGatherer::Severity::Warning;
+                    stringstream ss;
+                    ss << "document contains deprecated B-dimension (sizeB=" << size_b << ")";
+                    finding.information = ss.str();
+                    this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
+                }
+                else
+                {
+                    IResultGatherer::Finding finding(CCheckBenabled::kCheckType);
+                    finding.severity = IResultGatherer::Severity::Info;
+                    stringstream ss;
+                    ss << "coordinates contain deprecated B-dimension (sizeB=" << size_b << ")";
+                    finding.information = ss.str();
+                    this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
+                }
+            }
+        });
 
     this->result_gatherer_.FinishCheck(CCheckBenabled::kCheckType);
 }

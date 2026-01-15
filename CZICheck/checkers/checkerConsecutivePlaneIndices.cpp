@@ -16,17 +16,19 @@ using namespace std;
 
 CCheckConsecutivePlaneIndices::CCheckConsecutivePlaneIndices(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    IResultGatherer& result_gatherer,
+    IResultGathererReport& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {}
-
 
 void CCheckConsecutivePlaneIndices::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckConsecutivePlaneIndices::kCheckType);
 
-    this->CheckForConsecutiveIndices();
+    this->RunCheckDefaultExceptionHandling([this]()
+        { 
+            this->CheckForConsecutiveIndices(); 
+        });
 
     this->result_gatherer_.FinishCheck(CCheckConsecutivePlaneIndices::kCheckType);
 }
@@ -87,7 +89,7 @@ void CCheckConsecutivePlaneIndices::CheckForConsecutiveIndices()
             //             is currently not being outputted, probably we'd want a commandline-options letting us choose whether we
             //             want to see "details" or not.
 
-            this->result_gatherer_.ReportFinding(finding);
+            this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
         }
     }
 }

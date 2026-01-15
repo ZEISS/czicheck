@@ -32,7 +32,7 @@ XERCES_CPP_NAMESPACE_USE
 class ParserErrorHandler : public ErrorHandler
 {
 private:
-    IResultGatherer& result_gatherer_;
+    const CCheckXmlMetadataXsdValidation& checker_;
 
     void reportParseError(const SAXParseException& ex)
     {
@@ -42,7 +42,7 @@ private:
         ostringstream ss;
         ss << "(" << ex.getLineNumber() << "," << ex.getColumnNumber() << "): " << upMsg.get();
         finding.information = ss.str();
-        this->result_gatherer_.ReportFinding(finding);
+        this->checker_.ThrowIfFindingResultIsStop(this->checker_.result_gatherer_.ReportFinding(finding));
     }
 
     void reportParseWarning(const SAXParseException& ex)
@@ -53,13 +53,13 @@ private:
         ostringstream ss;
         ss << "(" << ex.getLineNumber() << "," << ex.getColumnNumber() << ") : " << upMsg.get();
         finding.information = ss.str();
-        this->result_gatherer_.ReportFinding(finding);
+        this->checker_.ThrowIfFindingResultIsStop(this->checker_.result_gatherer_.ReportFinding(finding));
     }
 public:
     ParserErrorHandler() = delete;
 
-    explicit ParserErrorHandler(IResultGatherer& result_gatherer)
-        : result_gatherer_(result_gatherer)
+    explicit ParserErrorHandler(const CCheckXmlMetadataXsdValidation& checker)
+        : checker_(checker)
     {
     }
 
@@ -85,7 +85,7 @@ public:
 
 CCheckXmlMetadataXsdValidation::CCheckXmlMetadataXsdValidation(
     const std::shared_ptr<libCZI::ICZIReader>& reader,
-    IResultGatherer& result_gatherer,
+    IResultGathererReport& result_gatherer,
     const CheckerCreateInfo& additional_info) :
     CCheckerBase(reader, result_gatherer, additional_info)
 {
@@ -95,36 +95,39 @@ void CCheckXmlMetadataXsdValidation::RunCheck()
 {
     this->result_gatherer_.StartCheck(CCheckXmlMetadataXsdValidation::kCheckType);
 
-    const string xml = this->GetCziMetadataXml();
+    this->RunCheckDefaultExceptionHandling([this]()
+        {
+            const string xml = this->GetCziMetadataXml();
 
-    if (!xml.empty())
-    {
-        XercesDOMParser dom_parser;
-        ParserErrorHandler parser_error_handler(this->result_gatherer_);
+            if (!xml.empty())
+            {
+                XercesDOMParser dom_parser;
+                ParserErrorHandler parser_error_handler(*this);
 
-        dom_parser.setErrorHandler(&parser_error_handler);
+                dom_parser.setErrorHandler(&parser_error_handler);
 
-        size_t size_zen_complete_xsd;
-        const char* zen_complete_xsd = GetZenCompleteXsd(&size_zen_complete_xsd);
+                size_t size_zen_complete_xsd;
+                const char* zen_complete_xsd = GetZenCompleteXsd(&size_zen_complete_xsd);
 
-        const MemBufInputSource xml_metadata_schema(reinterpret_cast<const XMLByte*>(zen_complete_xsd), size_zen_complete_xsd, "schema.xsd", false);
+                const MemBufInputSource xml_metadata_schema(reinterpret_cast<const XMLByte*>(zen_complete_xsd), size_zen_complete_xsd, "schema.xsd", false);
 
-        // note: the grammar object is owned by the parser (so, we must not delete it)
-        Grammar* g = dom_parser.loadGrammar(xml_metadata_schema, Grammar::SchemaGrammarType, true);
+                // note: the grammar object is owned by the parser (so, we must not delete it)
+                Grammar* g = dom_parser.loadGrammar(xml_metadata_schema, Grammar::SchemaGrammarType, true);
 
-        dom_parser.setValidationScheme(XercesDOMParser::Val_Always);
-        dom_parser.setDoNamespaces(true);
-        dom_parser.useCachedGrammarInParse(true);
-        dom_parser.setDoSchema(true);
-        dom_parser.setValidationConstraintFatal(true);
-        dom_parser.setExitOnFirstFatalError(false);
-        dom_parser.setExternalNoNamespaceSchemaLocation("");
-        dom_parser.setDisableDefaultEntityResolution(true); // Disable DTD processing in order to prevent XXE attacks (c.f. https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing).
+                dom_parser.setValidationScheme(XercesDOMParser::Val_Always);
+                dom_parser.setDoNamespaces(true);
+                dom_parser.useCachedGrammarInParse(true);
+                dom_parser.setDoSchema(true);
+                dom_parser.setValidationConstraintFatal(true);
+                dom_parser.setExitOnFirstFatalError(false);
+                dom_parser.setExternalNoNamespaceSchemaLocation("");
+                dom_parser.setDisableDefaultEntityResolution(true); // Disable DTD processing in order to prevent XXE attacks (c.f. https://owasp.org/www-community/vulnerabilities/XML_External_Entity_(XXE)_Processing).
 
-        const MemBufInputSource czi_xml_metadata(reinterpret_cast<const XMLByte*>(xml.c_str()), xml.size(), "dummy", false);
-        dom_parser.parse(czi_xml_metadata);
-    }
-
+                const MemBufInputSource czi_xml_metadata(reinterpret_cast<const XMLByte*>(xml.c_str()), xml.size(), "dummy", false);
+                dom_parser.parse(czi_xml_metadata);
+            }
+        });
+        
     this->result_gatherer_.FinishCheck(CCheckXmlMetadataXsdValidation::kCheckType);
 }
 

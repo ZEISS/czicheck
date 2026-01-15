@@ -1,4 +1,4 @@
-czifilename,expected_return_code,known_good_output
+czifilename,expected_return_code,known_good_output,optional_inputstreamclassname,optional_inputstreamparameters
 
 # The column 'czifilename" specifies a CZI to be checked. The following rules apply:
 # * if option '--czisourcepath' is given to CZICheckRunTests.py, then this path is prepended to the filename
@@ -11,9 +11,15 @@ czifilename,expected_return_code,known_good_output
 # The column 'know_good_output' gives the filename of the program's expected output (to stdout). This filename is searched
 #  for in the path given with the option '--knowngoodresultspath'. The special value '*' is instructing to NOT check
 #  the program's output, so this comparison is skipped.
+#
+# The optional column 'optional_inputstreamclassname' may specify an input stream class to be used to access the CZI file.
+# If this column is given, then the optional column 'optional_inputstreamparameters' may specify parameters for
+# the input stream class in JSON format.
 
-differentpixeltypeinchannel.czi,1,differentpixeltypeinchannel.txt
-  
+###############################################################################
+# Those tests operate on local files (with the default input stream class).
+###############################################################################
+
 duplicate_coordinates.czi,2,duplicate_coordinates.txt
 inconsistent_coordinates.czi,2,inconsistent_coordinates.txt
 layer_0_subblocks_with_no_m_index.czi,1,layer_0_subblocks_with_no_m_index.txt
@@ -32,3 +38,43 @@ edf-missing-texture.czi,2,edf-missing-texture.txt
 edf-superfluous.czi,2,edf-superfluous.txt
 invalid_componentbitcount.czi,1,invalid_componentbitcount.txt
 edf-superfluous-missing-channel-subblock.czi,2,edf-superfluous-missing-channel-subblock.txt
+
+
+###############################################################################
+# Those tests operate on http(s) accessed files (with CurlHttpInputStream).
+#
+# Note: The input-stream-parameters are specified to allow redirections, and is
+#       required for GitHub URLs. The escape characters (\) are required to make this
+#       a valid CSV file.
+###############################################################################
+
+# differentpixeltypeinchannel.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/d5cea8f80e6adeefb24deff72b5d79ef,1,differentpixeltypeinchannel.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# duplicate_coordinates.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/585462719a2d88ed06d525cffd16df90,2,duplicate_coordinates.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# edf-missing-texture.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/e1bcf912d13b002f32e8c325ab4ecac6,2,edf-missing-texture.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# edf-superfluous-missing-channel-subblock.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/431bced0beeeee3b6616bc0c5fe19d1e,2,edf-superfluous-missing-channel-subblock.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# edf-superfluous.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/dbecd3a299bc85eac7d45ab77ad3f4dc,2,edf-superfluous.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# inconsistent_coordinates.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/16f1b303d64a9d602ede57f84339031f,2,inconsistent_coordinates.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# invalid_componentbitcount.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/0fd694bda13702888d82c660b6885bc9,1,invalid_componentbitcount.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# jpgxrcompressed_inconsistent_pixeltype.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/04818550ad6b14ec79dab773f34b8a6b,1,jpgxrcompressed_inconsistent_pixeltype.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# jpgxrcompressed_inconsistent_size.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/ad636f94c7d82ce00f177997eb2b4b79,1,jpgxrcompressed_inconsistent_size.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# layer_0_subblocks_with_no_m_index.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/d5717a0cf06690f855b97ddd5cc48f69,1,layer_0_subblocks_with_no_m_index.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# negative_plane_start_index.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/a96692af359b34883e8967ff0e89498e,1,negative_plane_start_index.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# overlapping_scenes.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/b03d38aabb3667e6f544950d24477c9a,2,overlapping_scenes.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# pixeltype_mismatch_between_metadata_and_subblocks.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/dbc780b7102ed4e7fdf3cd13fc075518,2,pixeltype_mismatch_between_metadata_and_subblocks.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# positive_plane_start_index.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/4b4f622358cdca19560ec5858f2c81a2,1,positive_plane_start_index.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+# sparse_planes.czi
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/ff20e3a15d797509f7bf494ea21109d3,1,sparse_planes.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
