@@ -1055,6 +1055,14 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="Incubations">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element form="qualified" maxOccurs="unbounded" name="Incubation"
+                            type="InstrumentIncubation"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element form="qualified" minOccurs="0" name="TubeLenses">
                 <xs:annotation>
                     <xs:documentation>             The Tube Lenses collection holds all the tube
@@ -1728,6 +1736,39 @@
                     Objective.</xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:attribute form="unqualified" name="Name" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>           Use of this field is deprecated. The canonical place
+                    for a human-readable           name is Manufacturer.Model.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="InstrumentIncubation">
+        <xs:annotation>
+            <xs:documentation>         A description of the used incubation.         Required
+                elements include the temperature control mode         and the used parameter set
+                (LUT) for temperature control,         both are strings.       </xs:documentation>
+        </xs:annotation>
+        <xs:all>
+            <xs:element form="qualified" name="TemperatureControlMode" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>             The temperature control mode can be 'Chamber',
+                        'Sample' or 'Manual'.           </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" name="TemperatureControlParameterSet" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>             The used parameter set (LUT) is dependent on used
+                        sample carrier type.             In 'Chamber' or 'Sample' mode an internal
+                        temperature control algorithm uses this LUT.             Following LUTs are
+                        available: Default, Petri Dish, Slides (3x), Multiwell
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+        <xs:attribute form="unqualified" name="Id" type="xs:string" use="required"/>
         <xs:attribute form="unqualified" name="Name" type="xs:string">
             <xs:annotation>
                 <xs:documentation>           Use of this field is deprecated. The canonical place
@@ -3866,6 +3907,8 @@
                         Beam - Scanning Electron Microscopy             AngularIllumination
                         - Angular illumination, uses bright field illumination via LED Matrix
                         LatticeLightsheet                   - Lattice lightsheet
+                        LatticeLightsheetSmlm               - Single molecule localization
+                        microscopy (SMLM) with Lattice Lightsheet
                         StructuredIlluminationSr            - Structured Illumination with super
                         resolution (Elyra, Lattice SIM)             LightField
                         - Light field microscope (LFM) based on micro lens array             Other
@@ -5327,6 +5370,59 @@
                     <xs:documentation>             The angle of the Total Internal Reflection
                         Fluorescence (TIRF) Microscopy illumination of an SMLM track.
                         [unit: degrees]           </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" maxOccurs="1" minOccurs="0" name="PhaseCount" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>             The number of phase angles which are used for
+                        this channel for SIM.           </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="GratingPeriod" type="xs:double">
+                <xs:annotation>
+                    <xs:documentation>             The "GratingPeriod" property specifies the
+                        distance of the maxima of the             grating which has been used to
+                        acquire the data of the channel for SIM.           </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="GratingPixels" type="xs:double">
+                <xs:annotation>
+                    <xs:documentation>             The "GratingPixels" property specifies the number
+                        of pixels which corresponds to the grating period             which has been
+                        used to acquire the data of the channel for SIM.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="DiffractionEfficiency1"
+                type="xs:double">
+                <xs:annotation>
+                    <xs:documentation>             The "DiffractionEfficiency" corresponds to the
+                        amplitude of the diffraction orders:             DiffractionEfficiency1 is
+                        for the “-1” diffraction order for SIM.           </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="DiffractionEfficiency2"
+                type="xs:double">
+                <xs:annotation>
+                    <xs:documentation>             The "DiffractionEfficiency" corresponds to the
+                        amplitude of the diffraction orders:             DiffractionEfficiency2 is
+                        for the “0” diffraction order for SIM.           </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="DiffractionEfficiency3"
+                type="xs:double">
+                <xs:annotation>
+                    <xs:documentation>             The "DiffractionEfficiency" corresponds to the
+                        amplitude of the diffraction orders:             DiffractionEfficiency3 is
+                        for the “+1” diffraction order for SIM.           </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="Phases" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>             The phase angles used for the SIM acquisition,
+                        converted to a string with default format specifier and
+                        invariant culture. The phases are split into "x;y" substrings, separated by
+                        whitespaces.           </xs:documentation>
                 </xs:annotation>
             </xs:element>
         </xs:all>
@@ -7716,6 +7812,10 @@
                 type="IncubationSensor"/>
             <xs:element form="qualified" minOccurs="0" name="MTBTemperatureSensor3"
                 type="IncubationSensor"/>
+            <xs:element form="qualified" minOccurs="0" name="MTBTemperatureSensor4"
+                type="IncubationSensor"/>
+            <xs:element form="qualified" minOccurs="0" name="MTBTemperatureSensor5"
+                type="IncubationSensor"/>
         </xs:all>
     </xs:complexType>
     <xs:complexType name="BleachingEvent">
@@ -8106,6 +8206,8 @@
                 type="MicroscopeZoomSettings"/>
             <xs:element form="qualified" minOccurs="0" name="EyepieceSettings"
                 type="MicroscopeEyepieceSettings"/>
+            <xs:element form="qualified" minOccurs="0" name="MicroscopeStandardTubeLensSettings"
+                type="MicroscopeStandardTubeLensSettings"/>
         </xs:all>
     </xs:complexType>
     
@@ -8127,6 +8229,19 @@
                     <xs:documentation>             The total magnification present at the eyepiece.
                         [units:none]             This is for informational purpose.
                     </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+    
+    <xs:complexType name="MicroscopeStandardTubeLensSettings">
+        <xs:all>
+            <xs:element form="qualified" minOccurs="0" name="FocalLength" type="xs:double">
+                <xs:annotation>
+                    <xs:documentation>             This is the focal length of the tube lens, which
+                        is used as a reference for the optical calculation             of the
+                        objective lenses. It is used, among other things, to calculate the
+                        magnification.             [units:mm]           </xs:documentation>
                 </xs:annotation>
             </xs:element>
         </xs:all>
@@ -8220,8 +8335,8 @@
             </xs:documentation>
         </xs:annotation>
         <xs:sequence>
-            <xs:element form="qualified" minOccurs="0" maxOccurs="unbounded" name="TubeLensRef" type="TubeLensRef"
-            />
+            <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="TubeLensRef"
+                type="TubeLensRef"/>
         </xs:sequence>
     </xs:complexType>
     
@@ -8869,6 +8984,20 @@
                         individual result channels separately.           </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="AceAlgorithm">
+                <xs:annotation>
+                    <xs:documentation>             Determines algorithm, used for the automatic
+                        component extraction. Possible values: Nfindr, NMF.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="MaxNmfIterations" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>             Determines the maximum number of iterations
+                        during the nonnegative matrix factorization (Nmf) algorithm. [units:none].
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element form="qualified" minOccurs="1" name="CalculateResiduals" type="xs:boolean">
                 <xs:annotation>
                     <xs:documentation>             The "CalculateResiduals" property specifies
@@ -9054,9 +9183,11 @@
     
     <xs:complexType name="Processing.StructuredIllumination">
         <xs:annotation>
-            <xs:documentation>         The "StructuredIllumination" provides access to the
-                parameters which are used for resolution         enhancement form data of
-                acquisitions whith structured illumination.       </xs:documentation>
+            <xs:documentation>         The "StructuredIllumination" provides access to parameters of
+                structured illumination microscopy measurements         taken by the Lattice SIM and
+                Elyra instruments. Current versions of ZEN store the parameters in the channels
+                metadata, the node here is supported for processing existing old measurements.
+            </xs:documentation>
         </xs:annotation>
         <xs:all>
             <xs:element form="qualified" minOccurs="0" name="DimensionH" type="xs:long">
@@ -9157,7 +9288,28 @@
                                             <xs:documentation> </xs:documentation>
                                         </xs:annotation>
                                     </xs:element>
+                                    <xs:element form="qualified" minOccurs="0" name="Phases"
+                                        type="xs:string">
+                                        <xs:annotation>
+                                            <xs:documentation>                         The phase
+                                                angles, converted to a string with default format
+                                                specifier and invariant culture.
+                                                The phases were split into "x;y" substrings,
+                                                separated by whitespaces.
+                                            </xs:documentation>
+                                        </xs:annotation>
+                                    </xs:element>
                                 </xs:all>
+                                <xs:attribute form="unqualified" name="Id" type="xs:string"
+                                    use="required">
+                                    <xs:annotation>
+                                        <xs:documentation>                       An identifier to
+                                            uniquely identify this channel.
+                                            The channel id is the same as that of the associated
+                                            DimensionChannel id.
+                                        </xs:documentation>
+                                    </xs:annotation>
+                                </xs:attribute>
                             </xs:complexType>
                         </xs:element>
                     </xs:sequence>
@@ -9190,14 +9342,27 @@
                 <xs:complexType>
                     <xs:sequence>
                         <xs:element form="qualified" maxOccurs="unbounded" name="Channel"
-                            type="AiryscanJointDeconvolutionChannelMetadata"/>
+                            type="IterativeDeconvolutionChannelMetadata"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
         </xs:all>
     </xs:complexType>
     
-    <xs:complexType name="AiryscanJointDeconvolutionChannelMetadata">
+    <xs:complexType name="Processing.LsmDcvProcessing">
+        <xs:all>
+            <xs:element form="qualified" minOccurs="0" name="Channels">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element form="qualified" maxOccurs="unbounded" name="Channel"
+                            type="IterativeDeconvolutionChannelMetadata"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:all>
+    </xs:complexType>
+    
+    <xs:complexType name="IterativeDeconvolutionChannelMetadata">
         <xs:all>
             <xs:element form="qualified" minOccurs="0" name="NumberOfIterations" type="xs:int">
                 <xs:annotation>
@@ -10401,24 +10566,25 @@
         <xs:annotation>
             <xs:documentation> </xs:documentation>
         </xs:annotation>
+        
         <xs:sequence>
-          <xs:choice minOccurs="0" maxOccurs="2">
-            <xs:element name="Scaling" minOccurs="0" maxOccurs="1">
-              <xs:annotation>
-                <xs:documentation>
-                  Presence of this element is only allowed for legacy reasons, it does not have any functional relevance.
-                </xs:documentation>
-              </xs:annotation>
-              <xs:complexType>
-                <xs:sequence minOccurs="0" maxOccurs="1">
-                  <xs:any processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
-                </xs:sequence>
-                <xs:anyAttribute processContents="skip"/>
-              </xs:complexType>
-            </xs:element>
-
-            <xs:element name="CustomAttributes" type="CustomAttributes" minOccurs="0" maxOccurs="1"/>
-          </xs:choice>
+            <xs:choice maxOccurs="2" minOccurs="0">
+                <xs:element maxOccurs="1" minOccurs="0" name="Scaling">
+                    <xs:annotation>
+                        <xs:documentation>               Presence of this element is only allowed
+                            for legacy reasons, it does not have any functional relevance.
+                        </xs:documentation>
+                    </xs:annotation>
+                    <xs:complexType>
+                        <xs:sequence maxOccurs="1" minOccurs="0">
+                            <xs:any maxOccurs="unbounded" minOccurs="0" processContents="skip"/>
+                        </xs:sequence>
+                        <xs:anyAttribute processContents="skip"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element maxOccurs="1" minOccurs="0" name="CustomAttributes"
+                    type="CustomAttributes"/>
+            </xs:choice>
         </xs:sequence>
         <xs:attributeGroup ref="SubsetBounds">
             <xs:annotation>
@@ -11101,8 +11267,8 @@
     
     <xs:complexType name="AttachmentInfo">
         <xs:all>
-          <xs:element name="Profile" minOccurs="0" maxOccurs="1" type="ProfileInfo"/>
-          <xs:element name="Label" minOccurs="0" maxOccurs="1" type="LabelInfo"/>
+            <xs:element maxOccurs="1" minOccurs="0" name="Profile" type="ProfileInfo"/>
+            <xs:element maxOccurs="1" minOccurs="0" name="Label" type="LabelInfo"/>
         </xs:all>
         <xs:attribute name="Id" type="xs:string" use="required">
             <xs:annotation>
@@ -11120,14 +11286,15 @@
         </xs:annotation>
         <xs:all>
             <xs:element maxOccurs="1" minOccurs="0" name="ProfileName" type="xs:string">
-              <xs:annotation>
-                <xs:documentation>Original filename of the scan profile.</xs:documentation>
-              </xs:annotation>
+                <xs:annotation>
+                    <xs:documentation>Original filename of the scan profile.</xs:documentation>
+                </xs:annotation>
             </xs:element>
             <xs:element maxOccurs="1" minOccurs="0" name="IsProfileModified" type="xs:string">
-              <xs:annotation>
-                <xs:documentation>Flag indicating whether the scan profile was modified.</xs:documentation>
-              </xs:annotation>
+                <xs:annotation>
+                    <xs:documentation>Flag indicating whether the scan profile was
+                        modified.</xs:documentation>
+                </xs:annotation>
             </xs:element>
         </xs:all>
     </xs:complexType>
