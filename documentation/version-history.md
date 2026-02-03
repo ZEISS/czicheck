@@ -20,3 +20,4 @@ version history                 {#version_history}
  0.6.5          | [36](https://github.com/ZEISS/czicheck/pull/36)      | enable libCZI vpkg consumption and add optional bootstrap
  0.7.0          | [44](https://github.com/ZEISS/czicheck/pull/44)      | support for stream-classes, fail-fast option
  0.7.1          | [45](https://github.com/ZEISS/czicheck/pull/45)      | update schema
+ 0.7.2          | [46](https://github.com/ZEISS/czicheck/pull/46)      | update the schema
