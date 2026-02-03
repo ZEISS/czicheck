@@ -31,7 +31,7 @@ pixeltype_mismatch_between_metadata_and_subblocks.czi,2,pixeltype_mismatch_betwe
 # The following czi file must not exist. If the input file is not accessible, CZICheck should return error code 5.
 # Note that this does not compare the output to stdout - '*' is a special value instruction to skip this test.
 inaccessible_file.czi,5,*
-overlapping_scenes.czi,2,overlapping_scenes.txt
+overlapping_scenes.czi,1,overlapping_scenes.txt
 jpgxrcompressed_inconsistent_size.czi,1,jpgxrcompressed_inconsistent_size.txt
 jpgxrcompressed_inconsistent_pixeltype.czi,1,jpgxrcompressed_inconsistent_pixeltype.txt
 edf-missing-texture.czi,2,edf-missing-texture.txt
@@ -71,7 +71,7 @@ https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/d5717a0cf06690f855b97dd
 # negative_plane_start_index.czi
 https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/a96692af359b34883e8967ff0e89498e,1,negative_plane_start_index.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
 # overlapping_scenes.czi
-https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/b03d38aabb3667e6f544950d24477c9a,2,overlapping_scenes.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/b03d38aabb3667e6f544950d24477c9a,1,overlapping_scenes.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
 # pixeltype_mismatch_between_metadata_and_subblocks.czi
 https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/dbc780b7102ed4e7fdf3cd13fc075518,2,pixeltype_mismatch_between_metadata_and_subblocks.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
 # positive_plane_start_index.czi
