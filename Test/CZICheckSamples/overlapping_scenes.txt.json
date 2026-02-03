@@ -1,5 +1,5 @@
 {
-    "aggregatedresult": "FAIL",
+    "aggregatedresult": "WARN",
     "tests": [
         {
             "name": "SubBlockDirectoryPositionsWithinRange",
@@ -70,29 +70,8 @@
         {
             "name": "XmlMetadataSchemaValidation",
             "description": "validate the XML-metadata against XSD-schema",
-            "result": "FAIL",
-            "findings": [
-                {
-                    "severity": "FATAL",
-                    "description": "(5974,26): value '' not in enumeration",
-                    "details": ""
-                },
-                {
-                    "severity": "FATAL",
-                    "description": "(5978,43): value 'Sinc3 30x1000' not in enumeration",
-                    "details": ""
-                },
-                {
-                    "severity": "FATAL",
-                    "description": "(6023,26): value '' not in enumeration",
-                    "details": ""
-                },
-                {
-                    "severity": "FATAL",
-                    "description": "(6027,43): value 'Sinc3 30x1000' not in enumeration",
-                    "details": ""
-                }
-            ]
+            "result": "OK",
+            "findings": []
         },
         {
             "name": "CCheckOverlappingScenesOnLayer0",
@@ -136,6 +115,6 @@
     ],
     "output_version": {
         "command": "CZICheck",
-        "version": "0.7.2"
+        "version": "0.7.3"
     }
 }

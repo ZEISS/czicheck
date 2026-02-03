@@ -5069,6 +5069,7 @@
                     <xs:restriction base="xs:string">
                         <xs:enumeration value="Bidirectional"/>
                         <xs:enumeration value="Unidirectional"/>
+                        <xs:enumeration value=""/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
@@ -5643,19 +5644,14 @@
             <xs:element form="qualified" maxOccurs="1" minOccurs="0" name="BeamType">
                 <xs:annotation>
                     <xs:documentation>
-                        Describes the characteristic of the light
-                        sheet.
+                        Describes the characteristic of the light sheet.
+                        The value may optionally be followed by dimensions in the format "NxM" (e.g., "Sinc3 100x1800").
+                        Whitespace between the beam type, numbers, and 'x' separator is flexible.
                     </xs:documentation>
                 </xs:annotation>
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
-                        <xs:enumeration value="Gauss"/>
-                        <xs:enumeration value="Bessel"/>
-                        <xs:enumeration value="Sinc3"/>
-                        <xs:enumeration value="Mathieu"/>
-                        <xs:enumeration value="CoherentBessel"/>
-
-                        <xs:enumeration value="Other"/>
+                        <xs:pattern value="(Gauss|Bessel|Sinc3|Mathieu|CoherentBessel|Other)(\s+\d+\s*x\s*\d+)?"/>
                     </xs:restriction>
                 </xs:simpleType>
             </xs:element>
