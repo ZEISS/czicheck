@@ -4338,35 +4338,35 @@
             <xs:element form="qualified" maxOccurs="1" minOccurs="0" name="AcquisitionMode">
                 <xs:annotation>
                     <xs:documentation>
-                        AcquisitionMode describes the type of microscopy
-                        performed for each channel.             Possible modes:
-                        WideField             LaserScanningConfocalMicroscopy     - CLSM or LSCM
-                        SpinningDiskConfocal             SlitScanConfocal
-                        StructuredIllumination             SingleMoleculeImaging
-                        TotalInternalReflection             FluorescenceLifetime
-                        SpectralImaging             FluorescenceCorrelationSpectroscopy
-                        NearFieldScanningOpticalMicroscopy  - NSOM
-                        SecondHarmonicGenerationImaging     - Second harmonic imaging microscopy
-                        (SHIM)             PALM                                - photo-activated
-                        localization microscopy, photo-activation localization microscopy
-                        STORM                               - stochastic optical reconstruction
-                        microscopy             STED                                - stimulated
-                        emission depletion             TIRF                                - total
-                        internal reflection fluorescence (TIRFM)             FSM
-                        - Fluorescence speckle microscopy             LCM
-                        - Laser capture microdissection             SPIM
-                        - Selective Plane Illumination             SEM
-                        - Scanning Electron Microscopy             FIB
-                        - Focus Ion Beam             FIB-SEM                             - Focus Ion
-                        Beam - Scanning Electron Microscopy             AngularIllumination
-                        - Angular illumination, uses bright field illumination via LED Matrix
-                        LatticeLightsheet                   - Lattice lightsheet
-                        LatticeLightsheetSmlm               - Single molecule localization
-                        microscopy (SMLM) with Lattice Lightsheet
-                        StructuredIlluminationSr            - Structured Illumination with super
-                        resolution (Elyra, Lattice SIM)             LightField
-                        - Light field microscope (LFM) based on micro lens array             Other
-                    </xs:documentation>
+						AcquisitionMode describes the type of microscopy
+						performed for each channel.             Possible modes:
+						WideField             LaserScanningConfocalMicroscopy     - CLSM or LSCM
+						SpinningDiskConfocal             SlitScanConfocal
+						StructuredIllumination             SingleMoleculeImaging    SingleMoleculeLocalisation
+						TotalInternalReflection             FluorescenceLifetime
+						SpectralImaging             FluorescenceCorrelationSpectroscopy
+						NearFieldScanningOpticalMicroscopy  - NSOM
+						SecondHarmonicGenerationImaging     - Second harmonic imaging microscopy
+						(SHIM)             PALM                                - photo-activated
+						localization microscopy, photo-activation localization microscopy
+						STORM                               - stochastic optical reconstruction
+						microscopy             STED                                - stimulated
+						emission depletion             TIRF                                - total
+						internal reflection fluorescence (TIRFM)             FSM
+						- Fluorescence speckle microscopy             LCM
+						- Laser capture microdissection             SPIM
+						- Selective Plane Illumination             SEM
+						- Scanning Electron Microscopy             FIB
+						- Focus Ion Beam             FIB-SEM                             - Focus Ion
+						Beam - Scanning Electron Microscopy             AngularIllumination
+						- Angular illumination, uses bright field illumination via LED Matrix
+						LatticeLightsheet                   - Lattice lightsheet
+						LatticeLightsheetSmlm               - Single molecule localization
+						microscopy (SMLM) with Lattice Lightsheet
+						StructuredIlluminationSr            - Structured Illumination with super
+						resolution (Elyra, Lattice SIM)             LightField
+						- Light field microscope (LFM) based on micro lens array             Other
+					</xs:documentation>
                 </xs:annotation>
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
@@ -4379,6 +4379,7 @@
 
                         <xs:enumeration value="StructuredIllumination"/>
                         <xs:enumeration value="SingleMoleculeImaging"/>
+                        <xs:enumeration value="SingleMoleculeLocalisation"/>
                         <xs:enumeration value="TotalInternalReflection"/>
                         <xs:enumeration value="FluorescenceLifetime"/>
                         <xs:enumeration value="SpectralImaging"/>
