@@ -6,14 +6,13 @@
 #include "resultgathererbase.h"
 #include "checkerfactory.h"
 #include "checks.h"
-#include "cmdlineoptions.h"
 #include <ostream>
 #include <sstream>
 #include <algorithm>
 
 using namespace std;
 
-CResultGatherer::CResultGatherer(const CCmdLineOptions& options)
+CResultGatherer::CResultGatherer(const ResultGathererOptions& options)
     : ResultGathererBase(options)
 {
 }

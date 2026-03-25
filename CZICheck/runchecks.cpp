@@ -51,7 +51,31 @@ bool CRunChecks::Run(IResultGatherer::AggregatedResult& result)
         return false;
     }
 
-    auto resultsGatherer = CreateResultGatherer(opts);
+    auto resultsGatherer = [&]() {
+        ResultGathererOptions gatherer_options;
+        gatherer_options.log = this->consoleIo;
+        gatherer_options.maxNumberOfFindingsToPrint = this->opts.GetMaxNumberOfMessagesToPrint();
+        gatherer_options.printDetailsOfMessages = this->opts.GetPrintDetailsOfMessages();
+        switch (this->opts.GetFailFastMode())
+        {
+        case CCmdLineOptions::FailFastMode::FailFastForFatalErrorsPerChecker:
+            gatherer_options.failFastMode = ResultGathererOptions::FailFastMode::FailFastForFatalErrorsPerChecker; break;
+        case CCmdLineOptions::FailFastMode::FailFastForFatalErrorsOverall:
+            gatherer_options.failFastMode = ResultGathererOptions::FailFastMode::FailFastForFatalErrorsOverall; break;
+        default:
+            gatherer_options.failFastMode = ResultGathererOptions::FailFastMode::Disabled; break;
+        }
+
+        OutputEncodingFormat format;
+        switch (this->opts.GetOutputEncodingFormat())
+        {
+        case CCmdLineOptions::OutputEncodingFormat::JSON: format = OutputEncodingFormat::JSON; break;
+        case CCmdLineOptions::OutputEncodingFormat::XML:  format = OutputEncodingFormat::XML;  break;
+        default:                                          format = OutputEncodingFormat::TEXT;  break;
+        }
+
+        return CreateResultGatherer(format, gatherer_options);
+    }();
 
     CheckerCreateInfo checkerAdditionalInfo;
     // Only determine the file size for local file inputs. For URL or other stream classes

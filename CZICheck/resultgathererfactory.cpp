@@ -9,15 +9,15 @@
 #include "resultgathererxml.h"
 
 
-std::unique_ptr<IResultGatherer> CreateResultGatherer(const CCmdLineOptions& options)
+std::unique_ptr<IResultGatherer> CreateResultGatherer(OutputEncodingFormat format, const ResultGathererOptions& options)
 {
-    switch (options.GetOutputEncodingFormat())
+    switch (format)
     {
-        case CCmdLineOptions::OutputEncodingFormat::TEXT:
+        case OutputEncodingFormat::TEXT:
             return std::make_unique<CResultGatherer>(options);
-        case CCmdLineOptions::OutputEncodingFormat::JSON:
+        case OutputEncodingFormat::JSON:
             return std::make_unique<CResultGathererJson>(options);
-        case CCmdLineOptions::OutputEncodingFormat::XML:
+        case OutputEncodingFormat::XML:
             return std::make_unique<CResultGathererXml>(options);
         default:
             throw std::invalid_argument("Unknown output encoding format");

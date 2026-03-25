@@ -6,7 +6,6 @@
 
 #include "IResultGatherer.h"
 #include "resultgathererbase.h"
-#include "cmdlineoptions.h"
 #include "checks.h"
 
 #include "pugixml.hpp"
@@ -22,7 +21,7 @@ private:
     pugi::xml_node test_node_;
 
 public:
-    explicit CResultGathererXml(const CCmdLineOptions& options);
+    explicit CResultGathererXml(const ResultGathererOptions& options);
     void StartCheck(CZIChecks check) override;
     ReportFindingResult ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;

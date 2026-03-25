@@ -5,7 +5,6 @@
 #include "resultgathererxml.h"
 #include "checkerfactory.h"
 #include "checks.h"
-#include "cmdlineoptions.h"
 #include "utils.h"
 
 #include <sstream>
@@ -29,7 +28,7 @@ const wchar_t* CResultGathererXml::kTestFindingId = L"Finding";
 const wchar_t* CResultGathererXml::kTestSeverityId = L"Severity";
 const wchar_t* CResultGathererXml::kTestDetailsId = L"Details";
 
-CResultGathererXml::CResultGathererXml(const CCmdLineOptions& options)
+CResultGathererXml::CResultGathererXml(const ResultGathererOptions& options)
     : ResultGathererBase(options)
 {
     auto decl = this->xml_document_.append_child(pugi::node_declaration);

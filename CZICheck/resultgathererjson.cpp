@@ -27,7 +27,7 @@ const char* CResultGathererJson::kTestDetailsId = "details";
 const char* CResultGathererJson::kTestAggregationId = "aggregatedresult";
 const char* CResultGathererJson::kTestFailFastId = "fail_fast_stopped";
 
-CResultGathererJson::CResultGathererJson(const CCmdLineOptions& options)
+CResultGathererJson::CResultGathererJson(const ResultGathererOptions& options)
     : ResultGathererBase(options)
 {
     this->json_document_.SetArray();

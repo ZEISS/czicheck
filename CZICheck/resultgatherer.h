@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "cmdlineoptions.h"
 #include "checks.h"
 #include "IResultGatherer.h"
 #include "resultgathererbase.h"
@@ -20,7 +19,7 @@
 class CResultGatherer : public IResultGatherer, ResultGathererBase
 {
 public:
-    explicit CResultGatherer(const CCmdLineOptions& options);
+    explicit CResultGatherer(const ResultGathererOptions& options);
     void StartCheck(CZIChecks check) override;
     ReportFindingResult ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;

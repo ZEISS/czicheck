@@ -7,7 +7,6 @@
 #include <string>
 #include "IResultGatherer.h"
 #include "resultgathererbase.h"
-#include "cmdlineoptions.h"
 #include "checks.h"
 
 #include "rapidjson/document.h"
@@ -20,7 +19,7 @@ private:
     std::string current_checker_id;
 
 public:
-    explicit CResultGathererJson(const CCmdLineOptions& options);
+    explicit CResultGathererJson(const ResultGathererOptions& options);
     void StartCheck(CZIChecks check) override;
     ReportFindingResult ReportFinding(const Finding& finding) override;
     void FinishCheck(CZIChecks check) override;

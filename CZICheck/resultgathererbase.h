@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "cmdlineoptions.h"
+#include "resultgathereroptions.h"
 #include "IResultGatherer.h"
 #include <optional>
 #include <map>
@@ -13,12 +13,12 @@
 class ResultGathererBase
 {
 private:
-    const CCmdLineOptions& options_;
+    ResultGathererOptions options_;
     std::optional<CZIChecks> current_checker_;
     std::map<CZIChecks, IResultGatherer::CheckResult> results_;
 
 public:
-    explicit ResultGathererBase(const CCmdLineOptions& options);
+    explicit ResultGathererBase(const ResultGathererOptions& options);
 
 protected:
     void CoreStartCheck(CZIChecks check);
@@ -27,9 +27,9 @@ protected:
 
     IResultGatherer::CheckResult CoreGetAggregatedCounts() const;
     IResultGatherer::CheckResult GetCheckResultForCurrentlyActiveChecker() const;
-    const std::shared_ptr<ILog>& GetLog() const { return this->options_.GetLog(); }
-    int GetMaxNumberOfMessagesToPrint() const { return this->options_.GetMaxNumberOfMessagesToPrint(); }
-    bool GetPrintDetailsOfMessages() const { return this->options_.GetPrintDetailsOfMessages(); }
+    const std::shared_ptr<ILog>& GetLog() const { return this->options_.log; }
+    int GetMaxNumberOfMessagesToPrint() const { return this->options_.maxNumberOfFindingsToPrint; }
+    bool GetPrintDetailsOfMessages() const { return this->options_.printDetailsOfMessages; }
 
     /// \brief Determines whether processing should continue or stop after reporting a finding.
     ///

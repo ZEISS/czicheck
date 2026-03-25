@@ -15,7 +15,11 @@ function(embed_resource resource_file_name source_file_name variable_name)
 endfunction()
 
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-  find_package(XercesC CONFIG REQUIRED)
+  if(NOT EMSCRIPTEN)
+    find_package(XercesC CONFIG REQUIRED)
+  else()
+    find_package(XercesC QUIET)
+  endif()
 else()
   find_package(XercesC QUIET)
 endif()
@@ -34,20 +38,22 @@ else()
     message("XercesC library not found, the checker 'xmlmetadataschema' will **not** be available")
 endif()
 
-include(FetchContent)
-FetchContent_Declare(
-  cli11
-  GIT_REPOSITORY https://github.com/CLIUtils/CLI11
-  GIT_TAG        v2.6.1
-)
+if (NOT EMSCRIPTEN)
+  include(FetchContent)
+  FetchContent_Declare(
+    cli11
+    GIT_REPOSITORY https://github.com/CLIUtils/CLI11
+    GIT_TAG        v2.6.1
+  )
 
-FetchContent_MakeAvailable(cli11)
+  FetchContent_MakeAvailable(cli11)
+endif()
 
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   find_package(libCZI CONFIG REQUIRED)
 endif()
 
-set(CZICHECKSRCFILES 
+set(CZICHECK_CORE_SRCFILES
 "checkers/checkerbase.h"
 "checkers/checkerbase.cpp"
 "checkers/checkerConsistentCoordinates.cpp"
@@ -84,12 +90,6 @@ set(CZICHECKSRCFILES
 "checkerfactory.h"
 "checks.h"
 "checks.cpp"
-"CMakeLists.txt"
-"cmdlineoptions.cpp"
-"cmdlineoptions.h"
-"consoleio.cpp"
-"consoleio.h"
-"CZICheck.cpp"
 "IChecker.h"
 "checkerexception.h"
 "IResultGatherer.h"
@@ -98,27 +98,24 @@ set(CZICHECKSRCFILES
 "resultgatherer.h"
 "resultgathererbase.h"
 "resultgathererbase.cpp"
+"resultgathereroptions.h"
 "resultgathererjson.h"
 "resultgathererjson.cpp"
 "resultgathererxml.h"
 "resultgathererxml.cpp"
 "resultgathererfactory.h"
 "resultgathererfactory.cpp"
-"runchecks.cpp"
-"runchecks.h"
-"utils.h"
-"utils.cpp"
+"consoleio.cpp"
+"consoleio.h"
 "inc_libCZI.h"
 )
 
-add_executable(CZICheck ${CZICHECKSRCFILES} )
-
-set_target_properties(CZICheck PROPERTIES CXX_STANDARD 17)
-target_compile_definitions(CZICheck PRIVATE _LIBCZISTATICLIB)
-
-target_link_libraries(CZICheck PRIVATE CLI11::CLI11)
-
-target_include_directories(CZICheck PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+# --- Core static library (checkers, result gatherers, factory) ---
+add_library(czicheck_core STATIC ${CZICHECK_CORE_SRCFILES})
+set_target_properties(czicheck_core PROPERTIES CXX_STANDARD 17)
+target_compile_definitions(czicheck_core PUBLIC _LIBCZISTATICLIB)
+target_include_directories(czicheck_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(czicheck_core PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   if(TARGET libczi::libCZI)
@@ -128,46 +125,74 @@ if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   else()
       message(FATAL_ERROR "No suitable libCZI target found (neither shared nor static).")
   endif()
-  target_link_libraries(CZICheck PRIVATE libczi::libCZI_selected)
+  target_link_libraries(czicheck_core PUBLIC libczi::libCZI_selected)
 else()
-  target_link_libraries(CZICheck PRIVATE libCZIStatic)
+  target_link_libraries(czicheck_core PUBLIC libCZIStatic)
 endif()
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
   get_target_property(_libczi_includes libczi::libCZI_selected INTERFACE_INCLUDE_DIRECTORIES)
   set(_libczi_include_with_subdir "${_libczi_includes}/libCZI")
-  target_include_directories(CZICheck PRIVATE ${_libczi_include_with_subdir})
+  target_include_directories(czicheck_core PUBLIC ${_libczi_include_with_subdir})
 else()
-  target_include_directories(CZICheck PRIVATE ${LIBCZI_INCLUDE_DIR})
+  target_include_directories(czicheck_core PUBLIC ${LIBCZI_INCLUDE_DIR})
 endif()
-target_link_libraries(CZICheck PRIVATE pugixml)
 
-target_include_directories(CZICheck
-  PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
+target_link_libraries(czicheck_core PUBLIC pugixml)
+target_include_directories(czicheck_core PUBLIC ${RAPIDJSON_INCLUDE_DIRS})
 
 if (XercesC_FOUND)
   if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-    target_link_libraries(CZICheck PRIVATE XercesC::XercesC)
+    target_link_libraries(czicheck_core PUBLIC XercesC::XercesC)
   else()
-    target_link_libraries(CZICheck PRIVATE ${XercesC_LIBRARY})
+    target_link_libraries(czicheck_core PUBLIC ${XercesC_LIBRARY})
   endif()
 endif()
-target_include_directories(CZICheck PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 if (XercesC_FOUND AND NOT CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
-    target_include_directories(CZICheck PRIVATE ${XercesC_INCLUDE_DIR})
+    target_include_directories(czicheck_core PUBLIC ${XercesC_INCLUDE_DIR})
 endif()
 
-IF(UNIX)
+# --- CLI executable (not built for Emscripten) ---
+if (NOT EMSCRIPTEN)
+
+set(CZICHECK_EXE_SRCFILES
+"CZICheck.cpp"
+"cmdlineoptions.cpp"
+"cmdlineoptions.h"
+"runchecks.cpp"
+"runchecks.h"
+"utils.h"
+"utils.cpp"
+)
+
+add_executable(CZICheck ${CZICHECK_EXE_SRCFILES})
+
+set_target_properties(CZICheck PROPERTIES CXX_STANDARD 17)
+
+target_link_libraries(CZICheck PRIVATE czicheck_core)
+target_link_libraries(CZICheck PRIVATE CLI11::CLI11)
+
+IF(UNIX AND NOT EMSCRIPTEN)
   # seems to be problem with glibc I'd reckon -> https://stackoverflow.com/questions/51584960/stdcall-once-throws-stdsystem-error-unknown-error-1
   target_link_libraries(CZICheck PUBLIC pthread)
-ENDIF(UNIX)
+ENDIF()
 
+install(TARGETS CZICheck RUNTIME  DESTINATION bin)
+
+endif() # NOT EMSCRIPTEN
+
+# --- Platform detection for CZICheck_Config.h ---
 IF(WIN32)
 	set(CZICheck_UNIX_ENVIRONMENT 0)
 	set(CZICheck_WIN32_ENVIRONMENT 1)
-ENDIF()
-IF(UNIX)
+	set(CZICheck_EMSCRIPTEN_ENVIRONMENT 0)
+ELSEIF(EMSCRIPTEN)
+	set(CZICheck_UNIX_ENVIRONMENT 0)
+	set(CZICheck_WIN32_ENVIRONMENT 0)
+	set(CZICheck_EMSCRIPTEN_ENVIRONMENT 1)
+ELSEIF(UNIX)
   set(CZICheck_UNIX_ENVIRONMENT 1)
 	set(CZICheck_WIN32_ENVIRONMENT 0)
+	set(CZICheck_EMSCRIPTEN_ENVIRONMENT 0)
 ENDIF()
 
 
@@ -178,8 +203,6 @@ configure_file (
 
 # checking platform -> https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/Checking-Platform
 #                   -> https://stackoverflow.com/questions/9160335/os-specific-instructions-in-cmake-how-to
-
-install(TARGETS CZICheck RUNTIME  DESTINATION bin)
 
 if (CZICHECK_BUILD_TESTS)
   include(ExternalData)

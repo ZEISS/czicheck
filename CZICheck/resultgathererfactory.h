@@ -5,7 +5,15 @@
 #pragma once
 
 #include <memory>
-#include "cmdlineoptions.h"
+#include "resultgathereroptions.h"
 #include "IResultGatherer.h"
 
-std::unique_ptr<IResultGatherer> CreateResultGatherer(const CCmdLineOptions& options);
+/// Output encoding format for result gatherers.
+enum class OutputEncodingFormat
+{
+    TEXT,
+    JSON,
+    XML,
+};
+
+std::unique_ptr<IResultGatherer> CreateResultGatherer(OutputEncodingFormat format, const ResultGathererOptions& options);

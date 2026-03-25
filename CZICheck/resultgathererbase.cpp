@@ -4,15 +4,15 @@
 
 #include "resultgathererbase.h"
 
-ResultGathererBase::ResultGathererBase(const CCmdLineOptions& options)
+ResultGathererBase::ResultGathererBase(const ResultGathererOptions& options)
     : options_(options)
 {}
 
 IResultGatherer::ReportFindingResult ResultGathererBase::DetermineReportFindingResult(const IResultGatherer::Finding& finding) const
 {
     if (finding.severity == IResultGatherer::Severity::Fatal && 
-        (this->options_.GetFailFastMode() == CCmdLineOptions::FailFastMode::FailFastForFatalErrorsOverall ||
-        this->options_.GetFailFastMode() == CCmdLineOptions::FailFastMode::FailFastForFatalErrorsPerChecker))
+        (this->options_.failFastMode == ResultGathererOptions::FailFastMode::FailFastForFatalErrorsOverall ||
+        this->options_.failFastMode == ResultGathererOptions::FailFastMode::FailFastForFatalErrorsPerChecker))
     {
         return IResultGatherer::ReportFindingResult::Stop;
     }
