@@ -4,126 +4,499 @@
     <meta charset="utf-8">
     <script src="coi-serviceworker.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>xplatczi</title>
+    <title>CZICheck</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow: hidden; }
+        html, body { width: 100%; height: 100%; }
         body {
             background: #1a1a2e;
-            font-family: system-ui, sans-serif;
+            font-family: system-ui, -apple-system, sans-serif;
             color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
         }
-        #status {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 14px; color: #888;
+
+        header {
+            background: #16213e;
+            padding: 12px 24px;
+            border-bottom: 1px solid #0f3460;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
-        canvas {
-            display: block;
-            width: 100vw;
-            height: 100vh;
-            outline: none;
+        header h1 { font-size: 20px; font-weight: 600; color: #55aaff; }
+        header .version { font-size: 12px; color: #666; }
+
+        .main { display: flex; flex: 1; overflow: hidden; }
+
+        .sidebar {
+            width: 300px;
+            background: #16213e;
+            border-right: 1px solid #0f3460;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-        canvas.drag-over {
-            box-shadow: inset 0 0 12px rgba(85,170,255,0.4);
+        .sidebar h2 { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+        .drop-zone {
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
         }
-        #loading-overlay {
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: #55aaff;
+            background: rgba(85, 170, 255, 0.06);
+        }
+        .drop-zone .icon { font-size: 32px; margin-bottom: 8px; }
+        .drop-zone .label { font-size: 13px; color: #888; }
+        .drop-zone .filename { font-size: 13px; color: #55aaff; margin-top: 8px; word-break: break-all; }
+
+        .checkers-list { display: flex; flex-direction: column; gap: 4px; }
+        .checker-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 4px 0;
+            font-size: 13px;
+        }
+        .checker-item input[type="checkbox"] { accent-color: #55aaff; }
+        .checker-item .name { color: #ccc; }
+        .checker-item .opt-in { color: #666; font-size: 11px; }
+
+        .option-group { display: flex; flex-direction: column; gap: 8px; }
+        .option-row {
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 13px;
+        }
+        .option-row label { color: #aaa; }
+        .option-row select, .option-row input[type="number"] {
+            background: #1a1a2e;
+            border: 1px solid #333;
+            color: #e0e0e0;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .run-btn {
+            background: #0f3460;
+            color: #55aaff;
+            border: 1px solid #55aaff;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .run-btn:hover { background: #1a4a7a; }
+        .run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .results-area {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .results-area .placeholder {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #444;
+            font-size: 14px;
+        }
+
+        .result-summary {
+            display: flex; gap: 12px; align-items: center;
+            padding: 12px 16px;
+            border-radius: 8px;
+            background: #16213e;
+        }
+        .result-summary .badge {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .badge-ok   { background: #1b4332; color: #52b788; }
+        .badge-warn { background: #4a3728; color: #f0a050; }
+        .badge-fail { background: #4a2828; color: #f05050; }
+
+        .test-card {
+            background: #16213e;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+        .test-card .test-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px;
+        }
+        .test-card .test-name { font-size: 14px; font-weight: 500; }
+        .test-card .findings { font-size: 13px; color: #aaa; }
+        .finding-row {
+            padding: 6px 0 6px 12px;
+            border-left: 2px solid #333;
+            margin-top: 4px;
+            font-size: 13px;
+        }
+        .finding-row .severity { font-weight: 600; margin-right: 6px; }
+        .severity-FATAL   { color: #f05050; }
+        .severity-WARNING { color: #f0a050; }
+        .severity-INFO    { color: #55aaff; }
+
+        /* Loading spinner */
+        .spinner-container {
             display: none;
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(26, 26, 46, 0.75);
-            z-index: 10;
-            justify-content: center; align-items: center; flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            font-size: 13px;
         }
-        #loading-overlay.active { display: flex; }
+        .spinner-container.active { display: flex; }
         .spinner {
-            width: 48px; height: 48px;
-            border: 4px solid rgba(255,255,255,0.15);
+            width: 18px; height: 18px;
+            border: 2px solid rgba(255,255,255,0.15);
             border-top-color: #55aaff;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
-        #loading-overlay .label {
-            margin-top: 14px; font-size: 14px; color: #aaa;
+
+        /* Raw JSON toggle */
+        .raw-json {
+            background: #111;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        .raw-json.visible { display: block; }
+
+        .toggle-raw {
+            background: none;
+            border: 1px solid #333;
+            color: #888;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .toggle-raw:hover { color: #ccc; border-color: #555; }
+
+        #status {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 14px; color: #888;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
-    <div id="status">Loading...</div>
-    <div id="loading-overlay"><div class="spinner"></div><div class="label">Opening file…</div></div>
-    <input type="file" id="fileInput" accept=".png,.gif,.czi" style="display:none">
+    <div id="status">Loading WASM module...</div>
+    <header style="display:none" id="app">
+        <h1>CZICheck</h1>
+        <span class="version" id="versionInfo"></span>
+    </header>
+    <div class="main" style="display:none" id="mainContent">
+        <div class="sidebar">
+            <div>
+                <h2>File</h2>
+                <div class="drop-zone" id="dropZone">
+                    <div class="icon">&#128194;</div>
+                    <div class="label">Drop a .czi file here or click to browse</div>
+                    <div class="filename" id="fileName"></div>
+                </div>
+                <input type="file" id="fileInput" accept=".czi" style="display:none">
+            </div>
+
+            <div>
+                <h2>Checkers</h2>
+                <div class="checkers-list" id="checkersList"></div>
+            </div>
+
+            <div>
+                <h2>Options</h2>
+                <div class="option-group">
+                    <div class="option-row">
+                        <label>Max findings per check</label>
+                        <input type="number" id="optMaxFindings" value="10" min="-1" style="width:60px">
+                    </div>
+                    <div class="option-row">
+                        <label>Lax parsing</label>
+                        <select id="optLaxParsing"><option value="false">No</option><option value="true">Yes</option></select>
+                    </div>
+                    <div class="option-row">
+                        <label>Ignore SizeM (pyramids)</label>
+                        <select id="optIgnoreSizeM"><option value="false">No</option><option value="true">Yes</option></select>
+                    </div>
+                    <div class="option-row">
+                        <label>Fail-fast</label>
+                        <select id="optFailFast">
+                            <option value="none">None</option>
+                            <option value="checker">Per checker</option>
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <button class="run-btn" id="runBtn" disabled>Run Checks</button>
+            <div class="spinner-container" id="spinner">
+                <div class="spinner"></div>
+                <span>Running checks...</span>
+            </div>
+        </div>
+
+        <div class="results-area" id="resultsArea">
+            <div class="placeholder">Select a CZI file and click "Run Checks"</div>
+        </div>
+    </div>
+
     <script>
-        var Module = {
-            canvas: (function() { return document.getElementById('canvas'); })(),
-            _fileHandles: [],
-            onRuntimeInitialized: function() {
-                document.getElementById('status').textContent = '';
-                initFileHandling();
+    var Module = {
+        _fileHandles: [],
+        onRuntimeInitialized: function() {
+            document.getElementById('status').style.display = 'none';
+            document.getElementById('app').style.display = '';
+            document.getElementById('mainContent').style.display = '';
+            initApp();
+        }
+    };
+
+    // Detect SharedArrayBuffer requirement for pthread builds.
+    var coiReloaded = window.sessionStorage.getItem('coiReloadedBySelf');
+    if (typeof SharedArrayBuffer === 'undefined' && coiReloaded) {
+        var statusEl = document.getElementById('status');
+        statusEl.textContent = 'SharedArrayBuffer not available. '
+            + 'Ensure the server sends Cross-Origin-Opener-Policy: same-origin '
+            + 'and Cross-Origin-Embedder-Policy: require-corp headers.';
+        statusEl.style.color = '#e88';
+    }
+
+    var currentFile = null;
+
+    function initApp() {
+        populateCheckers();
+        setupFileHandling();
+        setupRunButton();
+    }
+
+    function populateCheckers() {
+        var json = Module.getCheckers();
+        var checkers = JSON.parse(json);
+        var container = document.getElementById('checkersList');
+        container.innerHTML = '';
+
+        checkers.forEach(function(c) {
+            var item = document.createElement('div');
+            item.className = 'checker-item';
+
+            var cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.checked = !c.isOptIn;
+            cb.dataset.shortName = c.shortName;
+            cb.id = 'chk_' + c.shortName;
+
+            var lbl = document.createElement('label');
+            lbl.htmlFor = cb.id;
+            lbl.className = 'name';
+            lbl.textContent = c.displayName;
+
+            item.appendChild(cb);
+            item.appendChild(lbl);
+
+            if (c.isOptIn) {
+                var tag = document.createElement('span');
+                tag.className = 'opt-in';
+                tag.textContent = '(opt-in)';
+                item.appendChild(tag);
             }
-        };
 
-        // Detect SharedArrayBuffer requirement for pthread builds.
-        // Defer the check: the coi-serviceworker will reload the page
-        // to inject COOP/COEP headers. Only show an error if SAB is
-        // still missing after that reload has had its chance.
-        var coiReloaded = window.sessionStorage.getItem('coiReloadedBySelf');
-        if (typeof SharedArrayBuffer === 'undefined' && coiReloaded) {
-            var statusEl = document.getElementById('status');
-            statusEl.textContent = 'SharedArrayBuffer not available. '
-                + 'Ensure the server sends Cross-Origin-Opener-Policy: same-origin '
-                + 'and Cross-Origin-Embedder-Policy: require-corp headers.';
-            statusEl.style.color = '#e88';
+            container.appendChild(item);
+        });
+    }
+
+    function setupFileHandling() {
+        var dropZone = document.getElementById('dropZone');
+        var fileInput = document.getElementById('fileInput');
+
+        dropZone.addEventListener('click', function() { fileInput.click(); });
+
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+        });
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files.length > 0) {
+                selectFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                selectFile(e.target.files[0]);
+                e.target.value = '';
+            }
+        });
+    }
+
+    function selectFile(file) {
+        currentFile = file;
+        document.getElementById('fileName').textContent = file.name + ' (' + formatSize(file.size) + ')';
+        document.getElementById('runBtn').disabled = false;
+    }
+
+    function formatSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+        return (bytes / 1073741824).toFixed(2) + ' GB';
+    }
+
+    function setupRunButton() {
+        document.getElementById('runBtn').addEventListener('click', function() {
+            if (!currentFile) return;
+            runChecks();
+        });
+    }
+
+    function getSelectedCheckers() {
+        var checks = [];
+        var boxes = document.querySelectorAll('#checkersList input[type=checkbox]:checked');
+        boxes.forEach(function(cb) { checks.push(cb.dataset.shortName); });
+        return checks;
+    }
+
+    function buildConfigJson() {
+        return JSON.stringify({
+            checks: getSelectedCheckers(),
+            laxParsing: document.getElementById('optLaxParsing').value === 'true',
+            ignoreSizeM: document.getElementById('optIgnoreSizeM').value === 'true',
+            maxFindings: parseInt(document.getElementById('optMaxFindings').value, 10),
+            failFast: document.getElementById('optFailFast').value
+        });
+    }
+
+    function runChecks() {
+        var file = currentFile;
+        var handle = Module._fileHandles.length;
+        Module._fileHandles.push(file);
+
+        var configStr = buildConfigJson();
+
+        document.getElementById('runBtn').disabled = true;
+        document.getElementById('spinner').classList.add('active');
+        document.getElementById('resultsArea').innerHTML = '';
+
+        // Use setTimeout to allow the UI to update before the blocking call.
+        setTimeout(function() {
+            try {
+                var resultJson = Module.runChecks(handle, file.size, configStr);
+                displayResults(resultJson);
+            } catch (e) {
+                displayError('Error running checks: ' + e.message);
+            } finally {
+                document.getElementById('runBtn').disabled = false;
+                document.getElementById('spinner').classList.remove('active');
+            }
+        }, 50);
+    }
+
+    function displayError(msg) {
+        var area = document.getElementById('resultsArea');
+        area.innerHTML = '<div class="result-summary"><span class="badge badge-fail">ERROR</span><span>' + escapeHtml(msg) + '</span></div>';
+    }
+
+    function displayResults(jsonStr) {
+        var area = document.getElementById('resultsArea');
+        area.innerHTML = '';
+
+        var data;
+        try {
+            data = JSON.parse(jsonStr);
+        } catch (e) {
+            displayError('Failed to parse results JSON');
+            return;
         }
 
-        function openFileHandle(file) {
-            var handle = Module._fileHandles.length;
-            Module._fileHandles.push(file);
-
-            var name = file.name;
-            var dot = name.lastIndexOf('.');
-            var ext = dot >= 0 ? name.substring(dot) : '';
-
-            document.getElementById('loading-overlay').classList.add('active');
-            Module.ccall(
-                'xplatczi_open_file', null,
-                ['number', 'string', 'number', 'string'],
-                [handle, name, file.size, ext],
-                { async: true }
-            ).then(function() {
-                document.getElementById('loading-overlay').classList.remove('active');
-            }).catch(function() {
-                document.getElementById('loading-overlay').classList.remove('active');
-            });
+        if (data.error) {
+            displayError(data.message || 'Unknown error');
+            return;
         }
 
-        function initFileHandling() {
-            var canvas = document.getElementById('canvas');
+        var summaryDiv = document.createElement('div');
+        summaryDiv.className = 'result-summary';
+        var agg = data.aggregatedresult || 'OK';
+        var badgeClass = agg === 'OK' ? 'badge-ok' : (agg === 'WARN' ? 'badge-warn' : 'badge-fail');
+        summaryDiv.innerHTML = '<span class="badge ' + badgeClass + '">' + escapeHtml(agg) + '</span>'
+            + '<span>Aggregated result</span>';
+        area.appendChild(summaryDiv);
 
-            canvas.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                canvas.classList.add('drag-over');
-            });
-            canvas.addEventListener('dragleave', function(e) {
-                e.preventDefault();
-                canvas.classList.remove('drag-over');
-            });
-            canvas.addEventListener('drop', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                canvas.classList.remove('drag-over');
-                if (e.dataTransfer.files.length > 0) {
-                    openFileHandle(e.dataTransfer.files[0]);
+        if (data.tests) {
+            data.tests.forEach(function(test) {
+                var card = document.createElement('div');
+                card.className = 'test-card';
+
+                var resultBadgeClass = test.result === 'OK' ? 'badge-ok' : (test.result === 'WARN' ? 'badge-warn' : 'badge-fail');
+
+                var header = document.createElement('div');
+                header.className = 'test-header';
+                header.innerHTML = '<span class="test-name">' + escapeHtml(test.description || test.name) + '</span>'
+                    + '<span class="badge ' + resultBadgeClass + '">' + escapeHtml(test.result) + '</span>';
+                card.appendChild(header);
+
+                if (test.findings && test.findings.length > 0) {
+                    test.findings.forEach(function(f) {
+                        var row = document.createElement('div');
+                        row.className = 'finding-row';
+                        row.innerHTML = '<span class="severity severity-' + escapeHtml(f.severity) + '">' + escapeHtml(f.severity) + '</span> '
+                            + escapeHtml(f.description);
+                        if (f.details) {
+                            row.innerHTML += '<div style="color:#666;margin-top:2px;font-size:12px">' + escapeHtml(f.details) + '</div>';
+                        }
+                        card.appendChild(row);
+                    });
                 }
-            });
 
-            document.getElementById('fileInput').addEventListener('change', function(e) {
-                if (e.target.files.length > 0) {
-                    openFileHandle(e.target.files[0]);
-                    e.target.value = '';
-                }
+                area.appendChild(card);
             });
         }
+
+        var toggleBtn = document.createElement('button');
+        toggleBtn.className = 'toggle-raw';
+        toggleBtn.textContent = 'Show raw JSON';
+        var rawDiv = document.createElement('div');
+        rawDiv.className = 'raw-json';
+        rawDiv.textContent = JSON.stringify(data, null, 2);
+        toggleBtn.addEventListener('click', function() {
+            rawDiv.classList.toggle('visible');
+            toggleBtn.textContent = rawDiv.classList.contains('visible') ? 'Hide raw JSON' : 'Show raw JSON';
+        });
+        area.appendChild(toggleBtn);
+        area.appendChild(rawDiv);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
     </script>
     {{{ SCRIPT }}}
 </body>
