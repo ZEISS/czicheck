@@ -49,6 +49,9 @@ endif()
 
 target_link_options(czicheck_wasm PRIVATE ${EM_LINK_FLAGS})
 
+# This should force shell changes to be picked up by build.
+set_property(TARGET czicheck_wasm APPEND PROPERTY LINK_DEPENDS "${CMAKE_SOURCE_DIR}/assets/shell.html")
+
 if (USE_WEB_PTHREADS)
     target_compile_options(czicheck_wasm PRIVATE -pthread)
     target_compile_definitions(czicheck_wasm PRIVATE USE_WEB_PTHREADS)
