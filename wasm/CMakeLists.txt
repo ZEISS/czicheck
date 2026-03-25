@@ -61,3 +61,10 @@ add_custom_command(TARGET czicheck_wasm POST_BUILD
         "$<TARGET_FILE_DIR:czicheck_wasm>/coi-serviceworker.min.js"
     COMMENT "Copying coi-serviceworker.min.js to output directory"
 )
+
+find_program(EMRUN emrun REQUIRED)
+add_custom_target(serve
+    COMMAND ${EMRUN} --no_emrun_detect $<TARGET_FILE:czicheck_wasm>
+    DEPENDS czicheck_wasm
+    COMMENT "Serving CZICheck in browser..."
+)
