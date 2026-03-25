@@ -21,7 +21,7 @@ add_executable(czicheck_wasm
 set_target_properties(czicheck_wasm PROPERTIES
     CXX_STANDARD 17
     OUTPUT_NAME "czicheck"
-    SUFFIX ".js"
+    SUFFIX ".html"
 )
 
 target_link_libraries(czicheck_wasm PRIVATE
@@ -64,7 +64,7 @@ add_custom_command(TARGET czicheck_wasm POST_BUILD
 
 find_program(EMRUN emrun REQUIRED)
 add_custom_target(serve
-    COMMAND ${EMRUN} --no_emrun_detect $<TARGET_FILE:czicheck_wasm>
+    COMMAND ${EMRUN} --no_emrun_detect "${CMAKE_CURRENT_BINARY_DIR}/czicheck.html"
     DEPENDS czicheck_wasm
     COMMENT "Serving CZICheck in browser..."
 )
