@@ -7,227 +7,408 @@
     <title>CZICheck</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
         body {
-            background: #1a1a2e;
-            font-family: system-ui, -apple-system, sans-serif;
-            color: #e0e0e0;
+            background: #0f1117;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+            color: #c9d1d9;
             display: flex;
             flex-direction: column;
         }
 
+        /* ---- Full-page drag overlay ---- */
+        .drag-overlay {
+            display: none;
+            position: fixed; inset: 0; z-index: 9999;
+            background: rgba(13, 17, 23, 0.92);
+            align-items: center; justify-content: center;
+            flex-direction: column; gap: 16px;
+        }
+        .drag-overlay.active { display: flex; }
+        .drag-overlay .drop-icon { font-size: 64px; opacity: 0.8; }
+        .drag-overlay .drop-text {
+            font-size: 22px; font-weight: 600; color: #58a6ff;
+            text-shadow: 0 0 20px rgba(88,166,255,0.3);
+        }
+        .drag-overlay .drop-ring {
+            width: 200px; height: 200px;
+            border: 3px dashed #58a6ff;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            animation: pulse-ring 2s ease-in-out infinite;
+        }
+        @keyframes pulse-ring {
+            0%, 100% { transform: scale(1); border-color: #58a6ff; }
+            50% { transform: scale(1.06); border-color: #79c0ff; }
+        }
+
+        /* ---- Header ---- */
         header {
-            background: #16213e;
-            padding: 12px 24px;
-            border-bottom: 1px solid #0f3460;
+            background: #161b22;
+            padding: 10px 20px;
+            border-bottom: 1px solid #21262d;
             display: flex;
             align-items: center;
             gap: 12px;
+            flex-shrink: 0;
         }
-        header h1 { font-size: 20px; font-weight: 600; color: #55aaff; }
-        header .version { font-size: 12px; color: #666; }
+        header h1 { font-size: 18px; font-weight: 600; color: #58a6ff; letter-spacing: -0.3px; }
+        header .version { font-size: 11px; color: #484f58; font-family: monospace; }
+        header .file-pill {
+            margin-left: auto;
+            display: none;
+            align-items: center; gap: 8px;
+            background: #21262d;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 13px;
+        }
+        header .file-pill.has-file { display: flex; }
+        header .file-pill .fname { color: #58a6ff; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        header .file-pill .fsize { color: #484f58; }
+        header .file-pill .clear-btn {
+            background: none; border: none; color: #484f58; cursor: pointer; font-size: 16px; line-height: 1; padding: 0 0 0 4px;
+        }
+        header .file-pill .clear-btn:hover { color: #f85149; }
 
+        /* ---- Layout ---- */
         .main { display: flex; flex: 1; overflow: hidden; }
 
+        /* ---- Sidebar ---- */
         .sidebar {
-            width: 300px;
-            background: #16213e;
-            border-right: 1px solid #0f3460;
-            padding: 16px;
+            width: 280px; min-width: 280px;
+            background: #161b22;
+            border-right: 1px solid #21262d;
+            padding: 0;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
         }
-        .sidebar h2 { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .sidebar-section {
+            padding: 14px 16px;
+            border-bottom: 1px solid #21262d;
+        }
+        .sidebar-section:last-child { border-bottom: none; }
+        .sidebar-title {
+            font-size: 11px; font-weight: 600; color: #484f58;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin-bottom: 10px;
+        }
 
-        .drop-zone {
-            border: 2px dashed #333;
-            border-radius: 8px;
-            padding: 24px;
+        /* File zone (compact in sidebar) */
+        .file-zone {
+            border: 1px dashed #30363d;
+            border-radius: 6px;
+            padding: 14px;
             text-align: center;
             cursor: pointer;
             transition: border-color 0.2s, background 0.2s;
         }
-        .drop-zone:hover, .drop-zone.drag-over {
-            border-color: #55aaff;
-            background: rgba(85, 170, 255, 0.06);
-        }
-        .drop-zone .icon { font-size: 32px; margin-bottom: 8px; }
-        .drop-zone .label { font-size: 13px; color: #888; }
-        .drop-zone .filename { font-size: 13px; color: #55aaff; margin-top: 8px; word-break: break-all; }
+        .file-zone:hover { border-color: #58a6ff; background: rgba(88,166,255,0.04); }
+        .file-zone .fz-icon { font-size: 20px; margin-bottom: 4px; }
+        .file-zone .fz-text { font-size: 12px; color: #484f58; }
 
-        .checkers-list { display: flex; flex-direction: column; gap: 4px; }
+        /* Checkers */
+        .checkers-list { display: flex; flex-direction: column; gap: 2px; }
         .checker-item {
             display: flex; align-items: center; gap: 8px;
-            padding: 4px 0;
+            padding: 5px 6px;
+            border-radius: 4px;
             font-size: 13px;
+            transition: background 0.15s;
         }
-        .checker-item input[type="checkbox"] { accent-color: #55aaff; }
-        .checker-item .name { color: #ccc; }
-        .checker-item .opt-in { color: #666; font-size: 11px; }
+        .checker-item:hover { background: rgba(255,255,255,0.03); }
+        .checker-item input[type="checkbox"] {
+            accent-color: #58a6ff;
+            width: 14px; height: 14px;
+            flex-shrink: 0;
+        }
+        .checker-item .name { color: #c9d1d9; cursor: pointer; }
+        .checker-item .opt-in {
+            font-size: 10px; color: #484f58;
+            background: #21262d; padding: 1px 5px; border-radius: 3px;
+            margin-left: auto; flex-shrink: 0;
+        }
 
-        .option-group { display: flex; flex-direction: column; gap: 8px; }
+        /* Options */
+        .option-group { display: flex; flex-direction: column; gap: 10px; }
         .option-row {
             display: flex; align-items: center; justify-content: space-between;
             font-size: 13px;
         }
-        .option-row label { color: #aaa; }
+        .option-row label { color: #8b949e; }
         .option-row select, .option-row input[type="number"] {
-            background: #1a1a2e;
-            border: 1px solid #333;
-            color: #e0e0e0;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
             padding: 4px 8px;
             border-radius: 4px;
-            font-size: 13px;
+            font-size: 12px;
+        }
+        .option-row select:focus, .option-row input[type="number"]:focus {
+            outline: none; border-color: #58a6ff;
         }
 
+        /* Run button + spinner */
+        .sidebar-actions {
+            padding: 14px 16px;
+            margin-top: auto;
+            border-top: 1px solid #21262d;
+        }
         .run-btn {
-            background: #0f3460;
-            color: #55aaff;
-            border: 1px solid #55aaff;
-            padding: 10px;
+            width: 100%;
+            background: #238636;
+            color: #fff;
+            border: 1px solid #2ea043;
+            padding: 9px 14px;
             border-radius: 6px;
             font-size: 14px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.15s;
         }
-        .run-btn:hover { background: #1a4a7a; }
-        .run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .results-area {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .results-area .placeholder {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #444;
-            font-size: 14px;
-        }
-
-        .result-summary {
-            display: flex; gap: 12px; align-items: center;
-            padding: 12px 16px;
-            border-radius: 8px;
-            background: #16213e;
-        }
-        .result-summary .badge {
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 600;
-        }
-        .badge-ok   { background: #1b4332; color: #52b788; }
-        .badge-warn { background: #4a3728; color: #f0a050; }
-        .badge-fail { background: #4a2828; color: #f05050; }
-
-        .test-card {
-            background: #16213e;
-            border-radius: 8px;
-            padding: 12px 16px;
-        }
-        .test-card .test-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 8px;
-        }
-        .test-card .test-name { font-size: 14px; font-weight: 500; }
-        .test-card .findings { font-size: 13px; color: #aaa; }
-        .finding-row {
-            padding: 6px 0 6px 12px;
-            border-left: 2px solid #333;
-            margin-top: 4px;
-            font-size: 13px;
-        }
-        .finding-row .severity { font-weight: 600; margin-right: 6px; }
-        .severity-FATAL   { color: #f05050; }
-        .severity-WARNING { color: #f0a050; }
-        .severity-INFO    { color: #55aaff; }
-
-        /* Loading spinner */
+        .run-btn:hover { background: #2ea043; }
+        .run-btn:disabled { background: #21262d; border-color: #30363d; color: #484f58; cursor: not-allowed; }
         .spinner-container {
             display: none;
-            align-items: center;
+            align-items: center; justify-content: center;
             gap: 8px;
-            color: #888;
+            color: #8b949e;
             font-size: 13px;
+            margin-top: 10px;
         }
         .spinner-container.active { display: flex; }
         .spinner {
-            width: 18px; height: 18px;
-            border: 2px solid rgba(255,255,255,0.15);
-            border-top-color: #55aaff;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top-color: #58a6ff;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Raw JSON toggle */
-        .raw-json {
-            background: #111;
-            border-radius: 6px;
-            padding: 12px;
-            font-family: 'Cascadia Code', 'Fira Code', monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            word-break: break-all;
-            max-height: 300px;
+        /* ---- Results area ---- */
+        .results-area {
+            flex: 1;
             overflow-y: auto;
+            padding: 20px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .results-area .placeholder {
+            flex: 1;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 12px;
+            color: #30363d;
+        }
+        .placeholder .ph-icon { font-size: 48px; }
+        .placeholder .ph-text { font-size: 15px; }
+        .placeholder .ph-hint { font-size: 12px; color: #21262d; }
+
+        /* Aggregated banner */
+        .agg-banner {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        .agg-banner .agg-icon { font-size: 28px; }
+        .agg-banner .agg-body { display: flex; flex-direction: column; gap: 2px; }
+        .agg-banner .agg-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; opacity: 0.7; }
+        .agg-banner .agg-value { font-size: 20px; font-weight: 700; }
+        .agg-banner .agg-detail { font-size: 12px; opacity: 0.7; }
+        .agg-ok   { background: #0d2818; border: 1px solid #1b4332; }
+        .agg-ok .agg-value { color: #3fb950; }
+        .agg-warn { background: #2a1f0d; border: 1px solid #4a3728; }
+        .agg-warn .agg-value { color: #d29922; }
+        .agg-fail { background: #2a0d0d; border: 1px solid #4a2020; }
+        .agg-fail .agg-value { color: #f85149; }
+
+        /* Test cards */
+        .test-card {
+            background: #161b22;
+            border: 1px solid #21262d;
+            border-radius: 8px;
+            border-left: 3px solid #21262d;
+        }
+        .test-card.card-ok   { border-left-color: #238636; }
+        .test-card.card-warn { border-left-color: #d29922; }
+        .test-card.card-fail { border-left-color: #f85149; }
+        .test-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 16px;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+        }
+        .test-header.clickable { cursor: pointer; user-select: none; }
+        .test-header.clickable:hover { background: #131921; }
+        .test-header .expand-arrow {
+            font-size: 10px; color: #484f58; margin-right: 8px;
+            display: inline-block; transition: transform 0.2s;
+        }
+        .test-card.open .test-header .expand-arrow { transform: rotate(90deg); }
+        .test-name { font-size: 14px; font-weight: 500; color: #c9d1d9; }
+        .badge {
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .badge-ok   { background: #0d2818; color: #3fb950; }
+        .badge-warn { background: #2a1f0d; color: #d29922; }
+        .badge-fail { background: #2a0d0d; color: #f85149; }
+
+        .test-body { padding: 10px 16px; }
+        .test-body.collapsed {
             display: none;
         }
-        .raw-json.visible { display: block; }
+        .test-body.empty { padding: 8px 16px; }
+        .test-ok-msg { font-size: 13px; color: #3fb950; opacity: 0.7; }
+        .test-header .findings-count {
+            font-size: 11px; color: #8b949e; margin-left: auto; margin-right: 10px;
+        }
 
+        .finding-row {
+            padding: 8px 0 8px 12px;
+            border-left: 3px solid #30363d;
+            margin-top: 6px;
+            font-size: 13px;
+            line-height: 1.5;
+            cursor: pointer;
+            transition: opacity 0.15s;
+        }
+        .finding-row:hover { opacity: 0.65; }
+        .finding-row .dismiss-hint {
+            float: right; font-size: 11px; color: #30363d; margin-left: 8px;
+            transition: color 0.15s;
+        }
+        .finding-row:hover .dismiss-hint { color: #8b949e; }
+        .finding-row .severity {
+            font-weight: 600; margin-right: 6px;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px;
+        }
+        .finding-row .finding-text { color: #c9d1d9; }
+        .finding-row .finding-details {
+            color: #484f58; margin-top: 3px; font-size: 12px; line-height: 1.5;
+        }
+        .severity-FATAL   { color: #f85149; }
+        .severity-WARNING { color: #d29922; }
+        .severity-INFO    { color: #58a6ff; }
+        .finding-row.sev-FATAL   { border-left-color: #f85149; }
+        .finding-row.sev-WARNING { border-left-color: #d29922; }
+        .finding-row.sev-INFO    { border-left-color: #58a6ff; }
+
+        /* Raw JSON panel */
+        .raw-section {
+            display: flex; flex-direction: column; gap: 0;
+        }
+        .raw-section.expanded { flex: 1; min-height: 0; }
         .toggle-raw {
-            background: none;
-            border: 1px solid #333;
-            color: #888;
-            padding: 4px 10px;
-            border-radius: 4px;
+            background: #161b22;
+            border: 1px solid #21262d;
+            color: #8b949e;
+            padding: 8px 14px;
+            border-radius: 6px 6px 0 0;
             font-size: 12px;
             cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            transition: color 0.15s;
+            flex-shrink: 0;
         }
-        .toggle-raw:hover { color: #ccc; border-color: #555; }
+        .toggle-raw:hover { color: #c9d1d9; }
+        .toggle-raw .arrow { transition: transform 0.2s; display: inline-block; }
+        .toggle-raw.open .arrow { transform: rotate(90deg); }
+        .toggle-raw:not(.open) + .raw-json { display: none; }
+        .raw-json {
+            background: #0d1117;
+            border: 1px solid #21262d;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            padding: 16px;
+            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+            color: #8b949e;
+            tab-size: 2;
+        }
 
         #status {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 14px; color: #888;
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 12px;
+            font-size: 14px; color: #484f58;
         }
+        #status .loading-spinner {
+            width: 28px; height: 28px;
+            border: 3px solid #21262d;
+            border-top-color: #58a6ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #30363d; }
     </style>
 </head>
 <body>
-    <div id="status">Loading WASM module...</div>
+
+    <!-- Full-page drag overlay -->
+    <div class="drag-overlay" id="dragOverlay">
+        <div class="drop-ring">
+            <div class="drop-icon">&#128194;</div>
+        </div>
+        <div class="drop-text">Drop CZI file to open</div>
+    </div>
+
+    <div id="status">
+        <div class="loading-spinner"></div>
+        <span>Loading CZICheck...</span>
+    </div>
+
     <header style="display:none" id="app">
         <h1>CZICheck</h1>
         <span class="version" id="versionInfo"></span>
+        <div class="file-pill" id="filePill">
+            <span class="fname" id="fileName"></span>
+            <span class="fsize" id="fileSize"></span>
+            <button class="clear-btn" id="clearFile" title="Clear file">&times;</button>
+        </div>
     </header>
+
     <div class="main" style="display:none" id="mainContent">
         <div class="sidebar">
-            <div>
-                <h2>File</h2>
-                <div class="drop-zone" id="dropZone">
-                    <div class="icon">&#128194;</div>
-                    <div class="label">Drop a .czi file here or click to browse</div>
-                    <div class="filename" id="fileName"></div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">File</div>
+                <div class="file-zone" id="fileZone">
+                    <div class="fz-icon">&#128194;</div>
+                    <div class="fz-text">Click to browse or drag anywhere</div>
                 </div>
                 <input type="file" id="fileInput" accept=".czi" style="display:none">
             </div>
 
-            <div>
-                <h2>Checkers</h2>
+            <div class="sidebar-section" style="flex:1; overflow-y:auto;">
+                <div class="sidebar-title">Checkers</div>
                 <div class="checkers-list" id="checkersList"></div>
             </div>
 
-            <div>
-                <h2>Options</h2>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Options</div>
                 <div class="option-group">
                     <div class="option-row">
-                        <label>Max findings per check</label>
+                        <label>Max findings</label>
                         <input type="number" id="optMaxFindings" value="10" min="-1" style="width:60px">
                     </div>
                     <div class="option-row">
@@ -235,7 +416,7 @@
                         <select id="optLaxParsing"><option value="false">No</option><option value="true">Yes</option></select>
                     </div>
                     <div class="option-row">
-                        <label>Ignore SizeM (pyramids)</label>
+                        <label>Ignore SizeM</label>
                         <select id="optIgnoreSizeM"><option value="false">No</option><option value="true">Yes</option></select>
                     </div>
                     <div class="option-row">
@@ -249,15 +430,21 @@
                 </div>
             </div>
 
-            <button class="run-btn" id="runBtn" disabled>Run Checks</button>
-            <div class="spinner-container" id="spinner">
-                <div class="spinner"></div>
-                <span>Running checks...</span>
+            <div class="sidebar-actions">
+                <button class="run-btn" id="runBtn" disabled>Run Checks</button>
+                <div class="spinner-container" id="spinner">
+                    <div class="spinner"></div>
+                    <span>Running checks...</span>
+                </div>
             </div>
         </div>
 
         <div class="results-area" id="resultsArea">
-            <div class="placeholder">Select a CZI file and click "Run Checks"</div>
+            <div class="placeholder">
+                <div class="ph-icon">&#128269;</div>
+                <div class="ph-text">No results yet</div>
+                <div class="ph-hint">Drop a .czi file anywhere on this page, then click Run Checks</div>
+            </div>
         </div>
     </div>
 
@@ -272,17 +459,15 @@
         }
     };
 
-    // Detect SharedArrayBuffer requirement for pthread builds.
     var coiReloaded = window.sessionStorage.getItem('coiReloadedBySelf');
     if (typeof SharedArrayBuffer === 'undefined' && coiReloaded) {
         var statusEl = document.getElementById('status');
-        statusEl.textContent = 'SharedArrayBuffer not available. '
-            + 'Ensure the server sends Cross-Origin-Opener-Policy: same-origin '
-            + 'and Cross-Origin-Embedder-Policy: require-corp headers.';
-        statusEl.style.color = '#e88';
+        statusEl.innerHTML = '<span style="color:#f85149">SharedArrayBuffer not available.<br>'
+            + 'Ensure the server sends COOP/COEP headers.</span>';
     }
 
     var currentFile = null;
+    var dragCounter = 0; // track nested dragenter/dragleave
 
     function initApp() {
         populateCheckers();
@@ -317,7 +502,7 @@
             if (c.isOptIn) {
                 var tag = document.createElement('span');
                 tag.className = 'opt-in';
-                tag.textContent = '(opt-in)';
+                tag.textContent = 'opt-in';
                 item.appendChild(tag);
             }
 
@@ -326,24 +511,33 @@
     }
 
     function setupFileHandling() {
-        var dropZone = document.getElementById('dropZone');
+        var fileZone = document.getElementById('fileZone');
         var fileInput = document.getElementById('fileInput');
+        var overlay = document.getElementById('dragOverlay');
 
-        dropZone.addEventListener('click', function() { fileInput.click(); });
+        fileZone.addEventListener('click', function() { fileInput.click(); });
 
-        dropZone.addEventListener('dragover', function(e) {
+        // Full-page drag and drop
+        document.addEventListener('dragenter', function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            dropZone.classList.add('drag-over');
+            dragCounter++;
+            overlay.classList.add('active');
         });
-        dropZone.addEventListener('dragleave', function(e) {
+        document.addEventListener('dragleave', function(e) {
             e.preventDefault();
-            dropZone.classList.remove('drag-over');
+            dragCounter--;
+            if (dragCounter <= 0) {
+                dragCounter = 0;
+                overlay.classList.remove('active');
+            }
         });
-        dropZone.addEventListener('drop', function(e) {
+        document.addEventListener('dragover', function(e) {
             e.preventDefault();
-            e.stopPropagation();
-            dropZone.classList.remove('drag-over');
+        });
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            dragCounter = 0;
+            overlay.classList.remove('active');
             if (e.dataTransfer.files.length > 0) {
                 selectFile(e.dataTransfer.files[0]);
             }
@@ -355,11 +549,19 @@
                 e.target.value = '';
             }
         });
+
+        document.getElementById('clearFile').addEventListener('click', function() {
+            currentFile = null;
+            document.getElementById('filePill').classList.remove('has-file');
+            document.getElementById('runBtn').disabled = true;
+        });
     }
 
     function selectFile(file) {
         currentFile = file;
-        document.getElementById('fileName').textContent = file.name + ' (' + formatSize(file.size) + ')';
+        document.getElementById('fileName').textContent = file.name;
+        document.getElementById('fileSize').textContent = formatSize(file.size);
+        document.getElementById('filePill').classList.add('has-file');
         document.getElementById('runBtn').disabled = false;
     }
 
@@ -405,14 +607,9 @@
         document.getElementById('spinner').classList.add('active');
         document.getElementById('resultsArea').innerHTML = '';
 
-        // Use setTimeout to allow the UI to update before the async call.
         setTimeout(async function() {
             try {
-                console.log('[CZICheck] runChecks called with handle=' + handle + ' size=' + file.size);
-                console.log('[CZICheck] config:', configStr);
                 var resultJson = await Module.runChecks(handle, file.size, configStr);
-                console.log('[CZICheck] runChecks returned type:', typeof resultJson);
-                console.log('[CZICheck] runChecks returned value:', JSON.stringify(resultJson).substring(0, 500));
                 displayResults(resultJson);
             } catch (e) {
                 console.error('[CZICheck] runChecks threw:', e);
@@ -426,7 +623,10 @@
 
     function displayError(msg) {
         var area = document.getElementById('resultsArea');
-        area.innerHTML = '<div class="result-summary"><span class="badge badge-fail">ERROR</span><span>' + escapeHtml(msg) + '</span></div>';
+        area.innerHTML = '<div class="agg-banner agg-fail">'
+            + '<div class="agg-icon">&#9888;</div>'
+            + '<div class="agg-body"><div class="agg-label">Error</div>'
+            + '<div class="agg-value">' + escapeHtml(msg) + '</div></div></div>';
     }
 
     function displayResults(jsonStr) {
@@ -446,61 +646,119 @@
             return;
         }
 
-        var summaryDiv = document.createElement('div');
-        summaryDiv.className = 'result-summary';
+        // -- Aggregated banner --
         var agg = data.aggregatedresult || 'OK';
-        var badgeClass = agg === 'OK' ? 'badge-ok' : (agg === 'WARN' ? 'badge-warn' : 'badge-fail');
-        summaryDiv.innerHTML = '<span class="badge ' + badgeClass + '">' + escapeHtml(agg) + '</span>'
-            + '<span>Aggregated result</span>';
-        area.appendChild(summaryDiv);
+        var aggClass = agg === 'OK' ? 'agg-ok' : (agg === 'WARN' ? 'agg-warn' : 'agg-fail');
+        var aggIcon = agg === 'OK' ? '&#10004;' : (agg === 'WARN' ? '&#9888;' : '&#10008;');
+        var aggMsg = agg === 'OK' ? 'All checks passed'
+                   : (agg === 'WARN' ? 'Some checks produced warnings' : 'One or more checks failed');
 
+        var testCount = data.tests ? data.tests.length : 0;
+        var failCount = data.tests ? data.tests.filter(function(t){ return t.result === 'FATAL' || t.result === 'FAIL'; }).length : 0;
+        var warnCount = data.tests ? data.tests.filter(function(t){ return t.result === 'WARN' || t.result === 'WARNING'; }).length : 0;
+        var okCount = testCount - failCount - warnCount;
+
+        var detail = testCount + ' check' + (testCount !== 1 ? 's' : '') + ' run';
+        if (failCount > 0) detail += ' &middot; ' + failCount + ' failed';
+        if (warnCount > 0) detail += ' &middot; ' + warnCount + ' warning' + (warnCount !== 1 ? 's' : '');
+        if (okCount > 0) detail += ' &middot; ' + okCount + ' passed';
+
+        var banner = document.createElement('div');
+        banner.className = 'agg-banner ' + aggClass;
+        banner.innerHTML = '<div class="agg-icon">' + aggIcon + '</div>'
+            + '<div class="agg-body">'
+            + '<div class="agg-label">Aggregated Result</div>'
+            + '<div class="agg-value">' + escapeHtml(agg) + '</div>'
+            + '<div class="agg-detail">' + aggMsg + ' &mdash; ' + detail + '</div>'
+            + '</div>';
+        area.appendChild(banner);
+
+        // -- Test cards --
         if (data.tests) {
             data.tests.forEach(function(test) {
                 var card = document.createElement('div');
-                card.className = 'test-card';
+                var result = test.result || 'OK';
+                var isOk = result === 'OK';
+                var isWarn = result === 'WARN' || result === 'WARNING';
+                var cardCls = isOk ? 'card-ok' : (isWarn ? 'card-warn' : 'card-fail');
+                card.className = 'test-card ' + cardCls;
 
-                var resultBadgeClass = test.result === 'OK' ? 'badge-ok' : (test.result === 'WARN' ? 'badge-warn' : 'badge-fail');
+                var badgeCls = isOk ? 'badge-ok' : (isWarn ? 'badge-warn' : 'badge-fail');
 
-                var header = document.createElement('div');
-                header.className = 'test-header';
-                header.innerHTML = '<span class="test-name">' + escapeHtml(test.description || test.name) + '</span>'
-                    + '<span class="badge ' + resultBadgeClass + '">' + escapeHtml(test.result) + '</span>';
-                card.appendChild(header);
+                var hasFindings = test.findings && test.findings.length > 0;
 
-                if (test.findings && test.findings.length > 0) {
+                var hdr = document.createElement('div');
+                hdr.className = 'test-header' + (hasFindings ? ' clickable' : '');
+                var arrow = hasFindings ? '<span class="expand-arrow">&#9654;</span>' : '';
+                var countLabel = hasFindings
+                    ? '<span class="findings-count">' + test.findings.length + ' finding' + (test.findings.length !== 1 ? 's' : '') + '</span>'
+                    : '';
+                hdr.innerHTML = arrow + '<span class="test-name">' + escapeHtml(test.description || test.name) + '</span>'
+                    + countLabel
+                    + '<span class="badge ' + badgeCls + '">' + escapeHtml(result) + '</span>';
+                card.appendChild(hdr);
+
+                var body = document.createElement('div');
+                body.className = 'test-body';
+
+                if (hasFindings) {
+                    body.classList.add('collapsed');
                     test.findings.forEach(function(f) {
                         var row = document.createElement('div');
-                        row.className = 'finding-row';
-                        row.innerHTML = '<span class="severity severity-' + escapeHtml(f.severity) + '">' + escapeHtml(f.severity) + '</span> '
-                            + escapeHtml(f.description);
+                        row.className = 'finding-row sev-' + (f.severity || 'INFO');
+                        row.innerHTML = '<span class="dismiss-hint">click to dismiss</span>'
+                            + '<span class="severity severity-' + escapeHtml(f.severity || 'INFO') + '">' 
+                            + escapeHtml(f.severity || 'INFO') + '</span> '
+                            + '<span class="finding-text">' + escapeHtml(f.description) + '</span>';
                         if (f.details) {
-                            row.innerHTML += '<div style="color:#666;margin-top:2px;font-size:12px">' + escapeHtml(f.details) + '</div>';
+                            row.innerHTML += '<div class="finding-details">' + escapeHtml(f.details) + '</div>';
                         }
-                        card.appendChild(row);
+                        row.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            row.style.opacity = '0';
+                            setTimeout(function() { row.remove(); }, 150);
+                        });
+                        body.appendChild(row);
+                    });
+                    hdr.addEventListener('click', function() {
+                        card.classList.toggle('open');
+                        body.classList.toggle('collapsed');
                     });
                 }
 
+                if (hasFindings) {
+                    card.appendChild(body);
+                }
                 area.appendChild(card);
             });
         }
 
+        // -- Raw JSON section --
+        var rawSection = document.createElement('div');
+        rawSection.className = 'raw-section';
+
         var toggleBtn = document.createElement('button');
         toggleBtn.className = 'toggle-raw';
-        toggleBtn.textContent = 'Show raw JSON';
+        toggleBtn.innerHTML = '<span class="arrow">&#9654;</span> Raw JSON';
         var rawDiv = document.createElement('div');
         rawDiv.className = 'raw-json';
         rawDiv.textContent = JSON.stringify(data, null, 2);
+
+        var testCards = area.querySelectorAll('.test-card');
         toggleBtn.addEventListener('click', function() {
-            rawDiv.classList.toggle('visible');
-            toggleBtn.textContent = rawDiv.classList.contains('visible') ? 'Hide raw JSON' : 'Show raw JSON';
+            var opening = !toggleBtn.classList.contains('open');
+            toggleBtn.classList.toggle('open');
+            rawSection.classList.toggle('expanded', opening);
+            testCards.forEach(function(c) { c.style.display = opening ? 'none' : ''; });
         });
-        area.appendChild(toggleBtn);
-        area.appendChild(rawDiv);
+        rawSection.appendChild(toggleBtn);
+        rawSection.appendChild(rawDiv);
+        area.appendChild(rawSection);
     }
 
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
     </script>
     {{{ SCRIPT }}}
