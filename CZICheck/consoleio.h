@@ -130,7 +130,7 @@ private:
 #if CZICHECK_WIN32_ENVIRONMENT
     std::uint16_t GetColorAttribute(ConsoleColor foreground, ConsoleColor background);
 #endif
-#if CZICHECK_UNIX_ENVIRONMENT
+#if CZICHECK_UNIX_ENVIRONMENT && !CZICHECK_EMSCRIPTEN_ENVIRONMENT
     void SetTextColorAnsi(ConsoleColor foreground, ConsoleColor background);
 #endif
 };

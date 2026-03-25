@@ -9,7 +9,7 @@
 #include <io.h>
 #include <Windows.h>
 #endif
-#if CZICHECK_UNIX_ENVIRONMENT
+#if CZICHECK_UNIX_ENVIRONMENT && !CZICHECK_EMSCRIPTEN_ENVIRONMENT
 #include <unistd.h>
 #endif
 
@@ -24,7 +24,7 @@ CConsoleLog::CConsoleLog()
 #if CZICHECK_WIN32_ENVIRONMENT
     : consoleHandle(INVALID_HANDLE_VALUE)
 #endif
-#if CZICHECK_UNIX_ENVIRONMENT
+#if CZICHECK_UNIX_ENVIRONMENT && !CZICHECK_EMSCRIPTEN_ENVIRONMENT
     : isTerminalOutput(false)
 #endif
 {
@@ -49,7 +49,7 @@ CConsoleLog::CConsoleLog()
         }
     }
 #endif
-#if CZICHECK_UNIX_ENVIRONMENT
+#if CZICHECK_UNIX_ENVIRONMENT && !CZICHECK_EMSCRIPTEN_ENVIRONMENT
     this->isTerminalOutput = isatty(fileno(stdout)) == 1;
 #endif
 }
@@ -62,7 +62,7 @@ void CConsoleLog::SetColor(ConsoleColor foreground, ConsoleColor background)
         SetConsoleTextAttribute(this->consoleHandle, this->GetColorAttribute(foreground, background));
     }
 #endif
-#if CZICHECK_UNIX_ENVIRONMENT
+#if CZICHECK_UNIX_ENVIRONMENT && !CZICHECK_EMSCRIPTEN_ENVIRONMENT
     if (this->isTerminalOutput)
     {
         this->SetTextColorAnsi(foreground, background);
@@ -228,7 +228,7 @@ std::uint16_t CConsoleLog::GetColorAttribute(ConsoleColor foreground, ConsoleCol
 }
 #endif
 
-#if CZICHECK_UNIX_ENVIRONMENT
+#if CZICHECK_UNIX_ENVIRONMENT && !CZICHECK_EMSCRIPTEN_ENVIRONMENT
 void CConsoleLog::SetTextColorAnsi(ConsoleColor foreground, ConsoleColor background)
 {
     const char* ansiForeground;

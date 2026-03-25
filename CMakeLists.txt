@@ -59,4 +59,6 @@ endif()
 
 add_subdirectory(CZICheck)
 
-
+if (EMSCRIPTEN)
+  add_subdirectory(wasm)
+endif()
