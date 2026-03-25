@@ -1,0 +1,108 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "vs-rel",
+      "displayName": "VS 2022 Release (vcpkg)",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "build/vs-rel",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "vs-debug",
+      "displayName": "VS 2022 Debug (vcpkg)",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "build/vs-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "ninja-rel",
+      "displayName": "Ninja Release (vcpkg)",
+      "generator": "Ninja",
+      "binaryDir": "build/ninja-rel",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "ninja-debug",
+      "displayName": "Ninja Debug (vcpkg)",
+      "generator": "Ninja",
+      "binaryDir": "build/ninja-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
+    },
+    {
+      "name": "emscripten",
+      "displayName": "Emscripten (Release, vcpkg)",
+      "generator": "Ninja",
+      "binaryDir": "build/emscripten",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+      }
+    },
+    {
+      "name": "emscripten-debug",
+      "displayName": "Emscripten (Debug, vcpkg)",
+      "generator": "Ninja",
+      "binaryDir": "build/emscripten-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
+      }
+    },
+    {
+      "name": "emscripten-debug-pthread",
+      "displayName": "Emscripten (Debug, pthreads, vcpkg)",
+      "generator": "Ninja",
+      "binaryDir": "build/emscripten-debug-pthread",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten-threads",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/cmake/triplets",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+        "USE_WEB_PTHREADS": "ON"
+      }
+    },
+    {
+      "name": "emscripten-release-pthread",
+      "displayName": "Emscripten (Release, pthreads, vcpkg)",
+      "generator": "Ninja",
+      "binaryDir": "build/emscripten-release-pthread",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+        "VCPKG_TARGET_TRIPLET": "wasm32-emscripten-threads",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/cmake/triplets",
+        "VCPKG_CHAINLOAD_TOOLCHAIN_FILE": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake",
+        "USE_WEB_PTHREADS": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "build-vs-rel",   "configurePreset": "vs-rel" },
+    { "name": "build-vs-debug", "configurePreset": "vs-debug" },
+    { "name": "build-ninja-rel",   "configurePreset": "ninja-rel" },
+    { "name": "build-ninja-debug", "configurePreset": "ninja-debug" },
+    { "name": "build-emscripten",       "configurePreset": "emscripten" },
+    { "name": "build-emscripten-debug", "configurePreset": "emscripten-debug" },
+    { "name": "build-emscripten-debug-pthread", "configurePreset": "emscripten-debug-pthread" },
+    { "name": "build-emscripten-release-pthread", "configurePreset": "emscripten-release-pthread" }
+  ],
+  "testPresets": []
+}

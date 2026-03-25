@@ -13,11 +13,20 @@ if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
 endif()
 
 project(CZICheck 
-      VERSION 0.7.4
+      VERSION 0.7.5
       HOMEPAGE_URL "https://github.com/ZEISS/czicheck"
       DESCRIPTION "CZICheck is a validator for CZI-documents")
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (EMSCRIPTEN)
+    set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+    if (USE_WEB_PTHREADS)
+        add_compile_options(-pthread)
+        add_link_options(-pthread)
+    endif()
+endif()
 
 if(WIN32)
   # use "static C-runtime" -> https://stackoverflow.com/questions/14172856/compile-with-mt-instead-of-md-using-cmake
@@ -28,9 +37,6 @@ if(WIN32)
 endif()
 
 endif(WIN32)
-
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/modules" ${CMAKE_MODULE_PATH})
 
@@ -47,7 +53,7 @@ include("${CMAKE_SOURCE_DIR}/modules/pugiXML.cmake")
 #  runs with a ctest run (and test-data is being downloaded)
 option(CZICHECK_BUILD_TESTS "Run the tests-suite with CTest (requires external files)" OFF)
 
-if (CZICHECK_BUILD_TESTS)
+if (CZICHECK_BUILD_TESTS AND NOT EMSCRIPTEN)
  enable_testing()
 endif()
 

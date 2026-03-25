@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <script src="coi-serviceworker.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xplatczi</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        body {
+            background: #1a1a2e;
+            font-family: system-ui, sans-serif;
+            color: #e0e0e0;
+        }
+        #status {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 14px; color: #888;
+        }
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            outline: none;
+        }
+        canvas.drag-over {
+            box-shadow: inset 0 0 12px rgba(85,170,255,0.4);
+        }
+        #loading-overlay {
+            display: none;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(26, 26, 46, 0.75);
+            z-index: 10;
+            justify-content: center; align-items: center; flex-direction: column;
+        }
+        #loading-overlay.active { display: flex; }
+        .spinner {
+            width: 48px; height: 48px;
+            border: 4px solid rgba(255,255,255,0.15);
+            border-top-color: #55aaff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loading-overlay .label {
+            margin-top: 14px; font-size: 14px; color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" oncontextmenu="event.preventDefault()" tabindex="-1"></canvas>
+    <div id="status">Loading...</div>
+    <div id="loading-overlay"><div class="spinner"></div><div class="label">Opening file…</div></div>
+    <input type="file" id="fileInput" accept=".png,.gif,.czi" style="display:none">
+    <script>
+        var Module = {
+            canvas: (function() { return document.getElementById('canvas'); })(),
+            _fileHandles: [],
+            onRuntimeInitialized: function() {
+                document.getElementById('status').textContent = '';
+                initFileHandling();
+            }
+        };
+
+        // Detect SharedArrayBuffer requirement for pthread builds.
+        // Defer the check: the coi-serviceworker will reload the page
+        // to inject COOP/COEP headers. Only show an error if SAB is
+        // still missing after that reload has had its chance.
+        var coiReloaded = window.sessionStorage.getItem('coiReloadedBySelf');
+        if (typeof SharedArrayBuffer === 'undefined' && coiReloaded) {
+            var statusEl = document.getElementById('status');
+            statusEl.textContent = 'SharedArrayBuffer not available. '
+                + 'Ensure the server sends Cross-Origin-Opener-Policy: same-origin '
+                + 'and Cross-Origin-Embedder-Policy: require-corp headers.';
+            statusEl.style.color = '#e88';
+        }
+
+        function openFileHandle(file) {
+            var handle = Module._fileHandles.length;
+            Module._fileHandles.push(file);
+
+            var name = file.name;
+            var dot = name.lastIndexOf('.');
+            var ext = dot >= 0 ? name.substring(dot) : '';
+
+            document.getElementById('loading-overlay').classList.add('active');
+            Module.ccall(
+                'xplatczi_open_file', null,
+                ['number', 'string', 'number', 'string'],
+                [handle, name, file.size, ext],
+                { async: true }
+            ).then(function() {
+                document.getElementById('loading-overlay').classList.remove('active');
+            }).catch(function() {
+                document.getElementById('loading-overlay').classList.remove('active');
+            });
+        }
+
+        function initFileHandling() {
+            var canvas = document.getElementById('canvas');
+
+            canvas.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                canvas.classList.add('drag-over');
+            });
+            canvas.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                canvas.classList.remove('drag-over');
+            });
+            canvas.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                canvas.classList.remove('drag-over');
+                if (e.dataTransfer.files.length > 0) {
+                    openFileHandle(e.dataTransfer.files[0]);
+                }
+            });
+
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    openFileHandle(e.target.files[0]);
+                    e.target.value = '';
+                }
+            });
+        }
+    </script>
+    {{{ SCRIPT }}}
+</body>
+</html>
