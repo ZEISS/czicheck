@@ -605,20 +605,175 @@
 
         document.getElementById('runBtn').disabled = true;
         document.getElementById('spinner').classList.add('active');
-        document.getElementById('resultsArea').innerHTML = '';
+
+        var area = document.getElementById('resultsArea');
+        area.innerHTML = '';
+
+        var allTests = [];
+
+        // Register the streaming callbacks this after each checker finishes.
+        window._onCheckResult = function(jsonStr) {
+            try {
+                var checkData = JSON.parse(jsonStr);
+                if (checkData.tests && checkData.tests.length > 0) {
+                    var test = checkData.tests[0];
+                    allTests.push(test);
+                    var card = createTestCard(test);
+                    area.appendChild(card);
+                }
+            } catch (e) {
+                console.warn('[CZICheck] Failed to parse streaming check result:', e);
+            }
+        };
 
         setTimeout(async function() {
             try {
-                var resultJson = await Module.runChecks(handle, file.size, configStr);
-                displayResults(resultJson);
+                var summaryJson = await Module.runChecks(handle, file.size, configStr);
+                window._onCheckResult = null; // unregister
+
+                var summary;
+                try { summary = JSON.parse(summaryJson); }
+                catch (e) { displayError('Failed to parse final result'); return; }
+
+                if (summary.error) {
+                    displayError(summary.message || 'Unknown error');
+                    return;
+                }
+
+                // Prepend the aggregated banner.
+                var agg = summary.aggregatedresult || 'OK';
+                var aggClass = agg === 'OK' ? 'agg-ok' : (agg === 'WARN' ? 'agg-warn' : 'agg-fail');
+                var aggIcon = agg === 'OK' ? '&#10004;' : (agg === 'WARN' ? '&#9888;' : '&#10008;');
+                var aggMsg = agg === 'OK' ? 'All checks passed'
+                           : (agg === 'WARN' ? 'Some checks produced warnings' : 'One or more checks failed');
+
+                var testCount = allTests.length;
+                var failCount = allTests.filter(function(t){ return t.result === 'FATAL' || t.result === 'FAIL'; }).length;
+                var warnCount = allTests.filter(function(t){ return t.result === 'WARN' || t.result === 'WARNING'; }).length;
+                var okCount = testCount - failCount - warnCount;
+
+                var detail = testCount + ' check' + (testCount !== 1 ? 's' : '') + ' run';
+                if (failCount > 0) detail += ' &middot; ' + failCount + ' failed';
+                if (warnCount > 0) detail += ' &middot; ' + warnCount + ' warning' + (warnCount !== 1 ? 's' : '');
+                if (okCount > 0) detail += ' &middot; ' + okCount + ' passed';
+
+                var banner = document.createElement('div');
+                banner.className = 'agg-banner ' + aggClass;
+                banner.innerHTML = '<div class="agg-icon">' + aggIcon + '</div>'
+                    + '<div class="agg-body">'
+                    + '<div class="agg-label">Aggregated Result</div>'
+                    + '<div class="agg-value">' + escapeHtml(agg) + '</div>'
+                    + '<div class="agg-detail">' + aggMsg + ' &mdash; ' + detail + '</div>'
+                    + '</div>';
+                area.insertBefore(banner, area.firstChild);
+
+                // -- Raw JSON section (rebuild full data for display) --
+                var fullData = { aggregatedresult: agg, tests: allTests };
+                var rawSection = document.createElement('div');
+                rawSection.className = 'raw-section';
+
+                var toggleBtn = document.createElement('button');
+                toggleBtn.className = 'toggle-raw';
+                toggleBtn.innerHTML = '<span class="arrow">&#9654;</span> Raw JSON';
+                var rawDiv = document.createElement('div');
+                rawDiv.className = 'raw-json';
+                rawDiv.textContent = JSON.stringify(fullData, null, 2);
+
+                var testCards = area.querySelectorAll('.test-card');
+                toggleBtn.addEventListener('click', function() {
+                    var opening = !toggleBtn.classList.contains('open');
+                    toggleBtn.classList.toggle('open');
+                    rawSection.classList.toggle('expanded', opening);
+                    testCards.forEach(function(c) { c.style.display = opening ? 'none' : ''; });
+                });
+                rawSection.appendChild(toggleBtn);
+                rawSection.appendChild(rawDiv);
+                area.appendChild(rawSection);
+
             } catch (e) {
                 console.error('[CZICheck] runChecks threw:', e);
-                displayError('Error running checks: ' + (e.message || e));
+                var crashedChecker = window._currentCheckerName || 'unknown';
+                window._currentCheckerName = null;
+
+                var isOom = e instanceof WebAssembly.RuntimeError
+                    || (e.message && e.message.indexOf('memory') !== -1);
+                var errMsg = isOom
+                    ? 'Out of WebAssembly memory while running \u201c' + crashedChecker + '\u201d \u2014 '
+                      + 'this file is too large for the browser sandbox. '
+                      + 'Try running the native CLI build for very large CZI files.'
+                    : 'Error in checker \u201c' + crashedChecker + '\u201d: ' + (e.message || e);
+
+                // Show error banner but keep any cards that already streamed in.
+                var errBanner = document.createElement('div');
+                errBanner.className = 'agg-banner agg-fail';
+                errBanner.innerHTML = '<div class="agg-icon">&#9888;</div>'
+                    + '<div class="agg-body"><div class="agg-label">Crashed in: ' + escapeHtml(crashedChecker) + '</div>'
+                    + '<div class="agg-value">' + escapeHtml(errMsg) + '</div>'
+                    + (allTests.length > 0
+                        ? '<div class="agg-detail">' + allTests.length + ' check(s) completed before the crash</div>'
+                        : '')
+                    + '</div>';
+                area.insertBefore(errBanner, area.firstChild);
             } finally {
+                window._onCheckResult = null;
                 document.getElementById('runBtn').disabled = false;
                 document.getElementById('spinner').classList.remove('active');
             }
         }, 50);
+    }
+
+    function createTestCard(test) {
+        var card = document.createElement('div');
+        var result = test.result || 'OK';
+        var isOk = result === 'OK';
+        var isWarn = result === 'WARN' || result === 'WARNING';
+        var cardCls = isOk ? 'card-ok' : (isWarn ? 'card-warn' : 'card-fail');
+        card.className = 'test-card ' + cardCls;
+
+        var badgeCls = isOk ? 'badge-ok' : (isWarn ? 'badge-warn' : 'badge-fail');
+        var hasFindings = test.findings && test.findings.length > 0;
+
+        var hdr = document.createElement('div');
+        hdr.className = 'test-header' + (hasFindings ? ' clickable' : '');
+        var arrow = hasFindings ? '<span class="expand-arrow">&#9654;</span>' : '';
+        var countLabel = hasFindings
+            ? '<span class="findings-count">' + test.findings.length + ' finding' + (test.findings.length !== 1 ? 's' : '') + '</span>'
+            : '';
+        hdr.innerHTML = arrow + '<span class="test-name">' + escapeHtml(test.description || test.name) + '</span>'
+            + countLabel
+            + '<span class="badge ' + badgeCls + '">' + escapeHtml(result) + '</span>';
+        card.appendChild(hdr);
+
+        var body = document.createElement('div');
+        body.className = 'test-body';
+
+        if (hasFindings) {
+            body.classList.add('collapsed');
+            test.findings.forEach(function(f) {
+                var row = document.createElement('div');
+                row.className = 'finding-row sev-' + (f.severity || 'INFO');
+                row.innerHTML = '<span class="dismiss-hint">click to dismiss</span>'
+                    + '<span class="severity severity-' + escapeHtml(f.severity || 'INFO') + '">'
+                    + escapeHtml(f.severity || 'INFO') + '</span> '
+                    + '<span class="finding-text">' + escapeHtml(f.description) + '</span>';
+                if (f.details) {
+                    row.innerHTML += '<div class="finding-details">' + escapeHtml(f.details) + '</div>';
+                }
+                row.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    row.style.opacity = '0';
+                    setTimeout(function() { row.remove(); }, 150);
+                });
+                body.appendChild(row);
+            });
+            hdr.addEventListener('click', function() {
+                card.classList.toggle('open');
+                body.classList.toggle('collapsed');
+            });
+            card.appendChild(body);
+        }
+
+        return card;
     }
 
     function displayError(msg) {
@@ -627,133 +782,6 @@
             + '<div class="agg-icon">&#9888;</div>'
             + '<div class="agg-body"><div class="agg-label">Error</div>'
             + '<div class="agg-value">' + escapeHtml(msg) + '</div></div></div>';
-    }
-
-    function displayResults(jsonStr) {
-        var area = document.getElementById('resultsArea');
-        area.innerHTML = '';
-
-        var data;
-        try {
-            data = JSON.parse(jsonStr);
-        } catch (e) {
-            displayError('Failed to parse results JSON');
-            return;
-        }
-
-        if (data.error) {
-            displayError(data.message || 'Unknown error');
-            return;
-        }
-
-        // -- Aggregated banner --
-        var agg = data.aggregatedresult || 'OK';
-        var aggClass = agg === 'OK' ? 'agg-ok' : (agg === 'WARN' ? 'agg-warn' : 'agg-fail');
-        var aggIcon = agg === 'OK' ? '&#10004;' : (agg === 'WARN' ? '&#9888;' : '&#10008;');
-        var aggMsg = agg === 'OK' ? 'All checks passed'
-                   : (agg === 'WARN' ? 'Some checks produced warnings' : 'One or more checks failed');
-
-        var testCount = data.tests ? data.tests.length : 0;
-        var failCount = data.tests ? data.tests.filter(function(t){ return t.result === 'FATAL' || t.result === 'FAIL'; }).length : 0;
-        var warnCount = data.tests ? data.tests.filter(function(t){ return t.result === 'WARN' || t.result === 'WARNING'; }).length : 0;
-        var okCount = testCount - failCount - warnCount;
-
-        var detail = testCount + ' check' + (testCount !== 1 ? 's' : '') + ' run';
-        if (failCount > 0) detail += ' &middot; ' + failCount + ' failed';
-        if (warnCount > 0) detail += ' &middot; ' + warnCount + ' warning' + (warnCount !== 1 ? 's' : '');
-        if (okCount > 0) detail += ' &middot; ' + okCount + ' passed';
-
-        var banner = document.createElement('div');
-        banner.className = 'agg-banner ' + aggClass;
-        banner.innerHTML = '<div class="agg-icon">' + aggIcon + '</div>'
-            + '<div class="agg-body">'
-            + '<div class="agg-label">Aggregated Result</div>'
-            + '<div class="agg-value">' + escapeHtml(agg) + '</div>'
-            + '<div class="agg-detail">' + aggMsg + ' &mdash; ' + detail + '</div>'
-            + '</div>';
-        area.appendChild(banner);
-
-        // -- Test cards --
-        if (data.tests) {
-            data.tests.forEach(function(test) {
-                var card = document.createElement('div');
-                var result = test.result || 'OK';
-                var isOk = result === 'OK';
-                var isWarn = result === 'WARN' || result === 'WARNING';
-                var cardCls = isOk ? 'card-ok' : (isWarn ? 'card-warn' : 'card-fail');
-                card.className = 'test-card ' + cardCls;
-
-                var badgeCls = isOk ? 'badge-ok' : (isWarn ? 'badge-warn' : 'badge-fail');
-
-                var hasFindings = test.findings && test.findings.length > 0;
-
-                var hdr = document.createElement('div');
-                hdr.className = 'test-header' + (hasFindings ? ' clickable' : '');
-                var arrow = hasFindings ? '<span class="expand-arrow">&#9654;</span>' : '';
-                var countLabel = hasFindings
-                    ? '<span class="findings-count">' + test.findings.length + ' finding' + (test.findings.length !== 1 ? 's' : '') + '</span>'
-                    : '';
-                hdr.innerHTML = arrow + '<span class="test-name">' + escapeHtml(test.description || test.name) + '</span>'
-                    + countLabel
-                    + '<span class="badge ' + badgeCls + '">' + escapeHtml(result) + '</span>';
-                card.appendChild(hdr);
-
-                var body = document.createElement('div');
-                body.className = 'test-body';
-
-                if (hasFindings) {
-                    body.classList.add('collapsed');
-                    test.findings.forEach(function(f) {
-                        var row = document.createElement('div');
-                        row.className = 'finding-row sev-' + (f.severity || 'INFO');
-                        row.innerHTML = '<span class="dismiss-hint">click to dismiss</span>'
-                            + '<span class="severity severity-' + escapeHtml(f.severity || 'INFO') + '">' 
-                            + escapeHtml(f.severity || 'INFO') + '</span> '
-                            + '<span class="finding-text">' + escapeHtml(f.description) + '</span>';
-                        if (f.details) {
-                            row.innerHTML += '<div class="finding-details">' + escapeHtml(f.details) + '</div>';
-                        }
-                        row.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            row.style.opacity = '0';
-                            setTimeout(function() { row.remove(); }, 150);
-                        });
-                        body.appendChild(row);
-                    });
-                    hdr.addEventListener('click', function() {
-                        card.classList.toggle('open');
-                        body.classList.toggle('collapsed');
-                    });
-                }
-
-                if (hasFindings) {
-                    card.appendChild(body);
-                }
-                area.appendChild(card);
-            });
-        }
-
-        // -- Raw JSON section --
-        var rawSection = document.createElement('div');
-        rawSection.className = 'raw-section';
-
-        var toggleBtn = document.createElement('button');
-        toggleBtn.className = 'toggle-raw';
-        toggleBtn.innerHTML = '<span class="arrow">&#9654;</span> Raw JSON';
-        var rawDiv = document.createElement('div');
-        rawDiv.className = 'raw-json';
-        rawDiv.textContent = JSON.stringify(data, null, 2);
-
-        var testCards = area.querySelectorAll('.test-card');
-        toggleBtn.addEventListener('click', function() {
-            var opening = !toggleBtn.classList.contains('open');
-            toggleBtn.classList.toggle('open');
-            rawSection.classList.toggle('expanded', opening);
-            testCards.forEach(function(c) { c.style.display = opening ? 'none' : ''; });
-        });
-        rawSection.appendChild(toggleBtn);
-        rawSection.appendChild(rawDiv);
-        area.appendChild(rawSection);
     }
 
     function escapeHtml(str) {

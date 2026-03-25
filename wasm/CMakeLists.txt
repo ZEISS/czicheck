@@ -35,6 +35,8 @@ set(EM_LINK_FLAGS
     "-sASYNCIFY"
     "-sASYNCIFY_STACK_SIZE=65536" # I doubt we need this but just in case
     "-sALLOW_MEMORY_GROWTH=1"
+    "-sMAXIMUM_MEMORY=4gb"
+    "-sINITIAL_MEMORY=512mb"
     "--shell-file" "${CMAKE_SOURCE_DIR}/assets/shell.html"
     # Export ccall/cwrap for optional direct C calls from JS
     "-sEXPORTED_RUNTIME_METHODS=['ccall','cwrap']"

@@ -6,6 +6,8 @@
 
 #include "checkerfactory.h"
 #include "resultgathererfactory.h"
+#include "wasm_log.h"
+#include <emscripten.h>
 #include <libCZI.h>
 #include <sstream>
 
@@ -36,15 +38,12 @@ bool RunChecks(
         return false;
     }
 
-    auto resultsGatherer = CreateResultGatherer(config.outputFormat, config.gathererOptions);
-
     CheckerCreateInfo checkerAdditionalInfo;
     checkerAdditionalInfo.totalFileSize = config.totalFileSize;
 
     std::vector<CZIChecks> checksToRun = config.checksToRun;
     if (checksToRun.empty())
     {
-        // Default: all non-opt-in checkers.
         CCheckerFactory::EnumerateCheckers(
             [&](const CCheckerFactory::CheckersInfo& info) -> bool
             {
@@ -56,23 +55,60 @@ bool RunChecks(
             });
     }
 
+    // We run each checker with its own gatherer so we can emit per-check results
+    // to JS immediately, while accumulating totals for the aggregated result.
+    IResultGatherer::CheckResult totalCounts{};
+    bool stopped = false;
+
     for (auto checkType : checksToRun)
     {
-        auto checker = CCheckerFactory::CreateChecker(checkType, reader, *resultsGatherer, checkerAdditionalInfo);
+        // Each check gets a fresh log + gatherer so we can serialize its result independently.
+        auto perCheckLog = std::make_shared<wasm::StringLog>();
+        ResultGathererOptions perCheckOpts = config.gathererOptions;
+        perCheckOpts.log = perCheckLog;
+
+        auto perCheckGatherer = CreateResultGatherer(config.outputFormat, perCheckOpts);
+
+        // Tell JS which checker is about to run so the UI can report it on crash.
+        auto checkerDisplayName = CCheckerFactory::GetCheckerDisplayName(checkType);
+        EM_ASM({
+            window._currentCheckerName = UTF8ToString($0);
+        }, checkerDisplayName.c_str());
+
+        auto checker = CCheckerFactory::CreateChecker(checkType, reader, *perCheckGatherer, checkerAdditionalInfo);
         if (checker)
         {
             checker->RunCheck();
         }
 
-        if (config.gathererOptions.failFastMode == ResultGathererOptions::FailFastMode::FailFastForFatalErrorsOverall &&
-            resultsGatherer->GetAggregatedResult() == IResultGatherer::AggregatedResult::ErrorsDetected)
+        // Get this check's counts and accumulate into totals.
+        auto checkCounts = perCheckGatherer->GetAggregatedCounts();
+        totalCounts.fatalMessagesCount += checkCounts.fatalMessagesCount;
+        totalCounts.warningMessagesCount += checkCounts.warningMessagesCount;
+        totalCounts.infoMessagesCount += checkCounts.infoMessagesCount;
+
+        // Serialize this single check's result and push to JS via callback.
+        perCheckGatherer->FinalizeChecks();
+        std::string checkJson = perCheckLog->GetStdOut();
+
+        if (config.onCheckComplete && !checkJson.empty())
         {
+            config.onCheckComplete(checkJson);
+        }
+
+        // Yield to the browser event loop so the UI can paint the new card.
+        emscripten_sleep(0);
+
+        // Check fail-fast at the overall level.
+        if (config.gathererOptions.failFastMode == ResultGathererOptions::FailFastMode::FailFastForFatalErrorsOverall &&
+            totalCounts.fatalMessagesCount > 0)
+        {
+            stopped = true;
             break;
         }
     }
 
-    aggregated = resultsGatherer->GetAggregatedResult();
-    resultsGatherer->FinalizeChecks();
+    aggregated = IResultGatherer::GetAggregatedResult(totalCounts);
     return true;
 }
 

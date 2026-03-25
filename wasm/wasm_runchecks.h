@@ -12,8 +12,13 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <functional>
 
 namespace wasm {
+
+/// Callback invoked after each individual checker finishes.
+/// Parameters: checker short name, result ("OK"/"WARN"/"FAIL"), JSON for this single test object.
+using PerCheckCallback = std::function<void(const std::string& checkResultJson)>;
 
 /// Configuration for running CZI checks from the WASM entry point.
 struct RunChecksConfig
@@ -35,6 +40,9 @@ struct RunChecksConfig
 
     /// Output encoding format.
     OutputEncodingFormat outputFormat{ OutputEncodingFormat::JSON };
+
+    /// Optional callback invoked after each check finishes with that check's JSON result.
+    PerCheckCallback onCheckComplete;
 };
 
 /// Run CZI checks using a pre-opened libCZI stream.

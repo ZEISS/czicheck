@@ -122,13 +122,16 @@ static std::string GetCheckersJson()
     return std::string(buf.GetString(), buf.GetSize());
 }
 
-/// Run CZI checks on a JS File/Blob.
+/// Run CZI checks on a JS File/Blob with streaming results.
+///
+/// Each individual check result is pushed to JS via window._onCheckResult()
+/// as soon as the checker finishes, so the UI can render cards progressively.
 ///
 /// \param js_handle   Index into Module._fileHandles[] on the JS side.
 /// \param file_size   Size of the file in bytes.
 /// \param config_json JSON string with run configuration (see ParseConfig).
 ///
-/// \returns JSON string with the checker results.
+/// \returns JSON string with just the aggregated result summary.
 static std::string RunChecksOnBlob(int js_handle, double file_size, const std::string& config_json)
 {
     const auto size = static_cast<std::uint64_t>(file_size);
@@ -144,25 +147,48 @@ static std::string RunChecksOnBlob(int js_handle, double file_size, const std::s
     auto log = std::make_shared<wasm::StringLog>();
     auto cfg = ParseConfig(config_json, log, size);
 
+    // Wire up the per-check callback to push results to JS as they arrive.
+    cfg.onCheckComplete = [](const std::string& checkJson)
+    {
+        EM_ASM({
+            var json = UTF8ToString($0);
+            if (typeof window._onCheckResult === 'function') {
+                window._onCheckResult(json);
+            }
+        }, checkJson.c_str());
+    };
+
     IResultGatherer::AggregatedResult aggregated{};
     bool ok = wasm::RunChecks(adapter, cfg, aggregated);
+
+    // Build the final summary JSON.
+    rapidjson::Document doc;
+    doc.SetObject();
+    auto& alloc = doc.GetAllocator();
 
     if (!ok)
     {
         std::string err = log->GetStdErr();
-        rapidjson::Document doc;
-        doc.SetObject();
-        auto& alloc = doc.GetAllocator();
         doc.AddMember("error", true, alloc);
         doc.AddMember("message",
                       rapidjson::Value().SetString(err.c_str(), alloc), alloc);
-        rapidjson::StringBuffer buf;
-        rapidjson::Writer<rapidjson::StringBuffer> writer(buf);
-        doc.Accept(writer);
-        return std::string(buf.GetString(), buf.GetSize());
+    }
+    else
+    {
+        const char* resultStr = "OK";
+        if (aggregated == IResultGatherer::AggregatedResult::WithWarnings)
+            resultStr = "WARN";
+        else if (aggregated == IResultGatherer::AggregatedResult::ErrorsDetected)
+            resultStr = "FAIL";
+
+        doc.AddMember("aggregatedresult",
+                      rapidjson::Value().SetString(resultStr, alloc), alloc);
     }
 
-    return log->GetStdOut();
+    rapidjson::StringBuffer buf;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buf);
+    doc.Accept(writer);
+    return std::string(buf.GetString(), buf.GetSize());
 }
 
 // ---------------------------------------------------------------------------
