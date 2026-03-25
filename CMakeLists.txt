@@ -7,6 +7,16 @@ cmake_minimum_required(VERSION 3.15)
 option(CZICHECK_ENABLE_VCPKG_BOOTSTRAP
        "Automatically fetch and bootstrap vcpkg if no toolchain is defined" ON)
 
+# When OFF, vcpkg manifest install is skipped during configure for fast re-configures..
+# The default ON means vcpkg always validates the manifest which takes a bit....
+option(CZICHECK_VCPKG_AUTO_INSTALL
+       "Let vcpkg manifest-mode run 'vcpkg install' on every configure" ON)
+
+if(NOT CZICHECK_VCPKG_AUTO_INSTALL)
+    set(VCPKG_MANIFEST_INSTALL OFF CACHE BOOL "" FORCE)
+    message(STATUS "CZICHECK_VCPKG_AUTO_INSTALL=OFF skipping vcpkg manifest install")
+endif()
+
 # Include the bootstrap script if the option is enabled
 if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
     include(modules/bootstrapVcpkg.cmake)
