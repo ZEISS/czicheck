@@ -405,13 +405,18 @@
         document.getElementById('spinner').classList.add('active');
         document.getElementById('resultsArea').innerHTML = '';
 
-        // Use setTimeout to allow the UI to update before the blocking call.
-        setTimeout(function() {
+        // Use setTimeout to allow the UI to update before the async call.
+        setTimeout(async function() {
             try {
-                var resultJson = Module.runChecks(handle, file.size, configStr);
+                console.log('[CZICheck] runChecks called with handle=' + handle + ' size=' + file.size);
+                console.log('[CZICheck] config:', configStr);
+                var resultJson = await Module.runChecks(handle, file.size, configStr);
+                console.log('[CZICheck] runChecks returned type:', typeof resultJson);
+                console.log('[CZICheck] runChecks returned value:', JSON.stringify(resultJson).substring(0, 500));
                 displayResults(resultJson);
             } catch (e) {
-                displayError('Error running checks: ' + e.message);
+                console.error('[CZICheck] runChecks threw:', e);
+                displayError('Error running checks: ' + (e.message || e));
             } finally {
                 document.getElementById('runBtn').disabled = false;
                 document.getElementById('spinner').classList.remove('active');
