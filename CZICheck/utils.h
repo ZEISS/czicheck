@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "coreutils.h"
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -14,11 +16,6 @@ namespace libCZI { class IStream; }
 class CCmdLineOptions;
 
 std::uint64_t GetFileSize(const wchar_t* filename);
-std::string convertToUtf8(const std::wstring& str);
-std::wstring convertUtf8ToUCS2(const std::string& str);
-bool icasecmp(const std::string& l, const std::string& r);
-std::string trim(const std::string& str, const std::string& whitespace = " \t");
-std::string GetVersionNumber();
 
 /// Create a stream based on the command line options. If no source-stream-class is specified,
 /// a standard file stream is created. Otherwise, the StreamsFactory is used with the specified

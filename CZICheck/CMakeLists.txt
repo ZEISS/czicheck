@@ -107,6 +107,8 @@ set(CZICHECK_CORE_SRCFILES
 "resultgathererfactory.cpp"
 "consoleio.cpp"
 "consoleio.h"
+"coreutils.h"
+"coreutils.cpp"
 "inc_libCZI.h"
 )
 
@@ -167,6 +169,9 @@ set(CZICHECK_EXE_SRCFILES
 add_executable(CZICheck ${CZICHECK_EXE_SRCFILES})
 
 set_target_properties(CZICheck PROPERTIES CXX_STANDARD 17)
+if(MSVC)
+  target_compile_options(CZICheck PRIVATE /FS)
+endif()
 
 target_link_libraries(CZICheck PRIVATE czicheck_core)
 target_link_libraries(CZICheck PRIVATE CLI11::CLI11)
