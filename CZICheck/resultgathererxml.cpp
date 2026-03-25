@@ -5,7 +5,7 @@
 #include "resultgathererxml.h"
 #include "checkerfactory.h"
 #include "checks.h"
-#include "utils.h"
+#include "coreutils.h"
 
 #include <sstream>
 #include <string>

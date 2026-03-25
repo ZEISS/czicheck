@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 #include "IChecker.h"
-#include "utils.h"
+#include "coreutils.h"
 #include "checkerfactory.h"
 #include "checkers/checkerSubBlkDirPositions.h"
 #include "checkers/checkerSubBlkSegmentsValid.h"

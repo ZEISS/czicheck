@@ -4,7 +4,7 @@
 
 #include "resultgathererjson.h"
 #include "checkerfactory.h"
-#include "utils.h"
+#include "coreutils.h"
 
 #include "rapidjson/rapidjson.h"
 #include "rapidjson/writer.h"
