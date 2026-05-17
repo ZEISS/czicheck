@@ -41,7 +41,7 @@ void CCheckMIndicesAreConsecutive::RunCheck()
 
 void CCheckMIndicesAreConsecutive::CheckMIndicesAreConsecutiveForPlane(const libCZI::CDimCoordinate& plane_coordinate)
 {
-    const auto result = this->GetSubBlocksForPlane(plane_coordinate);
+    auto result = this->GetSubBlocksForPlane(plane_coordinate);
     if (!result.has_value())
     {
         // One or more subblocks on this plane have no valid M-index; report and bail out —
@@ -56,7 +56,7 @@ void CCheckMIndicesAreConsecutive::CheckMIndicesAreConsecutiveForPlane(const lib
         return;
     }
 
-    const auto& subblocks_on_plane = result.value();
+    auto& subblocks_on_plane = result.value();
     if (subblocks_on_plane.empty())
     {
         return;
