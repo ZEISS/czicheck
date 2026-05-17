@@ -24,6 +24,7 @@ const char* CZIChecksToString(CZIChecks czi_check)
         case CZIChecks::ConsistentMIndex: return "ConsistentMIndex";
         case CZIChecks::AttachmentDirectoryPositionsWithinRange: return "AttachmentDirectoryPositionsWithinRange";
         case CZIChecks::ApplianceMetadataTopographyItemValid: return "ApplianceMetadataTopographyItemValid";
+        case CZIChecks::MIndicesAreConsecutive: return "MIndicesAreConsecutive";
         default: throw std::invalid_argument("No known conversion from CZIChecks to char");
     }
 }

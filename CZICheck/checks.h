@@ -57,6 +57,9 @@ enum class CZIChecks
 
     /// The Appliance Metadata specified for TopographyDataItem(s) are valid
     ApplianceMetadataTopographyItemValid,
+
+    /// The M-indices of the subblocks are consecutive, i.e. there are no gaps in the M-indices, and they start at 0.
+    MIndicesAreConsecutive,
 };
 
 const char* CZIChecksToString(CZIChecks czi_check);

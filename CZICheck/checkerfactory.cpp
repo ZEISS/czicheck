@@ -21,6 +21,7 @@
 #include "checkers/checkerOverlappingScenes.h"
 #include "checkers/checkerSubBlkBitmapValid.h"
 #include "checkers/checkerTopographyApplianceValidation.h"
+#include "checkers/checkerMIndicesAreConsecutive.h"
 
 using namespace std;
 
@@ -101,6 +102,7 @@ static const classEntry classesList[] =
 #endif
     MakeEntry<CCheckOverlappingScenesOnLayer0>(),
     MakeEntry<CCheckSubBlkBitmapValid>(),
+    MakeEntry<CCheckMIndicesAreConsecutive>(),
 };
 
 /*static*/std::unique_ptr<IChecker> CCheckerFactory::CreateChecker(
