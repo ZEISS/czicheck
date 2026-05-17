@@ -50,7 +50,7 @@ void CCheckMIndicesAreConsecutive::CheckMIndicesAreConsecutiveForPlane(const lib
         finding.severity = IResultGatherer::Severity::Warning;
         std::ostringstream ss;
         ss << "One or more subblocks on plane [" << libCZI::Utils::DimCoordinateToString(&plane_coordinate)
-           << "] have no valid M-index; cannot check M-index consecutivity for this plane.";
+            << "] have no valid M-index; cannot check M-index consecutivity for this plane.";
         finding.information = ss.str();
         this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
         return;
@@ -78,7 +78,7 @@ void CCheckMIndicesAreConsecutive::CheckMIndicesAreConsecutiveForPlane(const lib
         finding.severity = IResultGatherer::Severity::Warning;
         std::ostringstream ss;
         ss << "M indices do not start at 0 for plane [" << libCZI::Utils::DimCoordinateToString(&plane_coordinate)
-           << "]: smallest M index is " << subblocks_on_plane.front().m_index << ".";
+            << "]: smallest M index is " << subblocks_on_plane.front().m_index << ".";
         finding.information = ss.str();
         this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
         return;
@@ -95,8 +95,8 @@ void CCheckMIndicesAreConsecutive::CheckMIndicesAreConsecutiveForPlane(const lib
             finding.severity = IResultGatherer::Severity::Warning;
             std::ostringstream ss;
             ss << "M indices are not consecutive for plane [" << libCZI::Utils::DimCoordinateToString(&plane_coordinate)
-               << "]: expected " << expected << " but found " << actual
-               << " (subblock index " << subblocks_on_plane[i].subblock_index << ").";
+                << "]: expected " << expected << " but found " << actual
+                << " (subblock index " << subblocks_on_plane[i].subblock_index << ").";
             finding.information = ss.str();
             this->ThrowIfFindingResultIsStop(this->result_gatherer_.ReportFinding(finding));
             return;

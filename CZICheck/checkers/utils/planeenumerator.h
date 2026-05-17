@@ -5,6 +5,7 @@
 #pragma once
 
 #include <array>
+#include <utility>
 #include <libCZI.h>
 
     /// This will enumerate all the planes in a source-document. 
@@ -17,7 +18,6 @@ class PlaneEnumerator
 private:
     libCZI::SubBlockStatistics sub_block_statistics_;
 public:
-
     /// This is the element we enumerate.
     struct PlaneRegion
     {
@@ -60,7 +60,7 @@ private:
 public:
     PlaneEnumerator() = delete;
 
-    PlaneEnumerator(const libCZI::SubBlockStatistics& sub_block_statistics) : sub_block_statistics_(sub_block_statistics)
+    explicit PlaneEnumerator(const libCZI::SubBlockStatistics& sub_block_statistics) : sub_block_statistics_(sub_block_statistics)
     {
         // requirements:
         // - dimBounds must contain at least one dimension (other than the scene dimension)
@@ -133,7 +133,6 @@ public:
                     this->plane_enumerator_.GetDimBounds().TryGetInterval(dimension, &start, &size);
                     if (coordinate < start + size - 1)
                     {
-
                         this->current_state_.Set(dimension, coordinate + 1);
                         return *this;
                     }
@@ -207,7 +206,6 @@ public:
         return Iterator(*this, this->GetCoordinateOneAfterEnd());
     }
 private:
-
     /// Gets a coordinate "one after the end"
     ///
     /// \returns    The coordinate "one after the end".
