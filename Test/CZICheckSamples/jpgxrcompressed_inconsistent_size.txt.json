@@ -90,6 +90,12 @@
             "description": "Basic semantic checks for TopographyDataItems",
             "result": "OK",
             "findings": []
+        },
+        {
+            "name": "MIndicesAreConsecutive",
+            "description": "check if M indices are consecutive",
+            "result": "OK",
+            "findings": []
         }
     ],
     "output_version": {

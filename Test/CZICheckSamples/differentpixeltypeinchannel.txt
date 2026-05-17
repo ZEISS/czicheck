@@ -20,6 +20,7 @@ Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" :
   Could not read metadata-segment
  WARN
+Test "check if M indices are consecutive" : OK
 
 
 Result: With Warnings

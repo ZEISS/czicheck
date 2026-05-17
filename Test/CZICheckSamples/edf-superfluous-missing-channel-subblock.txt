@@ -22,6 +22,7 @@ Test "Basic semantic checks for TopographyDataItems" :
   There are superfluous dimensions specified in the TopographyDataItems. This might yield errors.
   The Topography metadata specifies channels for the texture or heightmap subblocks, that are not present in the Subblock Collection of the image.
  FAIL
+Test "check if M indices are consecutive" : OK
 
 
 Result: Errors Detected

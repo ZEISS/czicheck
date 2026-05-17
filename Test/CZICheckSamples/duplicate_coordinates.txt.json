@@ -108,6 +108,18 @@
                     "details": "No metadata-segment available."
                 }
             ]
+        },
+        {
+            "name": "MIndicesAreConsecutive",
+            "description": "check if M indices are consecutive",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "M indices are not consecutive for plane [C0T0]: expected 1 but found 0 (subblock index 2).",
+                    "details": ""
+                }
+            ]
         }
     ],
     "output_version": {

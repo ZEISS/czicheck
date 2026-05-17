@@ -17,6 +17,7 @@ Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" :
   There are superfluous dimensions specified in the TopographyDataItems. This might yield errors.
  WARN
+Test "check if M indices are consecutive" : OK
 
 
 Result: Errors Detected

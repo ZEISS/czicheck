@@ -122,6 +122,12 @@
                     "details": ""
                 }
             ]
+        },
+        {
+            "name": "MIndicesAreConsecutive",
+            "description": "check if M indices are consecutive",
+            "result": "OK",
+            "findings": []
         }
     ],
     "output_version": {

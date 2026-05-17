@@ -177,6 +177,18 @@
             "description": "Basic semantic checks for TopographyDataItems",
             "result": "OK",
             "findings": []
+        },
+        {
+            "name": "MIndicesAreConsecutive",
+            "description": "check if M indices are consecutive",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "One or more subblocks on plane [T0] have no valid M-index; cannot check M-index consecutivity for this plane.",
+                    "details": ""
+                }
+            ]
         }
     ],
     "output_version": {

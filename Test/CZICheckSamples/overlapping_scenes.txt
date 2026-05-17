@@ -19,6 +19,7 @@ Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping"
  WARN
 Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" : OK
+Test "check if M indices are consecutive" : OK
 
 
 Result: With Warnings

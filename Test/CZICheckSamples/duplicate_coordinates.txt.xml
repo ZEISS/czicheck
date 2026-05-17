@@ -95,6 +95,17 @@
         </Finding>
       </Findings>
     </Test>
+    <Test Name="MIndicesAreConsecutive">
+      <Description>check if M indices are consecutive</Description>
+      <Result>WARN</Result>
+      <Findings>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>M indices are not consecutive for plane [C0T0]: expected 1 but found 0 (subblock index 2).</Description>
+          <Details></Details>
+        </Finding>
+      </Findings>
+    </Test>
   </Tests>
   <AggregatedResult>FAIL</AggregatedResult>
   <OutputVersion>

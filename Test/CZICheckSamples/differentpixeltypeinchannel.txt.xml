@@ -95,6 +95,11 @@
         </Finding>
       </Findings>
     </Test>
+    <Test Name="MIndicesAreConsecutive">
+      <Description>check if M indices are consecutive</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
   </Tests>
   <AggregatedResult>WARN</AggregatedResult>
   <OutputVersion>

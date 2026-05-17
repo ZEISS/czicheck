@@ -101,6 +101,28 @@
             "description": "Basic semantic checks for TopographyDataItems",
             "result": "OK",
             "findings": []
+        },
+        {
+            "name": "MIndicesAreConsecutive",
+            "description": "check if M indices are consecutive",
+            "result": "WARN",
+            "findings": [
+                {
+                    "severity": "WARNING",
+                    "description": "M indices do not start at 0 for plane [Z-1C0T0S0]: smallest M index is 1.",
+                    "details": ""
+                },
+                {
+                    "severity": "WARNING",
+                    "description": "M indices do not start at 0 for plane [Z0C0T0S0]: smallest M index is 2.",
+                    "details": ""
+                },
+                {
+                    "severity": "WARNING",
+                    "description": "M indices do not start at 0 for plane [Z1C0T0S0]: smallest M index is 3.",
+                    "details": ""
+                }
+            ]
         }
     ],
     "output_version": {

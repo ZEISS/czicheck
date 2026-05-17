@@ -22,6 +22,9 @@ Test "validate the XML-metadata against XSD-schema" :
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
 Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" : OK
+Test "check if M indices are consecutive" :
+  One or more subblocks on plane [T0] have no valid M-index; cannot check M-index consecutivity for this plane.
+ WARN
 
 
 Result: Errors Detected

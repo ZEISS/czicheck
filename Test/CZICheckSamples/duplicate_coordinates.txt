@@ -20,6 +20,9 @@ Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" :
   Could not read metadata-segment
  WARN
+Test "check if M indices are consecutive" :
+  M indices are not consecutive for plane [C0T0]: expected 1 but found 0 (subblock index 2).
+ WARN
 
 
 Result: Errors Detected

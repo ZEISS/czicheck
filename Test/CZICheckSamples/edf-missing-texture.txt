@@ -17,6 +17,7 @@ Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" :
   The image contains TopographyDataItems that do not define a channel.
  FAIL
+Test "check if M indices are consecutive" : OK
 
 
 Result: Errors Detected

@@ -17,6 +17,11 @@ Test "validate the XML-metadata against XSD-schema" : OK
 Test "check if subblocks at pyramid-layer 0 of different scenes are overlapping" : OK
 Test "SubBlock-Segments in SubBlockDirectory are valid and valid content" : OK
 Test "Basic semantic checks for TopographyDataItems" : OK
+Test "check if M indices are consecutive" :
+  M indices do not start at 0 for plane [Z-1C0T0S0]: smallest M index is 1.
+  M indices do not start at 0 for plane [Z0C0T0S0]: smallest M index is 2.
+  M indices do not start at 0 for plane [Z1C0T0S0]: smallest M index is 3.
+ WARN
 
 
 Result: With Warnings
