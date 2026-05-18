@@ -12,9 +12,9 @@
 
 /// This will enumerate all the planes in a source-document. 
 /// * The enumeration is done "per scene"
-/// * The enumeration gives a plane-coordinate and a bounding box. In case the source has a S-index,  
-///    this bounding box is the bounding box of the scene. Otherwise, it is the bounding box of the document.
-/// * The order is (in which the plane coordinates are incremented) is: S, C, Z, T, R, I, H, V, B.
+/// * The enumeration gives a plane-coordinate for each plane.
+/// * If the dim-bounds is empty (no valid dimensions), a single element with an empty coordinate is yielded.
+/// * The order in which the plane coordinates are incremented is: S, C, Z, T, R, I, H, V, B.
 class PlaneEnumerator
 {
 private:
@@ -25,9 +25,6 @@ public:
     {
         /// The plane coordinate. Note that this may or may not contain the S-index (depending on the source document).
         libCZI::CDimCoordinate plane_coordinate;
-
-        /// The ROI (either for the scene, if an S-index is present), or for the whole plane.
-        libCZI::IntRect rect;
 
         /// Query if the coordinate (in the field 'plane_coordinate') contains a value for the S-index (or scene-index).
         ///
@@ -50,16 +47,6 @@ private:
         kOrderOfDimensionsToIterate.size() == static_cast<std::size_t>(libCZI::DimensionIndex::MaxDim),
         "kOrderOfDimensionsToIterate must contain exactly one entry per valid DimensionIndex (up to MaxDim).");
 
-    libCZI::IntRect GetRoiForDocument() const
-    {
-        return this->sub_block_statistics_.boundingBoxLayer0Only;
-    }
-
-    libCZI::IntRect GetRoiForScene(int s_index) const
-    {
-        return this->sub_block_statistics_.sceneBoundingBoxes.at(s_index).boundingBoxLayer0;
-    }
-
     const libCZI::CDimBounds& GetDimBounds() const
     {
         return this->sub_block_statistics_.dimBounds;
@@ -69,38 +56,6 @@ public:
 
     explicit PlaneEnumerator(const libCZI::SubBlockStatistics& sub_block_statistics) : sub_block_statistics_(sub_block_statistics)
     {
-        // requirements:
-        // - dimBounds must contain at least one dimension (other than the scene dimension)
-        // - if there is a scene dimension, the sceneBoundingBoxes must contain bounding boxes for all scenes
-        bool other_dimension_than_scene_found = false;
-        for (const auto dimension : PlaneEnumerator::kOrderOfDimensionsToIterate)
-        {
-            if (dimension != libCZI::DimensionIndex::S)
-            {
-                if (this->sub_block_statistics_.dimBounds.TryGetInterval(dimension, nullptr, nullptr))
-                {
-                    other_dimension_than_scene_found = true;
-                    break;
-                }
-            }
-        }
-
-        if (!other_dimension_than_scene_found)
-        {
-            throw std::invalid_argument("The dimension bounds must contain at least one dimension (other than the scene dimension).");
-        }
-
-        int start_s, size_s;
-        if (this->sub_block_statistics_.dimBounds.TryGetInterval(libCZI::DimensionIndex::S, &start_s, &size_s))
-        {
-            for (int i = start_s; i < start_s + size_s; ++i)
-            {
-                if (this->sub_block_statistics_.sceneBoundingBoxes.find(i) == this->sub_block_statistics_.sceneBoundingBoxes.end())
-                {
-                    throw std::invalid_argument("The scene bounding boxes must contain bounding boxes for all scenes.");
-                }
-            }
-        }
     }
 
     /// Nested class for the iterator.
@@ -109,6 +64,7 @@ public:
     private:
         const PlaneEnumerator& plane_enumerator_;
         libCZI::CDimCoordinate current_state_;
+        bool is_end_ = false;
     protected:
         /// We restrict the constructor to the PlaneEnumerator-class only (by making it protected).
         ///
@@ -131,6 +87,11 @@ public:
         /// \returns The result of the operation.
         Iterator& operator++()
         {
+            if (this->is_end_)
+            {
+                return *this;
+            }
+
             for (auto dimension : PlaneEnumerator::kOrderOfDimensionsToIterate)
             {
                 int coordinate;
@@ -150,9 +111,8 @@ public:
                 }
             }
 
-            // If we get here, we have overflowed with the last coordinate (i.e. we have reached the end).
-            // In this case we set the current state to the coordinate one after the end.
-            this->current_state_ = this->plane_enumerator_.GetCoordinateOneAfterEnd();
+            // If we get here, we have overflowed (or the dim-bounds was empty to begin with).
+            this->is_end_ = true;
 
             return *this;
         }
@@ -162,17 +122,6 @@ public:
         {
             PlaneRegion result;
             result.plane_coordinate = this->current_state_;
-
-            int s_index;
-            if (this->current_state_.TryGetPosition(libCZI::DimensionIndex::S, &s_index))
-            {
-                result.rect = this->plane_enumerator_.GetRoiForScene(s_index);
-            }
-            else
-            {
-                result.rect = this->plane_enumerator_.GetRoiForDocument();
-            }
-
             return result;
         }
 
@@ -183,8 +132,7 @@ public:
         /// \returns True if the parameters are not considered equivalent.
         bool operator!=(const Iterator& other) const
         {
-            int comparison_result = libCZI::Utils::Compare(&this->current_state_, &other.current_state_);
-            return comparison_result != 0;
+            return this->is_end_ != other.is_end_;
         }
     };
 
@@ -210,35 +158,9 @@ public:
     /// \returns An Iterator pointing to "one after the last element".
     Iterator end() const
     {
-        return Iterator(*this, this->GetCoordinateOneAfterEnd());
+        Iterator it(*this, libCZI::CDimCoordinate{});
+        it.is_end_ = true;
+        return it;
     }
 private:
-    /// Gets a coordinate "one after the end"
-    ///
-    /// \returns    The coordinate "one after the end".
-    libCZI::CDimCoordinate GetCoordinateOneAfterEnd() const
-    {
-        libCZI::CDimCoordinate end_coordinate;
-        const libCZI::CDimBounds& dimension_bounds = this->GetDimBounds();
-        bool is_first_coordinate = true;
-        for (auto dimension : PlaneEnumerator::kOrderOfDimensionsToIterate)
-        {
-            int start, size;
-            if (dimension_bounds.TryGetInterval(dimension, &start, &size))
-            {
-                // set the first index to "one after the end", the rest to the max value
-                if (is_first_coordinate)
-                {
-                    end_coordinate.Set(dimension, start + size);
-                    is_first_coordinate = false;
-                }
-                else
-                {
-                    end_coordinate.Set(dimension, start + size - 1);
-                }
-            }
-        }
-
-        return end_coordinate;
-    }
 };
