@@ -223,6 +223,7 @@ if (CZICHECK_BUILD_TESTS)
           -r edf-superfluous.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/edf-superfluous.czi}
           -r edf-superfluous-missing-channel-subblock.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/edf-superfluous-missing-channel-subblock.czi}
           -r invalid_componentbitcount.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/invalid_componentbitcount.czi}
+          -r non_consecutive_m_indices.czi=DATA{${CMAKE_CURRENT_SOURCE_DIR}/../Test/CZICheckSamples/non_consecutive_m_indices.czi}
     )
 
     # Add a build target to populate the real data.

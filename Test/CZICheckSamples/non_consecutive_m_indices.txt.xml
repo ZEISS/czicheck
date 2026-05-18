@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TestResults>
+  <Tests>
+    <Test Name="SubBlockDirectoryPositionsWithinRange">
+      <Description>SubBlock-Segment in SubBlockDirectory within file</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="SubBlockDirectorySegmentValid">
+      <Description>SubBlock-Segments in SubBlockDirectory are valid</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="ConsistentSubBlockCoordinates">
+      <Description>check subblock's coordinates for 'consistent dimensions'</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="DuplicateSubBlockCoordinates">
+      <Description>check subblock's coordinates being unique</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="BenabledDocument">
+      <Description>check whether the document uses the deprecated 'B-index'</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="SamePixeltypePerChannel">
+      <Description>check that the subblocks of a channel have the same pixeltype</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="PlanesIndicesStartAtZero">
+      <Description>Check that planes indices start at 0</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="PlaneIndicesAreConsecutive">
+      <Description>Check that planes have consecutive indices</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="SubblocksHaveMindex">
+      <Description>check if all subblocks have the M index</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="BasicMetadataValidation">
+      <Description>Basic semantic checks of the XML-metadata</Description>
+      <Result>WARN</Result>
+      <Findings>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>No valid ComponentBitCount information found in metadata for channel #0.</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>No valid ComponentBitCount information found in metadata for channel #1.</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>No valid ComponentBitCount information found in metadata for channel #2.</Description>
+          <Details></Details>
+        </Finding>
+      </Findings>
+    </Test>
+    <Test Name="XmlMetadataSchemaValidation">
+      <Description>validate the XML-metadata against XSD-schema</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="CCheckOverlappingScenesOnLayer0">
+      <Description>check if subblocks at pyramid-layer 0 of different scenes are overlapping</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="CheckSubBlockBitmapValid">
+      <Description>SubBlock-Segments in SubBlockDirectory are valid and valid content</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="ApplianceMetadataTopographyItemValid">
+      <Description>Basic semantic checks for TopographyDataItems</Description>
+      <Result>OK</Result>
+      <Findings />
+    </Test>
+    <Test Name="MIndicesAreConsecutive">
+      <Description>check if M indices are consecutive</Description>
+      <Result>WARN</Result>
+      <Findings>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>M indices are not consecutive for plane [C0]: expected 3 but found 4 (subblock index 3).</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>M indices are not consecutive for plane [C1]: expected 1 but found 10 (subblock index 5).</Description>
+          <Details></Details>
+        </Finding>
+        <Finding>
+          <Severity>WARNING</Severity>
+          <Description>M indices do not start at 0 for plane [C2]: smallest M index is 1.</Description>
+          <Details></Details>
+        </Finding>
+      </Findings>
+    </Test>
+  </Tests>
+  <AggregatedResult>WARN</AggregatedResult>
+  <OutputVersion>
+    <Command>CZICheck</Command>
+    <Version>0.8.0</Version>
+  </OutputVersion>
+</TestResults>

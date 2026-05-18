@@ -38,6 +38,7 @@ edf-missing-texture.czi,2,edf-missing-texture.txt
 edf-superfluous.czi,2,edf-superfluous.txt
 invalid_componentbitcount.czi,1,invalid_componentbitcount.txt
 edf-superfluous-missing-channel-subblock.czi,2,edf-superfluous-missing-channel-subblock.txt
+non_consecutive_m_indices.czi,1,non_consecutive_m_indices.txt
 
 
 ###############################################################################

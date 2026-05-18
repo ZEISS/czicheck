@@ -9,7 +9,7 @@
 #include <libCZI.h>
 
     /// This will enumerate all the planes in a source-document. 
-    /// * The enumeration is done "per scene" (as the pyramids are constructed per scene).  
+    /// * The enumeration is done "per scene"
     /// * The enumeration gives a plane-coordinate and a bounding box. In case the source has a S-index,  
     ///    this bounding box is the bounding box of the scene. Otherwise, it is the bounding box of the document.
     /// * The order is (in which the plane coordinates are incremented) is: S, C, Z, T, R, I, H, V.

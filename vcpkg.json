@@ -1,6 +1,6 @@
 {
   "name": "czicheck",
-  "version-string": "0.7.0",
+  "version-string": "0.8.0",
   "dependencies": [
     {
       "name": "libczi",
@@ -12,5 +12,5 @@
     "rapidjson",
     "xerces-c"
   ],
-  "builtin-baseline": "af752f21c9d79ba3df9cb0250ce2233933f58486"
+  "builtin-baseline": "2b65c20fc66eda893aa15a15a453c3cf09500b19"
 }
