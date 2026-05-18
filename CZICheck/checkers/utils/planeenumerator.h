@@ -58,6 +58,9 @@ public:
     {
     }
 
+    /// Forward declaration — see Sentinel below.
+    struct Sentinel;
+
     /// Nested class for the iterator.
     class Iterator final
     {
@@ -125,16 +128,21 @@ public:
             return result;
         }
 
-        /// Comparison operator.
+        /// Comparison against the sentinel (end marker).
         ///
-        /// \param  other The other object to compare to.
+        /// \param  The sentinel value returned by PlaneEnumerator::end().
         ///
-        /// \returns True if the parameters are not considered equivalent.
-        bool operator!=(const Iterator& other) const
+        /// \returns True if this iterator has not yet reached the end.
+        bool operator!=(const Sentinel&) const
         {
-            return this->is_end_ != other.is_end_;
+            return !this->is_end_;
         }
     };
+
+    /// Sentinel type returned by end(). Using a distinct type avoids ambiguous
+    /// iterator-vs-iterator comparisons and makes range-for the only supported
+    /// iteration pattern.
+    struct Sentinel {};
 
     /// Begin iterator.
     ///
@@ -153,14 +161,12 @@ public:
         return Iterator(*this, start_coordinate);
     }
 
-    /// End iterator (one past the last).
+    /// End sentinel.
     ///
-    /// \returns An Iterator pointing to "one after the last element".
-    Iterator end() const
+    /// \returns A Sentinel value that compares not-equal to any non-exhausted Iterator.
+    Sentinel end() const
     {
-        Iterator it(*this, libCZI::CDimCoordinate{});
-        it.is_end_ = true;
-        return it;
+        return Sentinel{};
     }
 private:
 };
