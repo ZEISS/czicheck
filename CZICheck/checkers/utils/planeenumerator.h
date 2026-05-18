@@ -44,8 +44,10 @@ private:
     };
 
     static_assert(
-        kOrderOfDimensionsToIterate.size() == static_cast<std::size_t>(libCZI::DimensionIndex::MaxDim),
-        "kOrderOfDimensionsToIterate must contain exactly one entry per valid DimensionIndex (up to MaxDim).");
+        kOrderOfDimensionsToIterate.size() ==
+            (static_cast<std::size_t>(libCZI::DimensionIndex::MaxDim) -
+             static_cast<std::size_t>(libCZI::DimensionIndex::MinDim) + 1U),
+        "kOrderOfDimensionsToIterate must contain exactly one entry per valid DimensionIndex.");
 
     const libCZI::CDimBounds& GetDimBounds() const
     {
