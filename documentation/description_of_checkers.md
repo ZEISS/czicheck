@@ -105,7 +105,7 @@ Note that this check requires reading all data from disk, and in case of compres
 ### topographymetadata
 This checker is implemented in the file 'checkerTopographyApplianceValidation.cpp'.  
 It checks if an image contains a Topography section in its 'Appliances' metadata section.
-If there is such a section, it checks if both 'Textures' and 'HeightMaps' are given within 'TopographyDataItem' containers in the Appliances section. Each of the entries in 'Textures' and 'HeighMaps' should specify a channel (via a 'StartC' information) and no other information. That other information is considered superfluous.
+If there is such a section, it checks if both 'Textures' and 'HeightMaps' are given within 'TopographyDataItem' containers in the Appliances section. Each of the entries in 'Textures' and 'HeightMaps' should specify a channel (via a 'StartC' information) and no other information. That other information is considered superfluous.
 
 ### mindicesconsecutive
 
