@@ -10,11 +10,11 @@
 
 #include <libCZI.h>
 
-    /// This will enumerate all the planes in a source-document. 
-    /// * The enumeration is done "per scene"
-    /// * The enumeration gives a plane-coordinate and a bounding box. In case the source has a S-index,  
-    ///    this bounding box is the bounding box of the scene. Otherwise, it is the bounding box of the document.
-    /// * The order is (in which the plane coordinates are incremented) is: S, C, Z, T, R, I, H, V.
+/// This will enumerate all the planes in a source-document. 
+/// * The enumeration is done "per scene"
+/// * The enumeration gives a plane-coordinate and a bounding box. In case the source has a S-index,  
+///    this bounding box is the bounding box of the scene. Otherwise, it is the bounding box of the document.
+/// * The order is (in which the plane coordinates are incremented) is: S, C, Z, T, R, I, H, V, B.
 class PlaneEnumerator
 {
 private:
@@ -39,11 +39,16 @@ public:
     };
 private:
     /// This defines the order of dimensions to iterate over.
-    static constexpr std::array<libCZI::DimensionIndex, 8> kOrderOfDimensionsToIterate =
+    static constexpr std::array<libCZI::DimensionIndex, 9> kOrderOfDimensionsToIterate =
     {
         libCZI::DimensionIndex::S, libCZI::DimensionIndex::C, libCZI::DimensionIndex::Z, libCZI::DimensionIndex::T,
         libCZI::DimensionIndex::R, libCZI::DimensionIndex::I, libCZI::DimensionIndex::H, libCZI::DimensionIndex::V,
+        libCZI::DimensionIndex::B
     };
+
+    static_assert(
+        kOrderOfDimensionsToIterate.size() == static_cast<std::size_t>(libCZI::DimensionIndex::MaxDim),
+        "kOrderOfDimensionsToIterate must contain exactly one entry per valid DimensionIndex (up to MaxDim).");
 
     libCZI::IntRect GetRoiForDocument() const
     {
@@ -193,8 +198,8 @@ public:
         dimension_bounds.EnumValidDimensions(
             [&](libCZI::DimensionIndex dim, int start, int size)->bool
             {
-            start_coordinate.Set(dim, start);
-            return true;
+                start_coordinate.Set(dim, start);
+                return true;
             });
 
         return Iterator(*this, start_coordinate);
@@ -237,4 +242,3 @@ private:
         return end_coordinate;
     }
 };
-
