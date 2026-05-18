@@ -109,5 +109,5 @@ If there is such a section, it checks if both 'Textures' and 'HeightMaps' are gi
 
 ### mindicesconsecutive
 
-This checker is implemented in the file 'checkerMIndicesConsecutive.cpp'.  
+This checker is implemented in the file 'checkerMIndicesAreConsecutive.cpp'.  
 It is checked whether the M-indices (in all planes/scenes) are consecutive and start with 0. This is recommended, but not mandatory. If non-consecutive M-indices are found or if counting does not start with 0, this is reported as a warning.
