@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 env:
-  VCPKG_COMMIT: "2b65c20fc66eda893aa15a15a453c3cf09500b19"
+  VCPKG_COMMIT: "35a50301d38f17804966342d3eb930fc694e1f56"
 
 jobs:
   build:
