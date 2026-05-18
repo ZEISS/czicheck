@@ -193,7 +193,6 @@ if (CZICHECK_BUILD_TESTS)
   #  and is described here -> https://cmake.org/cmake/help/book/mastering-cmake/chapter/Testing%20With%20CMake%20and%20CTest.html#managing-test-data
   #  or https://crascit.com/2015/04/03/handling-binary-assets-and-test-data-with-cmake/
   list(APPEND ExternalData_URL_TEMPLATES
-    "https://libczirwtestdata.z13.web.core.windows.net/CZICheckSamples/%(algo)/%(hash)"
     "https://github.com/ptahmose/libCZI_testdata/raw/main/%(algo)/%(hash)"
    )
 
