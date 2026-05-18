@@ -32,7 +32,7 @@ struct classEntry
     /// The enum identifying a checker class.
     CZIChecks check;
 
-    /// A human readable display name identifying and describing the checker class.
+    /// A human-readable display name identifying and describing the checker class.
     const string displayname;
 
     /// A short name identifying the checker class. This string has to be unique.
