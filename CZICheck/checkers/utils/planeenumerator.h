@@ -6,6 +6,8 @@
 
 #include <array>
 #include <utility>
+#include <stdexcept>
+
 #include <libCZI.h>
 
     /// This will enumerate all the planes in a source-document. 
