@@ -6,7 +6,7 @@
 Running CZICheck with the `--help` option will print a brief summary of the available options and their usage:
 
 ```
-CZICheck version 0.7.0, using libCZI version 0.67.2
+CZICheck version 0.8.0, using libCZI version 0.67.6
 
 
 
@@ -105,6 +105,7 @@ same pixeltype
 scenes are overlapping
 [*] "subblkbitmapvalid" -> SubBlock-Segments in SubBlockDirectory are valid and
 valid content
+[*] "mindicesconsecutive" -> check if M indices are consecutive
 ```
 
 All checkers listed at the bottom are available for use. The ones marked with `[ ]` are not run by default, but can be enabled by adding them to the list of checkers to be run (or by using 'all' as argument for the '--checks' argument).
