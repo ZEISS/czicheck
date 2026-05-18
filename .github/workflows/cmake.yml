@@ -75,8 +75,10 @@ jobs:
           if [ ! -d "$VCPKG_ROOT/.git" ]; then
             echo "Cloning vcpkg to $VCPKG_ROOT"
             git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
-            git -C "$VCPKG_ROOT" checkout ${{ env.VCPKG_COMMIT }}
           fi
+
+          git -C "$VCPKG_ROOT" fetch --depth 1 origin "${{ env.VCPKG_COMMIT }}"
+          git -C "$VCPKG_ROOT" checkout --force "${{ env.VCPKG_COMMIT }}"
 
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             if [ ! -f "$VCPKG_ROOT/vcpkg.exe" ]; then
@@ -206,8 +208,10 @@ jobs:
           if [ ! -d "$VCPKG_ROOT/.git" ]; then
             echo "Cloning vcpkg to $VCPKG_ROOT"
             git clone https://github.com/microsoft/vcpkg.git "$VCPKG_ROOT"
-            git -C "$VCPKG_ROOT" checkout ${{ env.VCPKG_COMMIT }}
           fi
+
+          git -C "$VCPKG_ROOT" fetch --depth 1 origin ${{ env.VCPKG_COMMIT }}
+          git -C "$VCPKG_ROOT" checkout --force ${{ env.VCPKG_COMMIT }}
 
           if [[ "$RUNNER_OS" == "Windows" ]]; then
             if [ ! -f "$VCPKG_ROOT/vcpkg.exe" ]; then
