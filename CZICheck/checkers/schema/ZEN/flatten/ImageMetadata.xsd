@@ -771,6 +771,16 @@
             </xs:element>
             <xs:element form="qualified" minOccurs="0" name="DyeName" type="xs:string"/>
             <xs:element form="qualified" minOccurs="0" name="ShortName" type="xs:string"/>
+            <xs:element form="qualified" minOccurs="0" name="Compositing">
+                <xs:annotation>
+                    <xs:documentation>The preferred channel compositing mode.</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="alpha"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
             <xs:element form="qualified" minOccurs="0" name="IlluminationType" type="xs:string"/>
             <xs:element form="qualified" minOccurs="0" name="DyeMaxEmission" type="xs:string"/>
             <xs:element form="qualified" minOccurs="0" name="DyeMaxExcitation" type="xs:string"/>
@@ -7764,6 +7774,14 @@
                                         </xs:restriction>
                                     </xs:simpleType>
                                 </xs:element>
+                                <xs:element form="qualified" minOccurs="0" name="SubsetBounds">
+                                    <xs:annotation>
+                                        <xs:documentation>The image subset bounds used to position the scale bar.</xs:documentation>
+                                    </xs:annotation>
+                                    <xs:complexType>
+                                        <xs:attributeGroup ref="SubsetBounds"/>
+                                    </xs:complexType>
+                                </xs:element>
                             </xs:sequence>
                         </xs:extension>
                     </xs:complexContent>
@@ -8255,6 +8273,31 @@
             <xs:element form="qualified" minOccurs="0" name="StrokeThickness" type="xs:double"/>
             <xs:element form="qualified" minOccurs="0" name="StrokeZoomWithImage" type="xs:boolean"/>
             <xs:element form="qualified" minOccurs="0" name="CanAdjustPosition" type="xs:boolean"/>
+            <xs:element form="qualified" minOccurs="0" name="AbsoluteOffsetX" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>The horizontal scale-bar offset from the right image border, in pixels.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="AbsoluteOffsetY" type="xs:int">
+                <xs:annotation>
+                    <xs:documentation>The vertical scale-bar offset from the lower image border, in pixels.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="RelativeOffsetX" type="xs:double">
+                <xs:annotation>
+                    <xs:documentation>The horizontal scale-bar offset as a factor of image width, in the range 0 to 1.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="RelativeOffsetY" type="xs:double">
+                <xs:annotation>
+                    <xs:documentation>The vertical scale-bar offset as a factor of image height, in the range 0 to 1.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="IsCustomTextEditionEnabled" type="xs:boolean">
+                <xs:annotation>
+                    <xs:documentation>Indicates whether editing custom text is enabled for the graphic element.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element default="Solid" form="qualified" minOccurs="0" name="LineDrawStyle">
                 <xs:simpleType>
                     <xs:restriction base="xs:string">
@@ -8339,6 +8382,17 @@
                 </xs:annotation>
             </xs:element>
         </xs:all>
+        <xs:attribute form="unqualified" name="SelectedDistanceType">
+            <xs:annotation>
+                <xs:documentation>Specifies whether scale-bar offsets are interpreted as relative factors or absolute pixel values.</xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="Relative"/>
+                    <xs:enumeration value="Absolute"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="GraphicTextElements">
@@ -9709,6 +9763,25 @@
                         application.
                     </xs:documentation>
                 </xs:annotation>
+            </xs:element>
+            <xs:element form="qualified" minOccurs="0" name="RotationCenter">
+                <xs:annotation>
+                    <xs:documentation>The center of rotation in the session coordinate system.</xs:documentation>
+                </xs:annotation>
+                <xs:complexType>
+                    <xs:all>
+                        <xs:element form="qualified" name="X" type="xs:double">
+                            <xs:annotation>
+                                <xs:documentation>The X-coordinate of the rotation center.</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                        <xs:element form="qualified" name="Y" type="xs:double">
+                            <xs:annotation>
+                                <xs:documentation>The Y-coordinate of the rotation center.</xs:documentation>
+                            </xs:annotation>
+                        </xs:element>
+                    </xs:all>
+                </xs:complexType>
             </xs:element>
             <xs:element form="qualified" minOccurs="0" name="SessionRotationAtStart"
                 type="xs:double">
