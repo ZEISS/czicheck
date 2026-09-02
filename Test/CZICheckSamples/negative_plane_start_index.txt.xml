@@ -113,6 +113,6 @@
   <AggregatedResult>WARN</AggregatedResult>
   <OutputVersion>
     <Command>CZICheck</Command>
-    <Version>0.8.0</Version>
+    <Version>0.8.1</Version>
   </OutputVersion>
 </TestResults>

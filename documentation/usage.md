@@ -6,7 +6,7 @@
 Running CZICheck with the `--help` option will print a brief summary of the available options and their usage:
 
 ```
-CZICheck version 0.8.0, using libCZI version 0.67.6
+CZICheck version 0.8.1, using libCZI version 0.67.6
 
 
 
