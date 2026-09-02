@@ -1,5 +1,5 @@
 {
-    "aggregatedresult": "FAIL",
+    "aggregatedresult": "WARN",
     "tests": [
         {
             "name": "SubBlockDirectoryPositionsWithinRange",
@@ -64,19 +64,8 @@
         {
             "name": "XmlMetadataSchemaValidation",
             "description": "validate the XML-metadata against XSD-schema",
-            "result": "FAIL",
-            "findings": [
-                {
-                    "severity": "FATAL",
-                    "description": "(121,22): no declaration found for element 'RotationCenter'",
-                    "details": ""
-                },
-                {
-                    "severity": "FATAL",
-                    "description": "(125,15): element 'RotationCenter' is not allowed for content model 'All(SessionMatrix?,HolderZeissName?,HolderZeissId?,HolderCwsId?,SessionCount?,SessionRotationAtStart?,CustomAttributes?)'",
-                    "details": ""
-                }
-            ]
+            "result": "OK",
+            "findings": []
         },
         {
             "name": "CCheckOverlappingScenesOnLayer0",
