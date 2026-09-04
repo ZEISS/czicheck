@@ -25,4 +25,4 @@ version history                 {#version_history}
  0.7.4          | [48](https://github.com/ZEISS/czicheck/pull/48)      | update the schema
  0.8.0          | [49](https://github.com/ZEISS/czicheck/pull/49)      | add checker "mindicesconsecutive"
  0.8.1          | [51](https://github.com/ZEISS/czicheck/pull/51)      | update the schema
- 0.8.2          |                                                      | update the schema
+ 0.8.2          | [52](https://github.com/ZEISS/czicheck/pull/52)      | update the schema
