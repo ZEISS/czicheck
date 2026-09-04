@@ -13,7 +13,7 @@ if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
 endif()
 
 project(CZICheck 
-      VERSION 0.8.1
+  VERSION 0.8.2
       HOMEPAGE_URL "https://github.com/ZEISS/czicheck"
       DESCRIPTION "CZICheck is a validator for CZI-documents")
 
