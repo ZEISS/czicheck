@@ -1,6 +1,6 @@
 {
   "name": "czicheck",
-  "version-string": "0.8.1",
+  "version-string": "0.8.2",
   "dependencies": [
     {
       "name": "libczi",

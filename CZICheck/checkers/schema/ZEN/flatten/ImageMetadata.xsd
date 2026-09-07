@@ -5297,6 +5297,14 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
+            <xs:element form="qualified" maxOccurs="1" minOccurs="0" name="Bias"
+                type="xs:nonNegativeInteger">
+                <xs:annotation>
+                    <xs:documentation>
+                        Represents a camera characteristic that is determined for the actual mode of operation, and is provided here for reference. [units:ADU]
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element form="qualified" maxOccurs="1" minOccurs="0" name="Binning">
                 <xs:annotation>
                     <xs:documentation>
@@ -9565,6 +9573,8 @@
             <xs:element form="qualified" minOccurs="0" name="EyepieceSettings"
                 type="MicroscopeEyepieceSettings"/>
             <xs:element form="qualified" minOccurs="0" name="MicroscopeStandardTubeLensSettings"
+                type="MicroscopeStandardTubeLensSettings"/>
+            <xs:element form="qualified" minOccurs="0" name="StandardTubeLensSettings"
                 type="MicroscopeStandardTubeLensSettings"/>
         </xs:all>
     </xs:complexType>
