@@ -11,6 +11,10 @@ permissions:
   contents: read
 
 env:
+  # Pin the vcpkg checkout for all CI jobs.
+  # Only Alpine gets libCZI from the vcpkg port, which is 0.67.6 at
+  # this revision. The other jobs fetch and build libCZI through CMake
+  # and use vcpkg for other dependencies.
   VCPKG_COMMIT: "35a50301d38f17804966342d3eb930fc694e1f56"
 
 jobs:
@@ -64,7 +68,7 @@ jobs:
 
       - name: Install system dependencies (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') }}
-        run: sudo apt-get install -y ninja-build linux-libc-dev pkg-config
+        run: sudo apt-get install -y ninja-build linux-libc-dev pkg-config nasm
 
       - name: Setup vcpkg
         shell: bash
