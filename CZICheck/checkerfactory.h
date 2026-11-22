@@ -15,7 +15,7 @@
 /// Those pieces of information may be checker specific (i.e. only useful for specific
 /// checkers). In general, the idea is that checkers should be able to run in isolation
 /// and stateless. This may be adverse performance-wise because some calculations may
-/// be have to be done repeatedly - so, intermediate results could be cached and re-used
+/// have to be done repeatedly - so, intermediate results could be cached and re-used
 /// in some other checker. However, at this point we refrain from supporting those
 /// scenarios and aim for independent and stateless checkers.
 /// So what could go in here is information which cannot be retrieved from the CZI-reader
