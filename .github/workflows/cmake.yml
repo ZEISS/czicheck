@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup vcpkg environment
         shell: bash
@@ -55,7 +55,7 @@ jobs:
           echo "VCPKG_DEFAULT_BINARY_CACHE=${GITHUB_WORKSPACE}/vcpkg-cache" >> "$GITHUB_ENV"
 
       - name: Cache vcpkg
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ github.workspace }}/vcpkg-root
@@ -156,7 +156,7 @@ jobs:
 
       - name: Upload artifacts
         if: matrix.build == 'Release'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           path: ${{ env.artifactPath }}/
           name: ${{ env.artifactName }}
@@ -177,7 +177,7 @@ jobs:
           apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat python3
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Trust workspace for git
         shell: bash
@@ -194,7 +194,7 @@ jobs:
           echo "VCPKG_DEFAULT_BINARY_CACHE=${GITHUB_WORKSPACE}/vcpkg-cache" >> "$GITHUB_ENV"
 
       - name: Cache vcpkg
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ github.workspace }}/vcpkg-root
@@ -256,7 +256,7 @@ jobs:
           echo "artifactPath=${GITHUB_WORKSPACE}/release/${name}" >> "$GITHUB_ENV"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           path: ${{ env.artifactPath }}/
           name: ${{ env.artifactName }}
