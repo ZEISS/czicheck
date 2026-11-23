@@ -6,10 +6,8 @@ include(FetchContent)
 
 FetchContent_Declare(
   libCZI
-  #GIT_REPOSITORY https://github.com/ZEISS/libczi.git
-  GIT_REPOSITORY https://github.com/ptahmose/libczi-zeiss.git
-  #GIT_TAG        b85521a4aecc016f944cfb6dac8dfe9c668c343a # v0.67.6
-  GIT_TAG        jbl/jpg-codec
+  GIT_REPOSITORY https://github.com/ZEISS/libczi.git
+  GIT_TAG        0bcf442562dde287c2ef14c86bee56cba0387f6f # v0.73.0
 )
 
 if(NOT libCZI_POPULATED)
@@ -21,7 +19,6 @@ if(NOT libCZI_POPULATED)
   set(LIBCZI_BUILD_UNITTESTS OFF CACHE BOOL "" FORCE)
   set(LIBCZI_BUILD_CURL_BASED_STREAM ON CACHE BOOL "" FORCE)
   set(LIBCZI_BUILD_AZURESDK_BASED_STREAM ON CACHE BOOL "" FORCE)
-  #set(LIBCZI_DO_NOT_SET_MSVC_RUNTIME_LIBRARY  ON CACHE BOOL "" FORCE)
 
   add_subdirectory(${libczi_SOURCE_DIR} ${libczi_BINARY_DIR})
 endif()
