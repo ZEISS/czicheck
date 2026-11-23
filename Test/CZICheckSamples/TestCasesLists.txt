@@ -35,7 +35,7 @@ overlapping_scenes.czi,1,overlapping_scenes.txt
 jpgxrcompressed_inconsistent_size.czi,1,jpgxrcompressed_inconsistent_size.txt
 jpgxrcompressed_inconsistent_pixeltype.czi,1,jpgxrcompressed_inconsistent_pixeltype.txt
 edf-missing-texture.czi,2,edf-missing-texture.txt
-edf-superfluous.czi,2,edf-superfluous.txt
+edf-superfluous.czi,1,edf-superfluous.txt
 invalid_componentbitcount.czi,1,invalid_componentbitcount.txt
 edf-superfluous-missing-channel-subblock.czi,2,edf-superfluous-missing-channel-subblock.txt
 non_consecutive_m_indices.czi,1,non_consecutive_m_indices.txt
@@ -58,7 +58,7 @@ https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/e1bcf912d13b002f32e8c32
 # edf-superfluous-missing-channel-subblock.czi
 https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/431bced0beeeee3b6616bc0c5fe19d1e,2,edf-superfluous-missing-channel-subblock.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
 # edf-superfluous.czi
-https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/dbecd3a299bc85eac7d45ab77ad3f4dc,2,edf-superfluous.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
+https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/dbecd3a299bc85eac7d45ab77ad3f4dc,1,edf-superfluous.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
 # inconsistent_coordinates.czi
 https://github.com/ptahmose/libCZI_testdata/raw/main/MD5/16f1b303d64a9d602ede57f84339031f,2,inconsistent_coordinates.txt,curl_http_inputstream,{\"CurlHttp_MaxRedirs\":5\,\"CurlHttp_FollowLocation\":true}
 # invalid_componentbitcount.czi
