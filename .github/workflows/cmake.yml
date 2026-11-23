@@ -105,6 +105,8 @@ jobs:
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} \
                 -DCZICHECK_BUILD_TESTS=ON \
+                -DLIBCZI_BUILD_CURL_BASED_STREAM=ON \
+                -DLIBCZI_BUILD_AZURESDK_BASED_STREAM=ON \
                 -DCZICHECK_ENABLE_VCPKG_BOOTSTRAP=OFF
 
       - name: Configure CMake (Linux)
@@ -114,6 +116,8 @@ jobs:
           cmake -B "${{github.workspace}}/build" -G Ninja -DCMAKE_BUILD_TYPE=${{matrix.build}} \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DCZICHECK_BUILD_TESTS=ON \
+                -DLIBCZI_BUILD_CURL_BASED_STREAM=ON \
+                -DLIBCZI_BUILD_AZURESDK_BASED_STREAM=ON \
                 -DCZICHECK_ENABLE_VCPKG_BOOTSTRAP=OFF
 
       - name: Build
