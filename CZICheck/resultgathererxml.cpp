@@ -103,9 +103,13 @@ IResultGatherer::ReportFindingResult CResultGathererXml::ReportFinding(const Fin
             current_finding.append_child(kTestDescriptionId)
                 .text()
                 .set(convertUtf8ToUCS2(finding.information).c_str());
-            current_finding.append_child(kTestDetailsId)
-                .text()
-                .set(convertUtf8ToUCS2(finding.details).c_str());
+            auto details_node = current_finding.append_child(kTestDetailsId);
+            details_node.text().set(convertUtf8ToUCS2(finding.details).c_str());
+            if (finding.details.empty())
+            {
+                // Pugixml 1.16 collapses a single empty text child; keep explicit Details tags.
+                details_node.append_child(pugi::node_pcdata);
+            }
 
             break;
         }

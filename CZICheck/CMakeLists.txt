@@ -144,6 +144,8 @@ if(CZICHECK_ENABLE_VCPKG_BOOTSTRAP)
 else()
   target_include_directories(CZICheck PRIVATE ${LIBCZI_INCLUDE_DIR})
 endif()
+# Prefer standalone pugixml over the private copy vendored by libCZI.
+target_include_directories(CZICheck BEFORE PRIVATE "${PUGIXML_INCLUDE_DIRS}")
 target_link_libraries(CZICheck PRIVATE pugixml)
 
 target_include_directories(CZICheck

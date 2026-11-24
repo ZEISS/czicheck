@@ -11,6 +11,10 @@ permissions:
   contents: read
 
 env:
+  # Pin the vcpkg checkout for all CI jobs.
+  # Only Alpine gets libCZI from the vcpkg port, which is 0.67.6 at
+  # this revision. The other jobs fetch and build libCZI through CMake
+  # and use vcpkg for other dependencies.
   VCPKG_COMMIT: "35a50301d38f17804966342d3eb930fc694e1f56"
 
 jobs:
@@ -43,7 +47,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup vcpkg environment
         shell: bash
@@ -55,7 +59,7 @@ jobs:
           echo "VCPKG_DEFAULT_BINARY_CACHE=${GITHUB_WORKSPACE}/vcpkg-cache" >> "$GITHUB_ENV"
 
       - name: Cache vcpkg
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ github.workspace }}/vcpkg-root
@@ -64,7 +68,7 @@ jobs:
 
       - name: Install system dependencies (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') }}
-        run: sudo apt-get install -y ninja-build linux-libc-dev pkg-config
+        run: sudo apt-get install -y ninja-build linux-libc-dev pkg-config nasm
 
       - name: Setup vcpkg
         shell: bash
@@ -100,7 +104,10 @@ jobs:
           cmake -B "${{github.workspace}}/build" -DCMAKE_BUILD_TYPE=${{matrix.build}} \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
                 -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }} \
-                -DCZICHECK_BUILD_TESTS=ON
+                -DCZICHECK_BUILD_TESTS=ON \
+                -DLIBCZI_BUILD_CURL_BASED_STREAM=ON \
+                -DLIBCZI_BUILD_AZURESDK_BASED_STREAM=ON \
+                -DCZICHECK_ENABLE_VCPKG_BOOTSTRAP=OFF
 
       - name: Configure CMake (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') }}
@@ -108,7 +115,10 @@ jobs:
         run: |
           cmake -B "${{github.workspace}}/build" -G Ninja -DCMAKE_BUILD_TYPE=${{matrix.build}} \
                 -DCMAKE_TOOLCHAIN_FILE="${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" \
-                -DCZICHECK_BUILD_TESTS=ON
+                -DCZICHECK_BUILD_TESTS=ON \
+                -DLIBCZI_BUILD_CURL_BASED_STREAM=ON \
+                -DLIBCZI_BUILD_AZURESDK_BASED_STREAM=ON \
+                -DCZICHECK_ENABLE_VCPKG_BOOTSTRAP=OFF
 
       - name: Build
         # Build your program with the given configuration
@@ -154,7 +164,7 @@ jobs:
 
       - name: Upload artifacts
         if: matrix.build == 'Release'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           path: ${{ env.artifactPath }}/
           name: ${{ env.artifactName }}
@@ -175,7 +185,7 @@ jobs:
           apk add build-base cmake ninja zip unzip curl git pkgconfig linux-headers bash tar jq perl gcompat python3
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Trust workspace for git
         shell: bash
@@ -192,7 +202,7 @@ jobs:
           echo "VCPKG_DEFAULT_BINARY_CACHE=${GITHUB_WORKSPACE}/vcpkg-cache" >> "$GITHUB_ENV"
 
       - name: Cache vcpkg
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ${{ github.workspace }}/vcpkg-root
@@ -254,7 +264,7 @@ jobs:
           echo "artifactPath=${GITHUB_WORKSPACE}/release/${name}" >> "$GITHUB_ENV"
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           path: ${{ env.artifactPath }}/
           name: ${{ env.artifactName }}

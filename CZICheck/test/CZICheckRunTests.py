@@ -180,6 +180,8 @@ def check_file(cmdline_parameters: Parameters, input_stream_classname: Optional[
         if not testoutput_results[i]:
             print(
                 f"exit code of 'CZICheck' was expected to be {expected_returncode}, but was found to be {output.returncode} for {encoding} output.")
+            if output.stderr:
+                print(output.stderr, end='' if output.stderr.endswith('\n') else '\n')
             return False
 
         # # if the filename for the "known good result" is the special value "*", then we skip the comparison

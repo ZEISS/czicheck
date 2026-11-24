@@ -9,7 +9,7 @@
 #include "cmdlineoptions.h"
 #include "checks.h"
 
-#include "pugixml.hpp"
+#include <pugixml.hpp>
 #include <string>
 
 class CResultGathererXml : public IResultGatherer, ResultGathererBase

@@ -179,6 +179,6 @@
   <AggregatedResult>FAIL</AggregatedResult>
   <OutputVersion>
     <Command>CZICheck</Command>
-    <Version>0.8.2</Version>
+    <Version>0.9.0</Version>
   </OutputVersion>
 </TestResults>
